@@ -1,0 +1,21 @@
+﻿<Window x:Class="ProjectChronos.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ProjectChronos"
+        xmlns:view ="clr-namespace:ProjectChronos.Views"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <!-- Timeline -->
+            <RowDefinition Height="*"/>
+            <!-- Other Content -->
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <view:SimulationReplayView DataContext="{Binding SimulationReplayViewModel}"/>
+        </Grid>
+    </Grid>
+</Window>
