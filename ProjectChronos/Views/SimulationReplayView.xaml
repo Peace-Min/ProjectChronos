@@ -290,11 +290,11 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Orientation="Horizontal" Grid.Column="0" >
-                    <Button Style="{StaticResource ModernButtonStyle}" Command="{Binding StepEventCommand}" CommandParameter="-1" Content="⏮ 이벤트" ToolTip="이전 이벤트 (Ctrl+Left)"/>
-                    <Button Style="{StaticResource ModernButtonStyle}" Command="{Binding StepCommand}" CommandParameter="-1" Content="◀ 스텝" ToolTip="이전 스텝 (Left)"/>
+                    <Button Style="{StaticResource ModernButtonStyle}" Command="{Binding StepEventCommand}" CommandParameter="-1" Content="⏮" ToolTip="이전 이벤트 (Ctrl+←)"/>
+                    <Button Style="{StaticResource ModernButtonStyle}" Command="{Binding StepCommand}" CommandParameter="-1" Content="◀" ToolTip="뒤로 이동 (←)"/>
                     <Button Style="{StaticResource ModernButtonStyle}" Command="{Binding PlayPauseCommand}" Content="{Binding PlayButtonText}" MinWidth="80" FontWeight="Bold"/>
-                    <Button Style="{StaticResource ModernButtonStyle}" Command="{Binding StepCommand}" CommandParameter="1" Content="스텝 ▶" ToolTip="다음 스텝 (Right)"/>
-                    <Button Style="{StaticResource ModernButtonStyle}" Command="{Binding StepEventCommand}" CommandParameter="1" Content="이벤트 ⏭" ToolTip="다음 이벤트 (Ctrl+Right)"/>
+                    <Button Style="{StaticResource ModernButtonStyle}" Command="{Binding StepCommand}" CommandParameter="1" Content="▶" ToolTip="앞으로 이동 (→)"/>
+                    <Button Style="{StaticResource ModernButtonStyle}" Command="{Binding StepEventCommand}" CommandParameter="1" Content="⏭" ToolTip="다음 이벤트 (Ctrl+→)"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -304,10 +304,10 @@
                 </StackPanel>
 
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="배속:" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                    <TextBlock Text="재생 속도:" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" Margin="0,0,5,0"/>
                     <TextBox Text="{Binding PlaybackSpeedText, UpdateSourceTrigger=LostFocus}" Width="50" Height="26" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
                     
-                    <TextBlock Text="간격:" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" Margin="15,0,5,0"/>
+                    <TextBlock Text="이동 간격:" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" Margin="15,0,5,0"/>
                     <TextBox Text="{Binding StepIntervalText, UpdateSourceTrigger=LostFocus}" Width="50" Height="26" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
                 </StackPanel>
             </Grid>

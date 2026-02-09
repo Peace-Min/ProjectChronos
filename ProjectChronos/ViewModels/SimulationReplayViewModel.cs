@@ -129,7 +129,7 @@ namespace ProjectChronos.ViewModels
             }
         }
 
-        public string PlayButtonText => IsPlaying ? "일시정지" : "재생";
+        public string PlayButtonText => IsPlaying ? "일시 중지" : "재생";
 
         /// <summary>
         /// 재생 속도 (배속)
