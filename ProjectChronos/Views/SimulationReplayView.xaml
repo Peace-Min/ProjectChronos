@@ -318,6 +318,8 @@
     <UserControl.InputBindings>
         <KeyBinding Key="Left" Command="{Binding StepCommand}" CommandParameter="-1"/>
         <KeyBinding Key="Right" Command="{Binding StepCommand}" CommandParameter="1"/>
+        <KeyBinding Key="Left" Modifiers="Control" Command="{Binding StepEventCommand}" CommandParameter="-1"/>
+        <KeyBinding Key="Right" Modifiers="Control" Command="{Binding StepEventCommand}" CommandParameter="1"/>
         <KeyBinding Key="Space" Command="{Binding PlayPauseCommand}"/>
     </UserControl.InputBindings>
 </UserControl>
