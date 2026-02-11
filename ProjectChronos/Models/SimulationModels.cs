@@ -28,14 +28,20 @@ namespace ProjectChronos.Models
         public EventPriority Priority { get; set; }
 
         /// <summary>
-        /// 이벤트 설명 (툴팁 표시)
+        /// 이벤트 제목 (간단한 요약)
+        /// </summary>
+        public string Title { get; set; }
+
+        /// <summary>
+        /// 이벤트 상세 설명
         /// </summary>
         public string Description { get; set; }
 
-        public SimulationEventMarker(double timestamp, EventPriority priority, string description)
+        public SimulationEventMarker(double timestamp, EventPriority priority, string title, string description)
         {
             Timestamp = timestamp;
             Priority = priority;
+            Title = title;
             Description = description;
         }
     }

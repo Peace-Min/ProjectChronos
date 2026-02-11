@@ -11,6 +11,7 @@
     <UserControl.Resources>
         <local:TimeToOffsetConverter x:Key="TimeToOffsetConverter" ThumbWidth="18.0"/>
         <conv:PriorityToTagConverter x:Key="PriorityToTagConverter"/>
+        <conv:NullToBoolConverter x:Key="NullToBoolConverter"/>
 
         <!-- 색상 리소스 -->
         <SolidColorBrush x:Key="PanelBackground" Color="#2d2d2d"/>
@@ -157,7 +158,7 @@
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/> <!-- Timeline -->
-                <RowDefinition Height="20"/>   <!-- Spacer -->
+                <RowDefinition Height="30"/>   <!-- Spacer (Text Overlay Area) -->
                 <RowDefinition Height="Auto"/> <!-- Controls -->
             </Grid.RowDefinitions>
 
@@ -201,71 +202,209 @@
                                     </MultiBinding>
                                 </Setter.Value>
                             </Setter>
-                            <Setter Property="Canvas.Top" Value="7"/> 
+                            <Setter Property="Canvas.Top" Value="0"/> 
                         </Style>
                     </ItemsControl.ItemContainerStyle>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <ContentControl Tag="{Binding Priority, Converter={StaticResource PriorityToTagConverter}}"
-                                            Cursor="Hand" ToolTip="{Binding Description}">
-                                <ContentControl.Style>
-                                    <Style TargetType="ContentControl">
-                                        <Setter Property="Template">
-                                            <Setter.Value>
-                                                <ControlTemplate>
-                                                    <!-- 기본 마커 모양 (Tick Mark) -->
-                                                    <Grid Margin="-2,0,0,0">
-                                                        <Rectangle Width="4" Height="16" Fill="#8be9fd" RadiusX="1" RadiusY="1">
-                                                            <Rectangle.Effect>
-                                                                <DropShadowEffect ShadowDepth="1" BlurRadius="2" Opacity="0.5"/>
-                                                            </Rectangle.Effect>
-                                                        </Rectangle>
-                                                    </Grid>
-                                                </ControlTemplate>
-                                            </Setter.Value>
-                                        </Setter>
-                                        <Style.Triggers>
-                                            <!-- 중요도: Critical (빨강) -->
-                                            <Trigger Property="Tag" Value="Critical">
-                                                <Setter Property="Panel.ZIndex" Value="100"/>
-                                                <Setter Property="Template">
-                                                    <Setter.Value>
-                                                        <ControlTemplate>
-                                                            <Grid Margin="-2.5,0,0,0">
-                                                                <Rectangle Width="5" Height="16" Fill="#ff5555" RadiusX="1" RadiusY="1" Stroke="White" StrokeThickness="1">
-                                                                    <Rectangle.Effect>
-                                                                        <DropShadowEffect ShadowDepth="1" BlurRadius="3" Opacity="0.6"/>
-                                                                    </Rectangle.Effect>
-                                                                </Rectangle>
-                                                            </Grid>
-                                                        </ControlTemplate>
-                                                    </Setter.Value>
-                                                </Setter>
-                                            </Trigger>
-                                            <!-- 중요도: Warning (주황) -->
-                                            <Trigger Property="Tag" Value="Warning">
-                                                <Setter Property="Panel.ZIndex" Value="50"/>
-                                                <Setter Property="Template">
-                                                    <Setter.Value>
-                                                        <ControlTemplate>
-                                                            <Grid Margin="-2,0,0,0">
-                                                                <Rectangle Width="4" Height="16" Fill="#ffb86c" RadiusX="1" RadiusY="1">
-                                                                    <Rectangle.Effect>
-                                                                        <DropShadowEffect ShadowDepth="1" BlurRadius="2" Opacity="0.5"/>
-                                                                    </Rectangle.Effect>
-                                                                </Rectangle>
-                                                            </Grid>
-                                                        </ControlTemplate>
-                                                    </Setter.Value>
-                                                </Setter>
-                                            </Trigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </ContentControl.Style>
-                            </ContentControl>
+                            <Grid x:Name="MarkerRoot" Height="30">
+                                <!-- RenderTransform으로 마커를 중심 정렬 -->
+                                <!-- Canvas.Left는 Grid의 왼쪽 모서리 위치이므로, Grid를 -10px (Width 20px의 절반) 이동 -->
+                                <Grid.RenderTransform>
+                                    <TranslateTransform X="-10"/>
+                                </Grid.RenderTransform>
+                                
+                                <!-- 넓은 히트 영역 (투명, 20px) - 마우스 반응성 향상 -->
+                                <Border x:Name="HitArea" Width="20" Height="30" Background="Transparent" Cursor="Hand"/>
+                                
+                                <!-- 실제 마커 표시 (중앙 정렬) -->
+                                <ContentControl Tag="{Binding Priority, Converter={StaticResource PriorityToTagConverter}}"
+                                                IsHitTestVisible="False" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                    <ContentControl.Style>
+                                        <Style TargetType="ContentControl">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate>
+                                                        <!-- 기본 마커 모양 (Tick Mark) -->
+                                                        <Grid Margin="-2,0,0,0">
+                                                            <Rectangle Width="4" Height="16" Fill="#8be9fd" RadiusX="1" RadiusY="1">
+                                                                <Rectangle.Effect>
+                                                                    <DropShadowEffect ShadowDepth="1" BlurRadius="2" Opacity="0.5"/>
+                                                                </Rectangle.Effect>
+                                                            </Rectangle>
+                                                        </Grid>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                            <Style.Triggers>
+                                                <!-- 중요도: Critical (빨강) -->
+                                                <Trigger Property="Tag" Value="Critical">
+                                                    <Setter Property="Panel.ZIndex" Value="100"/>
+                                                    <Setter Property="Template">
+                                                        <Setter.Value>
+                                                            <ControlTemplate>
+                                                                <Grid Margin="-2.5,0,0,0">
+                                                                    <Rectangle Width="5" Height="16" Fill="#ff5555" RadiusX="1" RadiusY="1" Stroke="White" StrokeThickness="1">
+                                                                        <Rectangle.Effect>
+                                                                            <DropShadowEffect ShadowDepth="1" BlurRadius="3" Opacity="0.6"/>
+                                                                        </Rectangle.Effect>
+                                                                    </Rectangle>
+                                                                </Grid>
+                                                            </ControlTemplate>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </Trigger>
+                                                <!-- 중요도: Warning (주황) -->
+                                                <Trigger Property="Tag" Value="Warning">
+                                                    <Setter Property="Panel.ZIndex" Value="50"/>
+                                                    <Setter Property="Template">
+                                                        <Setter.Value>
+                                                            <ControlTemplate>
+                                                                <Grid Margin="-2,0,0,0">
+                                                                    <Rectangle Width="4" Height="16" Fill="#ffb86c" RadiusX="1" RadiusY="1">
+                                                                        <Rectangle.Effect>
+                                                                            <DropShadowEffect ShadowDepth="1" BlurRadius="2" Opacity="0.5"/>
+                                                                        </Rectangle.Effect>
+                                                                    </Rectangle>
+                                                                </Grid>
+                                                            </ControlTemplate>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ContentControl.Style>
+                                </ContentControl>
+                                
+                                <!-- 현대적인 Popup 디자인 -->
+                                <Popup x:Name="EventPopup" 
+                                       PlacementTarget="{Binding ElementName=HitArea}"
+                                       Placement="Top"
+                                       AllowsTransparency="True"
+                                       StaysOpen="True"
+                                       VerticalOffset="8">
+                                    <Border BorderBrush="#007acc" BorderThickness="2" 
+                                            CornerRadius="6" Padding="12,8" MinWidth="180" MaxWidth="280">
+                                        <!-- 그라디언트 오버레이 -->
+                                        <Border.Background>
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                                <GradientStop Color="#2D2D30" Offset="0"/>
+                                                <GradientStop Color="#252526" Offset="1"/>
+                                            </LinearGradientBrush>
+                                        </Border.Background>
+                                        <Border.Effect>
+                                            <DropShadowEffect ShadowDepth="0" BlurRadius="16" Opacity="0.7" Color="#007acc"/>
+                                        </Border.Effect>
+                                        
+                                        <StackPanel>
+                                            <!-- 헤더: 우선순위 뱃지 + 타임스탬프 -->
+                                            <Grid Margin="0,0,0,8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                
+                                                <!-- 우선순위 뱃지 -->
+                                                <Border Grid.Column="0" CornerRadius="3" Padding="6,2" Margin="0,0,8,0"
+                                                        DataContext="{Binding}">
+                                                    <Border.Style>
+                                                        <Style TargetType="Border">
+                                                            <!-- Low (INFO) - 기본값 -->
+                                                            <Setter Property="Background" Value="#8be9fd"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Priority}" Value="High">
+                                                                    <Setter Property="Background" Value="#ff5555"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Priority}" Value="Medium">
+                                                                    <Setter Property="Background" Value="#ffb86c"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
+                                                    <TextBlock FontSize="9" FontWeight="Bold" Foreground="#1e1e1e">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <!-- Low (INFO) - 기본값 -->
+                                                                <Setter Property="Text" Value="INFO"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Priority}" Value="High">
+                                                                        <Setter Property="Text" Value="CRITICAL"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Priority}" Value="Medium">
+                                                                        <Setter Property="Text" Value="WARNING"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+                                                </Border>
+                                                
+                                                <!-- 타임스탬프 -->
+                                                <TextBlock Grid.Column="1" 
+                                                           FontFamily="Consolas" FontSize="10" 
+                                                           Foreground="#808080" VerticalAlignment="Center"
+                                                           HorizontalAlignment="Right">
+                                                    <Run Text="{Binding Timestamp, StringFormat={}{0:F2}s}"/>
+                                                </TextBlock>
+                                            </Grid>
+                                            
+                                            <!-- 구분선 -->
+                                            <Rectangle Height="1" Fill="#3E3E42" Margin="0,0,0,8"/>
+                                            
+                                            <!-- 이벤트 제목 (Title) -->
+                                            <TextBlock Text="{Binding Title}" 
+                                                       Foreground="#FFFFFF" FontSize="14" FontWeight="SemiBold"
+                                                       TextWrapping="Wrap" Margin="0,0,0,8">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <!-- Title이 비어있으면 숨김 -->
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Title}" Value="">
+                                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding Title}" Value="{x:Null}">
+                                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                            
+                                            <!-- 이벤트 상세 설명 (Description) -->
+                                            <TextBlock Text="{Binding Description}" 
+                                                       Foreground="#C0C0C0" FontSize="12" 
+                                                       TextWrapping="Wrap" LineHeight="18"/>
+                                        </StackPanel>
+                                    </Border>
+                                </Popup>
+                                
+                                <!-- 트리거: 마우스 오버 시 즉시 Popup 표시 -->
+                                <Grid.Triggers>
+                                    <EventTrigger RoutedEvent="MouseEnter" SourceName="HitArea">
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <BooleanAnimationUsingKeyFrames Storyboard.TargetName="EventPopup" 
+                                                                                Storyboard.TargetProperty="IsOpen">
+                                                    <DiscreteBooleanKeyFrame KeyTime="0:0:0" Value="True"/>
+                                                </BooleanAnimationUsingKeyFrames>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger>
+                                    <EventTrigger RoutedEvent="MouseLeave" SourceName="HitArea">
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <BooleanAnimationUsingKeyFrames Storyboard.TargetName="EventPopup" 
+                                                                                Storyboard.TargetProperty="IsOpen">
+                                                    <DiscreteBooleanKeyFrame KeyTime="0:0:0" Value="False"/>
+                                                </BooleanAnimationUsingKeyFrames>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger>
+                                </Grid.Triggers>
+                            </Grid>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                </ItemsControl> 
                 
                 <!-- 3. 슬라이더 (Z=3, Transparent Track) -->
                 <!-- 
@@ -276,12 +415,35 @@
                 <Slider Style="{StaticResource ModernSliderStyle}"
                         Minimum="0" Maximum="{Binding TotalDuration}" 
                         Value="{Binding CurrentTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        TickFrequency="0.01" IsSnapToTickEnabled="True"
                         VerticalAlignment="Center"
                         Panel.ZIndex="3"
                         Background="{x:Null}"/>
             </Grid>
 
-            <!-- 컨트롤 영역 -->
+            <!-- Timeline (Grid.Row=0) is above this -->
+
+            <!-- Spacer & Event Overlay (Grid.Row=1) -->
+            <Grid Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Foreground="#FF5555" FontWeight="Bold" FontSize="14" TextAlignment="Center">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding CurrentEvent, Converter={StaticResource NullToBoolConverter}}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                    <Run Text="⚡ " Foreground="#FF5555"/> <!-- 아이콘/프리픽스 -->
+                    <Run Text="{Binding CurrentEvent.Title}" Foreground="White"/>
+                    <Run Text=" : " Foreground="#AAAAAA"/>
+                    <Run Text="{Binding CurrentEvent.Description}" FontWeight="Normal" Foreground="#DDDDDD"/>
+                </TextBlock>
+            </Grid>
+
+            <!-- Controls (Grid.Row=2) -->
             <Grid Grid.Row="2">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/> <!-- 이전/다음 -->
@@ -304,6 +466,81 @@
                 </StackPanel>
 
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <!-- 렌더링 모드 토글 -->
+                    <TextBlock Text="렌더링:" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    
+                    <!-- 현대적인 토글 스위치 (CheckBox 기반) -->
+                    <CheckBox IsChecked="{Binding IsRealtimeRenderingEnabled}" VerticalAlignment="Center" Margin="0,0,15,0" MinWidth="100"
+                              ToolTip="• 실시간: 모든 움직임 렌더링&#x0a;• 성능 우선: 이벤트 시점만 렌더링">
+                        <CheckBox.Template>
+                            <ControlTemplate TargetType="CheckBox">
+                                <StackPanel Orientation="Horizontal">
+                                    <!-- 토글 스위치 배경 -->
+                                    <Border x:Name="SwitchTrack" Width="40" Height="20" CornerRadius="10" 
+                                            Background="#555555" Cursor="Hand">
+                                        <!-- 토글 원 (Thumb) -->
+                                        <Ellipse x:Name="SwitchThumb" Width="16" Height="16" 
+                                                 Fill="{StaticResource TextPrimary}" 
+                                                 HorizontalAlignment="Left" Margin="2,0,0,0">
+                                            <Ellipse.RenderTransform>
+                                                <TranslateTransform x:Name="ThumbTransform" X="0"/>
+                                            </Ellipse.RenderTransform>
+                                        </Ellipse>
+                                    </Border>
+                                    
+                                    <!-- 상태 레이블 -->
+                                    <TextBlock x:Name="StateLabel" Text="성능 우선" 
+                                               Foreground="{StaticResource TextSecondary}" 
+                                               FontSize="11" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                                </StackPanel>
+                                
+                                <ControlTemplate.Triggers>
+                                    <!-- Checked 상태 (실시간 렌더링 ON) -->
+                                    <Trigger Property="IsChecked" Value="True">
+                                        <Setter TargetName="SwitchTrack" Property="Background" Value="{StaticResource AccentColor}"/>
+                                        <Setter TargetName="StateLabel" Property="Text" Value="실시간"/>
+                                        <Setter TargetName="StateLabel" Property="Foreground" Value="{StaticResource AccentColor}"/>
+                                        <Trigger.EnterActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetName="ThumbTransform" 
+                                                                     Storyboard.TargetProperty="X" 
+                                                                     To="18" Duration="0:0:0.2">
+                                                        <DoubleAnimation.EasingFunction>
+                                                            <CubicEase EasingMode="EaseOut"/>
+                                                        </DoubleAnimation.EasingFunction>
+                                                    </DoubleAnimation>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </Trigger.EnterActions>
+                                        <Trigger.ExitActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetName="ThumbTransform" 
+                                                                     Storyboard.TargetProperty="X" 
+                                                                     To="0" Duration="0:0:0.2">
+                                                        <DoubleAnimation.EasingFunction>
+                                                            <CubicEase EasingMode="EaseOut"/>
+                                                        </DoubleAnimation.EasingFunction>
+                                                    </DoubleAnimation>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </Trigger.ExitActions>
+                                    </Trigger>
+                                    
+                                    <!-- Hover 효과 -->
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="SwitchThumb" Property="Effect">
+                                            <Setter.Value>
+                                                <DropShadowEffect ShadowDepth="0" BlurRadius="8" Color="White" Opacity="0.5"/>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </CheckBox.Template>
+                    </CheckBox>
+                    
                     <TextBlock Text="재생 속도:" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" Margin="0,0,5,0"/>
                     <TextBox Text="{Binding PlaybackSpeedText, UpdateSourceTrigger=LostFocus}" Width="50" Height="26" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
                     

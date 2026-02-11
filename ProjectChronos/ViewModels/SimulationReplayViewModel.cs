@@ -13,16 +13,51 @@ namespace ProjectChronos.ViewModels
         // -----------------------------------------------------------
         // [필드 영역 (Fields)] 
         // -----------------------------------------------------------
+
+        // --- 시뮬레이션 상태 ---
         private double _totalDuration;
         private double _currentTime;
         private bool _isPlaying;
         private double _playbackSpeed = 1.0;
         private double _stepIntervalSeconds = 0.5;
 
+        // --- 시간 계산 ---
         // 고정밀 시간 계산을 위한 Stopwatch
         // DispatcherTimer 대신 View의 CompositionTarget.Rendering에서 Tick()을 호출받아 사용합니다.
         private readonly System.Diagnostics.Stopwatch _stopwatch = new System.Diagnostics.Stopwatch();
         private double _lastElapsedSeconds;
+
+        // --- 성능 최적화 ---
+        // 메시지 전송 스로틀링: DB 데이터 간격(10ms)만큼만 메시지를 보냄
+        private double _lastNotifiedTime = double.MinValue;
+
+        // 이벤트 마커 정렬 캐시 (StepEvent 성능 최적화용)
+        private System.Collections.Generic.List<SimulationEventMarker> _sortedEvents;
+
+
+
+        // --- 렌더링 모드 ---
+        private bool _isRealtimeRenderingEnabled = true;
+
+        // -----------------------------------------------------------
+        // [상수 (Constants)]
+        // -----------------------------------------------------------
+
+        /// <summary>메시지 전송 최소 간격 (초) - DB 데이터 간격과 동일</summary>
+        private const double MinNotifyInterval = 0.01; // 10ms
+
+        /// <summary>Tick에서 허용하는 최대 델타 타임 (초) - 시스템 렉 방지</summary>
+        private const double MaxTickDeltaTime = 0.1;
+
+        /// <summary>현재 시간과 이벤트 매칭 시 허용 오차 (초)</summary>
+        private const double EventMatchEpsilon = 0.1; // 100ms
+
+        /// <summary>시간 변경 감지 최소 오차 (초)</summary>
+        private const double TimeChangeTolerance = 0.0001;
+
+        /// <summary>이벤트 탐색 시 현재 위치 회피 오차 (초)</summary>
+        private const double EventSearchEpsilon = 0.001;
+
 
         // -----------------------------------------------------------
         // [생성자 (Constructor)]
@@ -50,15 +85,30 @@ namespace ProjectChronos.ViewModels
             Events.Clear();
             if (events != null)
             {
-                foreach (var evt in events)
+                // 성능 최적화: 이벤트를 미리 정렬하여 추가 및 캐싱
+                // StepEvent에서 반복적인 정렬을 피하기 위함
+                var sortedList = events.OrderBy(e => e.Timestamp).ToList();
+
+                foreach (var evt in sortedList)
                 {
                     Events.Add(evt);
                 }
+
+                // 정렬된 리스트를 캐싱 (StepEvent에서 사용)
+                _sortedEvents = sortedList;
+            }
+            else
+            {
+                _sortedEvents = null;
             }
 
             CurrentTime = 0.0;
             IsPlaying = false;
             CurrentEvent = null;
+
+            // 스로틀링 타이머 초기화 (새 시뮬레이션 시작 시 즉시 알림 가능하도록)
+            _lastNotifiedTime = double.MinValue;
+
         }
 
         // -----------------------------------------------------------
@@ -88,25 +138,34 @@ namespace ProjectChronos.ViewModels
         public double CurrentTime
         {
             get => _currentTime;
-            set
+            set => SetCurrentTimeInternal(value, forceNotify: false);
+        }
+
+        /// <summary>
+        /// 내부적으로 CurrentTime을 설정하며, forceNotify 옵션을 제공합니다.
+        /// Slider 바인딩 업데이트와 외부 알림을 일원화하여 이중 호출을 방지합니다.
+        /// </summary>
+        /// <param name="value">설정할 시간 값</param>
+        /// <param name="forceNotify">true일 경우 스로틀링을 무시하고 강제로 알림 전송</param>
+        private void SetCurrentTimeInternal(double value, bool forceNotify)
+        {
+            // 범위 제한 (Clamp)
+            if (value < 0.0) value = 0.0;
+            if (value > TotalDuration) value = TotalDuration;
+
+            if (SetProperty(ref _currentTime, value))
             {
-                // 범위 제한 (Clamp)
-                if (value < 0.0) value = 0.0;
-                if (value > TotalDuration) value = TotalDuration;
+                OnPropertyChanged(nameof(CurrentTimeDisplay));
+                OnPropertyChanged(nameof(CurrentTime)); // Slider 바인딩 명시적 업데이트
 
-                if (SetProperty(ref _currentTime, value))
-                {
-                    OnPropertyChanged(nameof(CurrentTimeDisplay));
-
-                    // 중요: 시간이 변경될 때마다 외부 연동 로직 호출
-                    NotifyTimeChanged(_currentTime);
-                }
+                // 중요: 시간이 변경될 때마다 외부 연동 로직 호출
+                NotifyTimeChanged(_currentTime, forceNotify);
             }
         }
 
-        // 화면 표시용 문자열 (mm:ss.f 형식)
-        public string CurrentTimeDisplay => TimeSpan.FromSeconds(CurrentTime).ToString(@"mm\:ss\.f");
-        public string TotalTimeDisplay => TimeSpan.FromSeconds(TotalDuration).ToString(@"mm\:ss\.f");
+        // 화면 표시용 문자열 (mm:ss.ff 형식 - 10ms 단위 표시)
+        public string CurrentTimeDisplay => TimeSpan.FromSeconds(CurrentTime).ToString(@"mm\:ss\.ff");
+        public string TotalTimeDisplay => TimeSpan.FromSeconds(TotalDuration).ToString(@"mm\:ss\.ff");
 
         // 타임라인 이벤트 목록 Collection
         public ObservableCollection<SimulationEventMarker> Events { get; }
@@ -183,6 +242,17 @@ namespace ProjectChronos.ViewModels
         }
 
         /// <summary>
+        /// 실시간 렌더링 활성화 여부
+        /// True: 모든 thumb 움직임에 대해 Sub ViewModel 렌더링 수행 (부드러운 미리보기)
+        /// False: 이벤트 발생 시점 또는 수동 조작 시에만 렌더링 (성능 우선)
+        /// </summary>
+        public bool IsRealtimeRenderingEnabled
+        {
+            get => _isRealtimeRenderingEnabled;
+            set => SetProperty(ref _isRealtimeRenderingEnabled, value);
+        }
+
+        /// <summary>
         /// 현재 시점에 활성화된 이벤트 (없으면 null)
         /// NotifyTimeChanged에서 갱신됩니다.
         /// </summary>
@@ -218,23 +288,40 @@ namespace ProjectChronos.ViewModels
 
         #region Logic
 
-        private void NotifyTimeChanged(double newTime)
+        /// <summary>
+        /// 시간 변경을 외부(UI 등)에 알리고 필요한 처리를 수행합니다.
+        /// [역할] 순수 알림 담당. 재생 로직은 Tick으로 이관되었으며, 여기서는 수동 조작 시의 피드백과 외부 메시지 전송만 수행합니다.
+        /// </summary>
+        /// <param name="newTime">변경된 시간</param>
+        /// <param name="forceNotify">true일 경우 스로틀링을 무시하고 강제로 메시지 전송 (이벤트 스냅, 수동 탐색 등)</param>
+        private void NotifyTimeChanged(double newTime, bool forceNotify = false)
         {
-            // CRITICAL: Hook for external services
-            // 이 시점에 설정된 이벤트에 해당하는 시간인지 알 수 있음
+            // 렌더링 모드 체크
+            if (!_isRealtimeRenderingEnabled && !forceNotify) return;
 
-            // 0.1초(100ms) 이내의 오차 범위 내에서 이벤트가 있는지 확인
-            // 재생 배속이나 프레임 속도에 따라 이 값은 조절될 수 있습니다.
-            double epsilon = 0.1;
+            // 스로틀링 체크
+            bool shouldNotify = forceNotify || (Math.Abs(newTime - _lastNotifiedTime) >= MinNotifyInterval);
 
-            // LINQ를 사용하여 현재 시간과 일치하는 첫 번째 이벤트를 찾습니다.
-            var matchedEvent = Events.FirstOrDefault(e => Math.Abs(e.Timestamp - newTime) <= epsilon);
+            if (shouldNotify)
+            {
+                _lastNotifiedTime = newTime;
 
-            // 찾은 이벤트를 CurrentEvent 속성에 설정 (UI 바인딩 가능)
-            CurrentEvent = matchedEvent;
+                // [수정] 재생 로직(Range Check)은 Tick으로 이동하여 재귀 호출 위험 제거
 
-            // TODO: 필요한 경우 여기서 외부 메시지를 보낼 수 있습니다.
-            // Messenger.Default.Send(new SimulationTimeChangedMessage(newTime, matchedEvent));
+                // [수동 조작 시 UI 반응용 단순 매칭]
+                // 재생 중이 아닐 때(수동 스크럽) 현재 위치의 이벤트를 표시
+                if (!IsPlaying || forceNotify)
+                {
+                    CurrentEvent = _sortedEvents?.FirstOrDefault(evt =>
+                       Math.Abs(evt.Timestamp - newTime) <= EventMatchEpsilon
+                   );
+                }
+
+                // 외부 메시지 전송 등
+                // Messenger.Default.Send(new SimulationTimeChangedMessage(newTime, CurrentEvent));
+
+                System.Diagnostics.Debug.WriteLine($"[Time Notify] {newTime:F3}s");
+            }
         }
 
         private void TogglePlayPause()
@@ -262,34 +349,58 @@ namespace ProjectChronos.ViewModels
 
         /// <summary>
         /// View의 CompositionTarget.Rendering 이벤트에서 매 프레임 호출됩니다.
+        /// [핵심 역할] 시뮬레이션 시간 진행, 이벤트 감지(Range Check), 스냅(Snap), 상태 초기화를 총괄하는 사령탑 메서드입니다.
         /// </summary>
-        public void Tick()
+        public void Tick(object sender, EventArgs e)
         {
             if (!IsPlaying) return;
 
-            // Stopwatch를 사용한 델타 타임(dt) 계산
+            // 1. 델타 타임 계산
             double currentElapsed = _stopwatch.Elapsed.TotalSeconds;
             double dt = currentElapsed - _lastElapsedSeconds;
             _lastElapsedSeconds = currentElapsed;
 
-            if (dt <= 0) return; // 방어 코드
+            if (dt <= 0) return;
+            if (dt > MaxTickDeltaTime) dt = MaxTickDeltaTime;
 
-            // [안전 장치] 
-            // 시스템 렉 등으로 dt가 너무 클 경우 시간 점프를 방지 (최대 0.1초 제한)
-            if (dt > 0.1) dt = 0.1;
-
-            // 배속 적용
+            // 2. 가려고 하는 목표 시간 계산
             var addedTime = dt * PlaybackSpeed;
             var nextTime = CurrentTime + addedTime;
 
-            // 종료 조건 체크
+            // 3. 종료 조건 체크
             if (nextTime >= TotalDuration)
             {
                 CurrentTime = TotalDuration;
                 IsPlaying = false;
+                return;
+            }
+
+            // 4. [핵심] 이동 경로상의 이벤트 감지 (Range Check)
+            // CurrentTime(현재) ~ nextTime(미래) 사이에 이벤트가 있는지 미리 확인
+            // Start는 초과(>) End는 이하(<=)로 하여 중복 방지 (무한 일시정지 방지)
+            var matchedEvent = _sortedEvents?.FirstOrDefault(evt =>
+                evt.Timestamp > CurrentTime && evt.Timestamp <= nextTime
+            );
+
+            if (matchedEvent != null)
+            {
+                CurrentEvent = matchedEvent; // UI 알림 (먼저 설정하여 일관성 유지)
+
+                // 🎯 [SNAP] 이벤트가 있다면, 목표 시간(nextTime)을 무시하고 이벤트 시간으로 강제 착륙
+                // 스로틀링 무시하고 즉시 알림 전송 (forceNotify: true)
+                SetCurrentTimeInternal(matchedEvent.Timestamp, forceNotify: true);
+
+                IsPlaying = false; // 일시 정지
+
+                System.Diagnostics.Debug.WriteLine($"[Auto Pause] Event at {matchedEvent.Timestamp:F2}s - {matchedEvent.Title ?? matchedEvent.Description}");
             }
             else
             {
+                // 이벤트가 없으면 원래 목표대로 이동하고, CurrentEvent 초기화
+
+                // [Range Check 결과 이벤트 없음]
+                // 단순히 다음 시간으로 이동하며, 기존에 표시되던 이벤트가 있다면 제거
+                CurrentEvent = null;
                 CurrentTime = nextTime;
             }
         }
@@ -308,7 +419,11 @@ namespace ProjectChronos.ViewModels
             else if (param is int i) direction = i;
 
             var step = StepIntervalSeconds * direction;
-            CurrentTime += step;
+            var newTime = CurrentTime + step;
+
+            // SetCurrentTimeInternal을 사용하여 이중 호출 방지
+            // forceNotify=true로 수동 조작 시 즉시 알림 전송
+            SetCurrentTimeInternal(newTime, forceNotify: true);
         }
 
         /// <summary>
@@ -323,31 +438,33 @@ namespace ProjectChronos.ViewModels
             if (param is string s && int.TryParse(s, out int parsed)) direction = parsed;
             else if (param is int i) direction = i;
 
-            var sortedEvents = Events.OrderBy(x => x.Timestamp).ToList();
+            // 성능 최적화: 미리 정렬된 리스트 사용 (Initialize에서 캐싱됨)
+            if (_sortedEvents == null || _sortedEvents.Count == 0) return;
+
             SimulationEventMarker targetEvent = null;
 
-            // 아주 작은 오차(0.001)를 두어 현재 위치와 같은 이벤트에 갇히지 않도록 함
+            // EventSearchEpsilon을 두어 현재 위치와 같은 이벤트에 갇히지 않도록 함
             if (direction > 0)
             {
                 // 다음 이벤트 찾기
-                targetEvent = sortedEvents.FirstOrDefault(e => e.Timestamp > CurrentTime + 0.001);
+                targetEvent = _sortedEvents.FirstOrDefault(e => e.Timestamp > CurrentTime + EventSearchEpsilon);
 
                 // 더 이상 이벤트가 없으면 끝으로 이동
                 if (targetEvent == null)
                 {
-                    CurrentTime = TotalDuration;
+                    SetCurrentTimeInternal(TotalDuration, forceNotify: true);
                     return;
                 }
             }
             else
             {
                 // 이전 이벤트 찾기
-                targetEvent = sortedEvents.LastOrDefault(e => e.Timestamp < CurrentTime - 0.001);
+                targetEvent = _sortedEvents.LastOrDefault(e => e.Timestamp < CurrentTime - EventSearchEpsilon);
 
                 // 더 이상 이벤트가 없으면 처음으로 이동
                 if (targetEvent == null)
                 {
-                    CurrentTime = 0.0;
+                    SetCurrentTimeInternal(0.0, forceNotify: true);
                     return;
                 }
             }
@@ -355,7 +472,9 @@ namespace ProjectChronos.ViewModels
             // 찾은 이벤트 위치로 이동
             if (targetEvent != null)
             {
-                CurrentTime = targetEvent.Timestamp;
+                // SetCurrentTimeInternal을 사용하여 이중 호출 방지
+                // forceNotify=true로 이벤트 이동 시 즉시 알림 전송
+                SetCurrentTimeInternal(targetEvent.Timestamp, forceNotify: true);
             }
         }
 

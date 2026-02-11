@@ -28,7 +28,7 @@ namespace ProjectChronos.Views
         {
             if (DataContext is ProjectChronos.ViewModels.SimulationReplayViewModel vm)
             {
-                vm.Tick();
+                vm.Tick(sender, e);
             }
         }
     }
