@@ -33,16 +33,53 @@ namespace ProjectChronos.Models
         public string Title { get; set; }
 
         /// <summary>
+        /// 이벤트 보조 제목 (타이틀 하위 개념)
+        /// </summary>
+        public string Subtitle { get; set; }
+
+        /// <summary>
         /// 이벤트 상세 설명
         /// </summary>
         public string Description { get; set; }
 
-        public SimulationEventMarker(double timestamp, EventPriority priority, string title, string description)
+        public SimulationEventMarker(double timestamp, EventPriority priority, string title, string subtitle, string description)
         {
             Timestamp = timestamp;
             Priority = priority;
             Title = title;
+            Subtitle = subtitle;
             Description = description;
+        }
+    }
+
+    /// <summary>
+    /// 동일 시간대에 발생한 이벤트들의 그룹 (시각적 마커 1개에 대응)
+    /// </summary>
+    public class SimulationMarkerGroup
+    {
+        public double Timestamp { get; }
+        public System.Collections.Generic.List<SimulationEventMarker> Events { get; }
+
+        /// <summary>
+        /// 그룹 내 가장 높은 중요도 (마커 색상 결정용)
+        /// </summary>
+        public EventPriority MaxPriority { get; }
+
+        public SimulationMarkerGroup(double timestamp, System.Collections.Generic.IEnumerable<SimulationEventMarker> events)
+        {
+            Timestamp = timestamp;
+            Events = new System.Collections.Generic.List<SimulationEventMarker>(events);
+
+            // 기본값 Low, 하나라도 High가 있으면 High, 그 외 Medium이 있으면 Medium
+            MaxPriority = EventPriority.Low;
+            if (Events.Exists(e => e.Priority == EventPriority.High))
+            {
+                MaxPriority = EventPriority.High;
+            }
+            else if (Events.Exists(e => e.Priority == EventPriority.Medium))
+            {
+                MaxPriority = EventPriority.Medium;
+            }
         }
     }
 }

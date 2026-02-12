@@ -184,7 +184,7 @@
                 <!-- Slider의 Margin/Padding을 고려하여 수평 정렬. Slider가 꽉 차있으므로 Margin="9,0" (Thumb 반경 고려) -->
                 <Border Height="4" Background="#555555" CornerRadius="2" VerticalAlignment="Center" Panel.ZIndex="1" Margin="9,0"/>
 
-                <!-- 2. 마커 (Events) -->
+                                <!-- (2) 마커 (Markers) -->
                 <ItemsControl ItemsSource="{Binding Events}" Panel.ZIndex="2">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -208,24 +208,20 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Grid x:Name="MarkerRoot" Height="30">
-                                <!-- RenderTransform으로 마커를 중심 정렬 -->
-                                <!-- Canvas.Left는 Grid의 왼쪽 모서리 위치이므로, Grid를 -10px (Width 20px의 절반) 이동 -->
                                 <Grid.RenderTransform>
                                     <TranslateTransform X="-10"/>
                                 </Grid.RenderTransform>
                                 
-                                <!-- 넓은 히트 영역 (투명, 20px) - 마우스 반응성 향상 -->
                                 <Border x:Name="HitArea" Width="20" Height="30" Background="Transparent" Cursor="Hand"/>
                                 
-                                <!-- 실제 마커 표시 (중앙 정렬) -->
-                                <ContentControl Tag="{Binding Priority, Converter={StaticResource PriorityToTagConverter}}"
+                                <!-- [수정] MaxPriority 기반 마커 색상 -->
+                                <ContentControl Tag="{Binding MaxPriority, Converter={StaticResource PriorityToTagConverter}}"
                                                 IsHitTestVisible="False" VerticalAlignment="Center" HorizontalAlignment="Center">
                                     <ContentControl.Style>
                                         <Style TargetType="ContentControl">
                                             <Setter Property="Template">
                                                 <Setter.Value>
                                                     <ControlTemplate>
-                                                        <!-- 기본 마커 모양 (Tick Mark) -->
                                                         <Grid Margin="-2,0,0,0">
                                                             <Rectangle Width="4" Height="16" Fill="#8be9fd" RadiusX="1" RadiusY="1">
                                                                 <Rectangle.Effect>
@@ -237,7 +233,6 @@
                                                 </Setter.Value>
                                             </Setter>
                                             <Style.Triggers>
-                                                <!-- 중요도: Critical (빨강) -->
                                                 <Trigger Property="Tag" Value="Critical">
                                                     <Setter Property="Panel.ZIndex" Value="100"/>
                                                     <Setter Property="Template">
@@ -254,7 +249,6 @@
                                                         </Setter.Value>
                                                     </Setter>
                                                 </Trigger>
-                                                <!-- 중요도: Warning (주황) -->
                                                 <Trigger Property="Tag" Value="Warning">
                                                     <Setter Property="Panel.ZIndex" Value="50"/>
                                                     <Setter Property="Template">
@@ -276,7 +270,7 @@
                                     </ContentControl.Style>
                                 </ContentControl>
                                 
-                                <!-- 현대적인 Popup 디자인 -->
+                                <!-- Popup -->
                                 <Popup x:Name="EventPopup" 
                                        PlacementTarget="{Binding ElementName=HitArea}"
                                        Placement="Top"
@@ -284,8 +278,7 @@
                                        StaysOpen="True"
                                        VerticalOffset="8">
                                     <Border BorderBrush="#007acc" BorderThickness="2" 
-                                            CornerRadius="6" Padding="12,8" MinWidth="180" MaxWidth="280">
-                                        <!-- 그라디언트 오버레이 -->
+                                            CornerRadius="6" Padding="12,8" MinWidth="200" MaxWidth="320">
                                         <Border.Background>
                                             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                                                 <GradientStop Color="#2D2D30" Offset="0"/>
@@ -297,94 +290,50 @@
                                         </Border.Effect>
                                         
                                         <StackPanel>
-                                            <!-- 헤더: 우선순위 뱃지 + 타임스탬프 -->
-                                            <Grid Margin="0,0,0,8">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                </Grid.ColumnDefinitions>
-                                                
-                                                <!-- 우선순위 뱃지 -->
-                                                <Border Grid.Column="0" CornerRadius="3" Padding="6,2" Margin="0,0,8,0"
-                                                        DataContext="{Binding}">
-                                                    <Border.Style>
-                                                        <Style TargetType="Border">
-                                                            <!-- Low (INFO) - 기본값 -->
-                                                            <Setter Property="Background" Value="#8be9fd"/>
-                                                            <Style.Triggers>
-                                                                <DataTrigger Binding="{Binding Priority}" Value="High">
-                                                                    <Setter Property="Background" Value="#ff5555"/>
-                                                                </DataTrigger>
-                                                                <DataTrigger Binding="{Binding Priority}" Value="Medium">
-                                                                    <Setter Property="Background" Value="#ffb86c"/>
-                                                                </DataTrigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </Border.Style>
-                                                    <TextBlock FontSize="9" FontWeight="Bold" Foreground="#1e1e1e">
-                                                        <TextBlock.Style>
-                                                            <Style TargetType="TextBlock">
-                                                                <!-- Low (INFO) - 기본값 -->
-                                                                <Setter Property="Text" Value="INFO"/>
-                                                                <Style.Triggers>
-                                                                    <DataTrigger Binding="{Binding Priority}" Value="High">
-                                                                        <Setter Property="Text" Value="CRITICAL"/>
-                                                                    </DataTrigger>
-                                                                    <DataTrigger Binding="{Binding Priority}" Value="Medium">
-                                                                        <Setter Property="Text" Value="WARNING"/>
-                                                                    </DataTrigger>
-                                                                </Style.Triggers>
-                                                            </Style>
-                                                        </TextBlock.Style>
-                                                    </TextBlock>
-                                                </Border>
-                                                
-                                                <!-- 타임스탬프 -->
-                                                <TextBlock Grid.Column="1" 
-                                                           FontFamily="Consolas" FontSize="10" 
-                                                           Foreground="#808080" VerticalAlignment="Center"
-                                                           HorizontalAlignment="Right">
-                                                    <Run Text="{Binding Timestamp, StringFormat={}{0:F2}s}"/>
-                                                </TextBlock>
-                                            </Grid>
+                                            <!-- 그룹 헤더: Timestamp -->
+                                            <TextBlock Text="{Binding Timestamp, StringFormat='Time: {0:F2}s'}" 
+                                                       FontFamily="Consolas" FontSize="11" Foreground="#808080" 
+                                                       HorizontalAlignment="Right" Margin="0,0,0,8"/>
                                             
-                                            <!-- 구분선 -->
                                             <Rectangle Height="1" Fill="#3E3E42" Margin="0,0,0,8"/>
-                                            
-                                            <!-- 이벤트 제목 (Title) -->
-                                            <TextBlock Text="{Binding Title}" 
-                                                       Foreground="#FFFFFF" FontSize="14" FontWeight="SemiBold"
-                                                       TextWrapping="Wrap" Margin="0,0,0,8">
-                                                <TextBlock.Style>
-                                                    <Style TargetType="TextBlock">
-                                                        <!-- Title이 비어있으면 숨김 -->
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding Title}" Value="">
-                                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                                            </DataTrigger>
-                                                            <DataTrigger Binding="{Binding Title}" Value="{x:Null}">
-                                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </TextBlock.Style>
-                                            </TextBlock>
-                                            
-                                            <!-- 이벤트 상세 설명 (Description) -->
-                                            <TextBlock Text="{Binding Description}" 
-                                                       Foreground="#C0C0C0" FontSize="12" 
-                                                       TextWrapping="Wrap" LineHeight="18"/>
+
+                                            <!-- [수정] 이벤트 리스트 전시 (ItemsControl) -->
+                                            <!-- [수정] 이벤트 리스트 전시 (ItemsControl) -->
+                                            <ItemsControl ItemsSource="{Binding Events}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <!-- 이벤트 카드 스타일 -->
+                                                        <Border Background="#333333" CornerRadius="4" Margin="0,0,0,8" Padding="8" BorderBrush="#444444" BorderThickness="1">
+                                                            <StackPanel>
+                                                                <!-- Title -->
+                                                                <TextBlock Text="{Binding Title}" 
+                                                                           Foreground="#FFFFFF" FontSize="13" FontWeight="Bold"
+                                                                           TextWrapping="Wrap" Margin="0,0,0,2"/>
+                                                                
+                                                                <!-- Subtitle -->
+                                                                <TextBlock Text="{Binding Subtitle}" 
+                                                                           Foreground="#00BFFF" FontSize="11" FontWeight="Medium"
+                                                                           TextWrapping="Wrap" Margin="0,0,0,4"
+                                                                           Visibility="{Binding Subtitle, Converter={StaticResource NullToBoolConverter}}"/>
+                                                                
+                                                                <!-- Description -->
+                                                                <TextBlock Text="{Binding Description}" 
+                                                                           Foreground="#D0D0D0" FontSize="11" 
+                                                                           TextWrapping="Wrap" LineHeight="15"/>
+                                                            </StackPanel>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
                                         </StackPanel>
                                     </Border>
                                 </Popup>
                                 
-                                <!-- 트리거: 마우스 오버 시 즉시 Popup 표시 -->
                                 <Grid.Triggers>
                                     <EventTrigger RoutedEvent="MouseEnter" SourceName="HitArea">
                                         <BeginStoryboard>
                                             <Storyboard>
-                                                <BooleanAnimationUsingKeyFrames Storyboard.TargetName="EventPopup" 
-                                                                                Storyboard.TargetProperty="IsOpen">
+                                                <BooleanAnimationUsingKeyFrames Storyboard.TargetName="EventPopup" Storyboard.TargetProperty="IsOpen">
                                                     <DiscreteBooleanKeyFrame KeyTime="0:0:0" Value="True"/>
                                                 </BooleanAnimationUsingKeyFrames>
                                             </Storyboard>
@@ -393,8 +342,7 @@
                                     <EventTrigger RoutedEvent="MouseLeave" SourceName="HitArea">
                                         <BeginStoryboard>
                                             <Storyboard>
-                                                <BooleanAnimationUsingKeyFrames Storyboard.TargetName="EventPopup" 
-                                                                                Storyboard.TargetProperty="IsOpen">
+                                                <BooleanAnimationUsingKeyFrames Storyboard.TargetName="EventPopup" Storyboard.TargetProperty="IsOpen">
                                                     <DiscreteBooleanKeyFrame KeyTime="0:0:0" Value="False"/>
                                                 </BooleanAnimationUsingKeyFrames>
                                             </Storyboard>
@@ -424,23 +372,72 @@
             <!-- Timeline (Grid.Row=0) is above this -->
 
             <!-- Spacer & Event Overlay (Grid.Row=1) -->
+            <!-- Spacer & Event Overlay (Grid.Row=1) -->
             <Grid Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Foreground="#FF5555" FontWeight="Bold" FontSize="14" TextAlignment="Center">
-                    <TextBlock.Style>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="Visibility" Value="Collapsed"/>
+                <!-- [수정] 스크롤 뷰어를 추가하여 높이 제한 및 잘림 방지 -->
+                <!-- [수정] 스크롤 뷰어를 제거하고 단일 라인 요약 표시로 변경 -->
+                <!-- 배경: 투명하지만 ToolTip 트리거를 위해 HitTestVisible 필요 -->
+                <Grid Background="Transparent" VerticalAlignment="Center" ToolTipService.InitialShowDelay="0" ToolTipService.ShowDuration="10000">
+                    <Grid.Style>
+                        <Style TargetType="Grid">
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding CurrentEvent, Converter={StaticResource NullToBoolConverter}}" Value="True">
-                                    <Setter Property="Visibility" Value="Visible"/>
+                                <!-- PrimaryEvent가 null이면 숨김 -->
+                                <DataTrigger Binding="{Binding PrimaryEvent}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
-                    </TextBlock.Style>
-                    <Run Text="⚡ " Foreground="#FF5555"/> <!-- 아이콘/프리픽스 -->
-                    <Run Text="{Binding CurrentEvent.Title}" Foreground="White"/>
-                    <Run Text=" : " Foreground="#AAAAAA"/>
-                    <Run Text="{Binding CurrentEvent.Description}" FontWeight="Normal" Foreground="#DDDDDD"/>
-                </TextBlock>
+                    </Grid.Style>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <TextBlock TextAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" MaxWidth="600">
+                            <Run Text="⚡ " Foreground="#FF5555" FontWeight="Bold"/> 
+                            <Run Text="{Binding PrimaryEvent.Title}" Foreground="White" FontWeight="Bold"/>
+                            <Run Text=" : " Foreground="#AAAAAA"/>
+                            <Run Text="{Binding PrimaryEvent.Subtitle}" Foreground="#00BFFF"/>
+                            <Run Text=" - " Foreground="#555555"/>
+                            <Run Text="{Binding PrimaryEvent.Description}" FontWeight="Normal" Foreground="#DDDDDD"/>
+                        </TextBlock>
+
+                        <!-- 추가 이벤트 배지 (+N) -->
+                        <Border Background="#444444" CornerRadius="8" Margin="8,0,0,0" Padding="6,1" VerticalAlignment="Center">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ExtraEventCount}" Value="0">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <TextBlock Foreground="#FFD700" FontWeight="Bold" FontSize="11">
+                                <Run Text="+"/>
+                                <Run Text="{Binding ExtraEventCount}"/>
+                                <Run Text=" 건"/>
+                            </TextBlock>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- 툴팁: 전체 리스트 표시 -->
+                    <Grid.ToolTip>
+                        <ToolTip>
+                            <ItemsControl ItemsSource="{Binding CurrentEvents}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" Margin="0,2">
+                                            <TextBlock Text="• " Foreground="#AAAAAA"/>
+                                            <TextBlock>
+                                                <Run Text="{Binding Title}" Foreground="White" FontWeight="Bold"/>
+                                                <Run Text=" : " Foreground="#00BFFF"/>
+                                                <Run Text="{Binding Subtitle}" Foreground="#00BFFF"/>
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ToolTip>
+                    </Grid.ToolTip>
+                </Grid>
             </Grid>
 
             <!-- Controls (Grid.Row=2) -->
@@ -546,6 +543,16 @@
                     
                     <TextBlock Text="이동 간격:" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" Margin="15,0,5,0"/>
                     <TextBox Text="{Binding StepIntervalText, UpdateSourceTrigger=LostFocus}" Width="50" Height="26" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
+
+                    <!-- 수동 시간 이동 (Time Jump) -->
+                    <Rectangle Width="1" Height="16" Fill="#555555" Margin="15,0"/>
+                    <TextBlock Text="시간 이동:" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                    <TextBox Text="{Binding JumpTargetTimeText, UpdateSourceTrigger=LostFocus}" Width="60" Height="26" VerticalContentAlignment="Center" HorizontalContentAlignment="Center">
+                        <TextBox.InputBindings>
+                            <KeyBinding Key="Enter" Command="{Binding JumpToTimeCommand}"/>
+                        </TextBox.InputBindings>
+                    </TextBox>
+                    <Button Style="{StaticResource ModernButtonStyle}" Command="{Binding JumpToTimeCommand}" Content="➜" Margin="5,0,0,0" ToolTip="입력한 시간으로 이동 (Enter)"/>
                 </StackPanel>
             </Grid>
         </Grid>

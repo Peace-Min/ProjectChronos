@@ -32,7 +32,7 @@ namespace ProjectChronos.ViewModels
         private double _lastNotifiedTime = double.MinValue;
 
         // 이벤트 마커 정렬 캐시 (StepEvent 성능 최적화용)
-        private System.Collections.Generic.List<SimulationEventMarker> _sortedEvents;
+        private System.Collections.Generic.List<SimulationMarkerGroup> _sortedGroups;
 
 
 
@@ -50,13 +50,13 @@ namespace ProjectChronos.ViewModels
         private const double MaxTickDeltaTime = 0.1;
 
         /// <summary>현재 시간과 이벤트 매칭 시 허용 오차 (초)</summary>
-        private const double EventMatchEpsilon = 0.1; // 100ms
+        private const double EventMatchEpsilon = 0.005; // 5ms
 
         /// <summary>시간 변경 감지 최소 오차 (초)</summary>
         private const double TimeChangeTolerance = 0.0001;
 
         /// <summary>이벤트 탐색 시 현재 위치 회피 오차 (초)</summary>
-        private const double EventSearchEpsilon = 0.001;
+        private const double EventSearchEpsilon = 0.0001;
 
 
         // -----------------------------------------------------------
@@ -64,12 +64,13 @@ namespace ProjectChronos.ViewModels
         // -----------------------------------------------------------
         public SimulationReplayViewModel()
         {
-            Events = new ObservableCollection<SimulationEventMarker>();
+            Events = new ObservableCollection<SimulationMarkerGroup>();
 
             // 커맨드 초기화
             PlayPauseCommand = new RelayCommand(_ => TogglePlayPause());
             StepCommand = new RelayCommand(param => Step(param));
             StepEventCommand = new RelayCommand(param => StepEvent(param));
+            JumpToTimeCommand = new RelayCommand(param => JumpToTime(param));
         }
 
         /// <summary>
@@ -85,30 +86,52 @@ namespace ProjectChronos.ViewModels
             Events.Clear();
             if (events != null)
             {
-                // 성능 최적화: 이벤트를 미리 정렬하여 추가 및 캐싱
-                // StepEvent에서 반복적인 정렬을 피하기 위함
-                var sortedList = events.OrderBy(e => e.Timestamp).ToList();
+                // 성능 최적화: 이벤트를 타임스탬프 기준으로 그룹화 및 정렬
+                var groupedList = events
+                    .GroupBy(e => Math.Round(e.Timestamp, 3)) // 소수점 3자리(1ms) 기준으로 그룹화
+                    .Select(g => new SimulationMarkerGroup(g.Key, g))
+                    .OrderBy(g => g.Timestamp)
+                    .ToList();
 
-                foreach (var evt in sortedList)
+                foreach (var group in groupedList)
                 {
-                    Events.Add(evt);
+                    Events.Add(group);
                 }
 
                 // 정렬된 리스트를 캐싱 (StepEvent에서 사용)
-                _sortedEvents = sortedList;
+                _sortedGroups = groupedList;
             }
             else
             {
-                _sortedEvents = null;
+                _sortedGroups = null;
             }
 
             CurrentTime = 0.0;
             IsPlaying = false;
-            CurrentEvent = null;
+            CurrentEvents = null;
 
             // 스로틀링 타이머 초기화 (새 시뮬레이션 시작 시 즉시 알림 가능하도록)
             _lastNotifiedTime = double.MinValue;
 
+            // [추가] 초기 상태(0초)에 이벤트가 있는지 확인하여 설정
+            CheckEventAtZero();
+        }
+
+        /// <summary>
+        /// 시뮬레이션 시작 시점(0초)에 이벤트가 있는지 확인하고, 있다면 CurrentEvents에 설정합니다.
+        /// </summary>
+        private void CheckEventAtZero()
+        {
+            if (_sortedGroups == null || _sortedGroups.Count == 0) return;
+
+            // 0초 근처(EventMatchEpsilon 이내)에 있는 그룹 찾기
+            var zeroGroup = _sortedGroups.FirstOrDefault(g => Math.Abs(g.Timestamp) <= EventMatchEpsilon);
+            
+            if (zeroGroup != null)
+            {
+                CurrentEvents = zeroGroup.Events;
+                System.Diagnostics.Debug.WriteLine($"[Init] Event found at 0s - Count: {zeroGroup.Events.Count}");
+            }
         }
 
         // -----------------------------------------------------------
@@ -167,8 +190,8 @@ namespace ProjectChronos.ViewModels
         public string CurrentTimeDisplay => TimeSpan.FromSeconds(CurrentTime).ToString(@"mm\:ss\.ff");
         public string TotalTimeDisplay => TimeSpan.FromSeconds(TotalDuration).ToString(@"mm\:ss\.ff");
 
-        // 타임라인 이벤트 목록 Collection
-        public ObservableCollection<SimulationEventMarker> Events { get; }
+        // 타임라인 이벤트 목록 Collection (그룹 단위)
+        public ObservableCollection<SimulationMarkerGroup> Events { get; }
 
         /// <summary>
         /// 재생 상태 (True=재생 중, False=일시 정지)
@@ -242,6 +265,16 @@ namespace ProjectChronos.ViewModels
         }
 
         /// <summary>
+        /// [UI 바인딩용] 수동 이동할 시간 텍스트
+        /// </summary>
+        private string _jumpTargetTimeText = "0.0";
+        public string JumpTargetTimeText
+        {
+            get => _jumpTargetTimeText;
+            set => SetProperty(ref _jumpTargetTimeText, value);
+        }
+
+        /// <summary>
         /// 실시간 렌더링 활성화 여부
         /// True: 모든 thumb 움직임에 대해 Sub ViewModel 렌더링 수행 (부드러운 미리보기)
         /// False: 이벤트 발생 시점 또는 수동 조작 시에만 렌더링 (성능 우선)
@@ -253,23 +286,52 @@ namespace ProjectChronos.ViewModels
         }
 
         /// <summary>
-        /// 현재 시점에 활성화된 이벤트 (없으면 null)
+        /// 현재 시점에 활성화된 이벤트 그룹 (없으면 null)
         /// NotifyTimeChanged에서 갱신됩니다.
         /// </summary>
-        private SimulationEventMarker _currentEvent;
-        public SimulationEventMarker CurrentEvent
+        private System.Collections.Generic.List<SimulationEventMarker> _currentEvents;
+        public System.Collections.Generic.List<SimulationEventMarker> CurrentEvents
         {
-            get => _currentEvent;
+            get => _currentEvents;
             set
             {
-                if (SetProperty(ref _currentEvent, value))
+                if (SetProperty(ref _currentEvents, value))
                 {
-                    // 이벤트 감지 시 디버그 출력 (필요 시 로깅 연동)
-                    if (_currentEvent != null)
+                    if (_currentEvents != null && _currentEvents.Count > 0)
                     {
-                        System.Diagnostics.Debug.WriteLine($"[Event Detected] {_currentEvent.Description} ({_currentEvent.Timestamp:F2}s)");
+                        System.Diagnostics.Debug.WriteLine($"[Events Detected] Count: {_currentEvents.Count} at {_currentEvents[0].Timestamp:F2}s");
                     }
+                    UpdateEventSummary();
                 }
+            }
+        }
+
+
+        private SimulationEventMarker _primaryEvent;
+        public SimulationEventMarker PrimaryEvent
+        {
+            get => _primaryEvent;
+            set => SetProperty(ref _primaryEvent, value);
+        }
+
+        private int _extraEventCount;
+        public int ExtraEventCount
+        {
+            get => _extraEventCount;
+            set => SetProperty(ref _extraEventCount, value);
+        }
+        
+        private void UpdateEventSummary()
+        {
+            if (CurrentEvents != null && CurrentEvents.Count > 0)
+            {
+                PrimaryEvent = CurrentEvents[0];
+                ExtraEventCount = CurrentEvents.Count - 1;
+            }
+            else
+            {
+                PrimaryEvent = null;
+                ExtraEventCount = 0;
             }
         }
 
@@ -283,6 +345,7 @@ namespace ProjectChronos.ViewModels
         public ICommand PlayPauseCommand { get; }
         public ICommand StepCommand { get; }
         public ICommand StepEventCommand { get; }
+        public ICommand JumpToTimeCommand { get; }
 
         #endregion
 
@@ -312,9 +375,14 @@ namespace ProjectChronos.ViewModels
                 // 재생 중이 아닐 때(수동 스크럽) 현재 위치의 이벤트를 표시
                 if (!IsPlaying || forceNotify)
                 {
-                    CurrentEvent = _sortedEvents?.FirstOrDefault(evt =>
-                       Math.Abs(evt.Timestamp - newTime) <= EventMatchEpsilon
-                   );
+                    // [수정] 가장 가까운 그룹 찾기 (근접 매칭)
+                    // 기존 FirstOrDefault는 범위 내 첫 요소를 반환하므로, 두 그룹이 겹칠 때 항상 앞쪽을 선택하는 문제 방지
+                    var matchedGroup = _sortedGroups?
+                        .Where(g => Math.Abs(g.Timestamp - newTime) <= EventMatchEpsilon)
+                        .OrderBy(g => Math.Abs(g.Timestamp - newTime))
+                        .FirstOrDefault();
+                        
+                    CurrentEvents = matchedGroup?.Events;
                 }
 
                 // 외부 메시지 전송 등
@@ -377,30 +445,28 @@ namespace ProjectChronos.ViewModels
 
             // 4. [핵심] 이동 경로상의 이벤트 감지 (Range Check)
             // CurrentTime(현재) ~ nextTime(미래) 사이에 이벤트가 있는지 미리 확인
-            // Start는 초과(>) End는 이하(<=)로 하여 중복 방지 (무한 일시정지 방지)
-            var matchedEvent = _sortedEvents?.FirstOrDefault(evt =>
-                evt.Timestamp > CurrentTime && evt.Timestamp <= nextTime
+            var matchedGroup = _sortedGroups?.FirstOrDefault(g =>
+                g.Timestamp > CurrentTime && g.Timestamp <= nextTime
             );
 
-            if (matchedEvent != null)
+            if (matchedGroup != null)
             {
-                CurrentEvent = matchedEvent; // UI 알림 (먼저 설정하여 일관성 유지)
+                CurrentEvents = matchedGroup.Events; // UI 알림 (먼저 설정하여 일관성 유지)
 
                 // 🎯 [SNAP] 이벤트가 있다면, 목표 시간(nextTime)을 무시하고 이벤트 시간으로 강제 착륙
                 // 스로틀링 무시하고 즉시 알림 전송 (forceNotify: true)
-                SetCurrentTimeInternal(matchedEvent.Timestamp, forceNotify: true);
+                SetCurrentTimeInternal(matchedGroup.Timestamp, forceNotify: true);
 
                 IsPlaying = false; // 일시 정지
 
-                System.Diagnostics.Debug.WriteLine($"[Auto Pause] Event at {matchedEvent.Timestamp:F2}s - {matchedEvent.Title ?? matchedEvent.Description}");
+                System.Diagnostics.Debug.WriteLine($"[Auto Pause] Event Group at {matchedGroup.Timestamp:F2}s - Count: {matchedGroup.Events.Count}");
             }
             else
             {
-                // 이벤트가 없으면 원래 목표대로 이동하고, CurrentEvent 초기화
-
+                // 이벤트가 없으면 원래 목표대로 이동하고, CurrentEvents 초기화
+                
                 // [Range Check 결과 이벤트 없음]
-                // 단순히 다음 시간으로 이동하며, 기존에 표시되던 이벤트가 있다면 제거
-                CurrentEvent = null;
+                CurrentEvents = null;
                 CurrentTime = nextTime;
             }
         }
@@ -439,18 +505,18 @@ namespace ProjectChronos.ViewModels
             else if (param is int i) direction = i;
 
             // 성능 최적화: 미리 정렬된 리스트 사용 (Initialize에서 캐싱됨)
-            if (_sortedEvents == null || _sortedEvents.Count == 0) return;
+            if (_sortedGroups == null || _sortedGroups.Count == 0) return;
 
-            SimulationEventMarker targetEvent = null;
+            SimulationMarkerGroup targetGroup = null;
 
             // EventSearchEpsilon을 두어 현재 위치와 같은 이벤트에 갇히지 않도록 함
             if (direction > 0)
             {
                 // 다음 이벤트 찾기
-                targetEvent = _sortedEvents.FirstOrDefault(e => e.Timestamp > CurrentTime + EventSearchEpsilon);
+                targetGroup = _sortedGroups.FirstOrDefault(g => g.Timestamp > CurrentTime + EventSearchEpsilon);
 
                 // 더 이상 이벤트가 없으면 끝으로 이동
-                if (targetEvent == null)
+                if (targetGroup == null)
                 {
                     SetCurrentTimeInternal(TotalDuration, forceNotify: true);
                     return;
@@ -459,10 +525,10 @@ namespace ProjectChronos.ViewModels
             else
             {
                 // 이전 이벤트 찾기
-                targetEvent = _sortedEvents.LastOrDefault(e => e.Timestamp < CurrentTime - EventSearchEpsilon);
+                targetGroup = _sortedGroups.LastOrDefault(g => g.Timestamp < CurrentTime - EventSearchEpsilon);
 
                 // 더 이상 이벤트가 없으면 처음으로 이동
-                if (targetEvent == null)
+                if (targetGroup == null)
                 {
                     SetCurrentTimeInternal(0.0, forceNotify: true);
                     return;
@@ -470,11 +536,23 @@ namespace ProjectChronos.ViewModels
             }
 
             // 찾은 이벤트 위치로 이동
-            if (targetEvent != null)
+            if (targetGroup != null)
             {
                 // SetCurrentTimeInternal을 사용하여 이중 호출 방지
                 // forceNotify=true로 이벤트 이동 시 즉시 알림 전송
-                SetCurrentTimeInternal(targetEvent.Timestamp, forceNotify: true);
+                SetCurrentTimeInternal(targetGroup.Timestamp, forceNotify: true);
+            }
+        }
+
+        /// <summary>
+        /// 입력된 시간(JumpTargetTimeText)으로 즉시 이동합니다.
+        /// </summary>
+        private void JumpToTime(object param)
+        {
+            if (double.TryParse(JumpTargetTimeText, out double targetTime))
+            {
+                IsPlaying = false; // 이동 시 일시 정지
+                SetCurrentTimeInternal(targetTime, forceNotify: true);
             }
         }
 
