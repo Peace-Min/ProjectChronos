@@ -126,7 +126,7 @@ namespace ProjectChronos.ViewModels
 
             // 0초 근처(EventMatchEpsilon 이내)에 있는 그룹 찾기
             var zeroGroup = _sortedGroups.FirstOrDefault(g => Math.Abs(g.Timestamp) <= EventMatchEpsilon);
-            
+
             if (zeroGroup != null)
             {
                 CurrentEvents = zeroGroup.Events;
@@ -320,7 +320,7 @@ namespace ProjectChronos.ViewModels
             get => _extraEventCount;
             set => SetProperty(ref _extraEventCount, value);
         }
-        
+
         private void UpdateEventSummary()
         {
             if (CurrentEvents != null && CurrentEvents.Count > 0)
@@ -381,7 +381,7 @@ namespace ProjectChronos.ViewModels
                         .Where(g => Math.Abs(g.Timestamp - newTime) <= EventMatchEpsilon)
                         .OrderBy(g => Math.Abs(g.Timestamp - newTime))
                         .FirstOrDefault();
-                        
+
                     CurrentEvents = matchedGroup?.Events;
                 }
 
@@ -464,7 +464,7 @@ namespace ProjectChronos.ViewModels
             else
             {
                 // 이벤트가 없으면 원래 목표대로 이동하고, CurrentEvents 초기화
-                
+
                 // [Range Check 결과 이벤트 없음]
                 CurrentEvents = null;
                 CurrentTime = nextTime;

@@ -22,9 +22,9 @@ namespace ProjectChronos.Converters
                     case EventPriority.Medium:
                         return "Warning";
                     case EventPriority.Low:
-                        return "Info";
+                        return "Normal";
                     default:
-                        return "Info";
+                        return "Normal";
                 }
             }
             return "Info";

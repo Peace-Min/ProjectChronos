@@ -57,6 +57,7 @@
     </ApplicationDefinition>
     <Compile Include="Converters\NullToBoolConverter.cs" />
     <Compile Include="Converters\PriorityToTagConverter.cs" />
+    <Compile Include="Converters\StackLayerConverter.cs" />
     <Compile Include="Core\RelayCommand.cs" />
     <Compile Include="Core\ViewModelBase.cs" />
     <Compile Include="Models\SimulationModels.cs" />

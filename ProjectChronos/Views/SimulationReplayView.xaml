@@ -7,11 +7,16 @@
              xmlns:vm="clr-namespace:ProjectChronos.ViewModels"
              xmlns:conv="clr-namespace:ProjectChronos.Converters"
              mc:Ignorable="d" 
-             d:DesignHeight="140" d:DesignWidth="800">
+             d:DesignHeight="300" d:DesignWidth="800">
     <UserControl.Resources>
         <local:TimeToOffsetConverter x:Key="TimeToOffsetConverter" ThumbWidth="18.0"/>
         <conv:PriorityToTagConverter x:Key="PriorityToTagConverter"/>
         <conv:NullToBoolConverter x:Key="NullToBoolConverter"/>
+        <!-- 픽셀 기준 겹침 판단 및 Y축 스택 레이어 계산 컨버터 -->
+        <conv:StackLayerConverter x:Key="StackLayerConverter"
+                                  MarkerWidthPx="22"
+                                  LayerStepPx="14"
+                                  MaxVisibleLayers="3"/>
 
         <!-- 색상 리소스 -->
         <SolidColorBrush x:Key="PanelBackground" Color="#2d2d2d"/>
@@ -85,7 +90,9 @@
                                     <RepeatButton Command="{x:Static Slider.DecreaseLarge}" Background="{StaticResource AccentColor}" Height="4" BorderThickness="0">
                                         <RepeatButton.Template>
                                             <ControlTemplate TargetType="RepeatButton">
-                                                <Border Background="{TemplateBinding Background}" Height="4" CornerRadius="2,0,0,2"/>
+                                                <!-- IsHitTestVisible=False: 마커 마우스오버가 Slider Track 에 막히지 않도록 -->
+                                                <Border Background="{TemplateBinding Background}" Height="4" CornerRadius="2,0,0,2"
+                                                        IsHitTestVisible="False"/>
                                             </ControlTemplate>
                                         </RepeatButton.Template>
                                     </RepeatButton>
@@ -94,7 +101,9 @@
                                     <RepeatButton Command="{x:Static Slider.IncreaseLarge}" Background="Transparent" Height="4" BorderThickness="0">
                                         <RepeatButton.Template>
                                             <ControlTemplate TargetType="RepeatButton">
-                                                <Border Background="Transparent" Height="4"/>
+                                                <!-- IsHitTestVisible=False: 마커 마우스오버가 Slider Track 에 막히지 않도록 -->
+                                                <Border Background="Transparent" Height="4"
+                                                        IsHitTestVisible="False"/>
                                             </ControlTemplate>
                                         </RepeatButton.Template>
                                     </RepeatButton>
@@ -149,7 +158,8 @@
 
     </UserControl.Resources>
     
-    <Border Background="{StaticResource PanelBackground}" Padding="15" CornerRadius="8" Effect="{x:Null}">
+    <Border Background="{StaticResource PanelBackground}" Padding="15,15,15,15" CornerRadius="8" Effect="{x:Null}"
+            ClipToBounds="False">
         <!-- Optional Shadow Effect if desired, removed for clean look -->
         <!-- <Border.Effect>
             <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.3"/>
@@ -171,7 +181,7 @@
                  - 슬라이더(Slider)는 사용자가 드래그할 수 있어야 하므로 최상단에 위치해야 합니다.
                  - 그러나 슬라이더의 배경(Track)이 마커를 가리면 안 되므로, 슬라이더 배경을 투명하게 처리합니다.
             -->
-            <Grid Grid.Row="0" Margin="0,0">
+            <Grid Grid.Row="0" Margin="0,20,0,0">
                 <!-- 
                     [Z-Index 계층 구조 (Layering)]
                     1. Track Box (Z=1): 슬라이더의 시각적 배경 트랙입니다. (실제 Slider 트랙은 투명)
@@ -185,7 +195,7 @@
                 <Border Height="4" Background="#555555" CornerRadius="2" VerticalAlignment="Center" Panel.ZIndex="1" Margin="9,0"/>
 
                                 <!-- (2) 마커 (Markers) -->
-                <ItemsControl ItemsSource="{Binding Events}" Panel.ZIndex="2">
+                <ItemsControl ItemsSource="{Binding Events}" Panel.ZIndex="2" ClipToBounds="False">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <Canvas Background="Transparent" ClipToBounds="False" Height="30" VerticalAlignment="Center"/>
@@ -207,69 +217,45 @@
                     </ItemsControl.ItemContainerStyle>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Grid x:Name="MarkerRoot" Height="30">
+                            <Grid x:Name="MarkerRoot" Height="30" Background="Transparent" Cursor="Hand">
                                 <Grid.RenderTransform>
-                                    <TranslateTransform X="-10"/>
+                                    <TranslateTransform X="-10">
+                                        <TranslateTransform.Y>
+                                            <MultiBinding Converter="{StaticResource StackLayerConverter}">
+                                                <Binding Path="Timestamp"/>
+                                                <Binding Path="DataContext.Events" RelativeSource="{RelativeSource AncestorType=UserControl}"/>
+                                                <Binding Path="DataContext.TotalDuration" RelativeSource="{RelativeSource AncestorType=UserControl}"/>
+                                                <Binding Path="ActualWidth" RelativeSource="{RelativeSource AncestorType=Canvas}"/>
+                                            </MultiBinding>
+                                        </TranslateTransform.Y>
+                                    </TranslateTransform>
                                 </Grid.RenderTransform>
                                 
                                 <Border x:Name="HitArea" Width="20" Height="30" Background="Transparent" Cursor="Hand"/>
                                 
-                                <!-- [수정] MaxPriority 기반 마커 색상 -->
-                                <ContentControl Tag="{Binding MaxPriority, Converter={StaticResource PriorityToTagConverter}}"
-                                                IsHitTestVisible="False" VerticalAlignment="Center" HorizontalAlignment="Center">
-                                    <ContentControl.Style>
-                                        <Style TargetType="ContentControl">
-                                            <Setter Property="Template">
-                                                <Setter.Value>
-                                                    <ControlTemplate>
-                                                        <Grid Margin="-2,0,0,0">
-                                                            <Rectangle Width="4" Height="16" Fill="#8be9fd" RadiusX="1" RadiusY="1">
-                                                                <Rectangle.Effect>
-                                                                    <DropShadowEffect ShadowDepth="1" BlurRadius="2" Opacity="0.5"/>
-                                                                </Rectangle.Effect>
-                                                            </Rectangle>
-                                                        </Grid>
-                                                    </ControlTemplate>
-                                                </Setter.Value>
-                                            </Setter>
-                                            <Style.Triggers>
-                                                <Trigger Property="Tag" Value="Critical">
-                                                    <Setter Property="Panel.ZIndex" Value="100"/>
-                                                    <Setter Property="Template">
-                                                        <Setter.Value>
-                                                            <ControlTemplate>
-                                                                <Grid Margin="-2.5,0,0,0">
-                                                                    <Rectangle Width="5" Height="16" Fill="#ff5555" RadiusX="1" RadiusY="1" Stroke="White" StrokeThickness="1">
-                                                                        <Rectangle.Effect>
-                                                                            <DropShadowEffect ShadowDepth="1" BlurRadius="3" Opacity="0.6"/>
-                                                                        </Rectangle.Effect>
-                                                                    </Rectangle>
-                                                                </Grid>
-                                                            </ControlTemplate>
-                                                        </Setter.Value>
-                                                    </Setter>
-                                                </Trigger>
-                                                <Trigger Property="Tag" Value="Warning">
-                                                    <Setter Property="Panel.ZIndex" Value="50"/>
-                                                    <Setter Property="Template">
-                                                        <Setter.Value>
-                                                            <ControlTemplate>
-                                                                <Grid Margin="-2,0,0,0">
-                                                                    <Rectangle Width="4" Height="16" Fill="#ffb86c" RadiusX="1" RadiusY="1">
-                                                                        <Rectangle.Effect>
-                                                                            <DropShadowEffect ShadowDepth="1" BlurRadius="2" Opacity="0.5"/>
-                                                                        </Rectangle.Effect>
-                                                                    </Rectangle>
-                                                                </Grid>
-                                                            </ControlTemplate>
-                                                        </Setter.Value>
-                                                    </Setter>
-                                                </Trigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </ContentControl.Style>
-                                </ContentControl>
-                                
+                                <!-- 원형 클러스터 마커 디자인 적용 (IsHitTestVisible=False: 마우스 이벤트를 HitArea/Grid로 통과시킴) -->
+                                <Border x:Name="MarkerShape" 
+                                        BorderThickness="1" 
+                                        BorderBrush="#44FFFFFF" 
+                                        CornerRadius="9" 
+                                        IsHitTestVisible="False"
+                                        HorizontalAlignment="Center" 
+                                        VerticalAlignment="Center">
+                                    <Border.Effect>
+                                        <DropShadowEffect ShadowDepth="2" BlurRadius="4" Opacity="0.4"/>
+                                    </Border.Effect>
+                                    
+                                    <TextBlock x:Name="MarkerText" 
+                                               Text="{Binding Events.Count}" 
+                                               Foreground="White" 
+                                               FontSize="11" 
+                                               FontWeight="Bold" 
+                                               FontFamily="Consolas"
+                                               VerticalAlignment="Center" 
+                                               HorizontalAlignment="Center"
+                                               Margin="4,0" />
+                                </Border>
+
                                 <!-- Popup -->
                                 <Popup x:Name="EventPopup" 
                                        PlacementTarget="{Binding ElementName=HitArea}"
@@ -309,17 +295,43 @@
                                                                 <TextBlock Text="{Binding Title}" 
                                                                            Foreground="#FFFFFF" FontSize="13" FontWeight="Bold"
                                                                            TextWrapping="Wrap" Margin="0,0,0,2"/>
-                                                                
-                                                                <!-- Subtitle -->
-                                                                <TextBlock Text="{Binding Subtitle}" 
-                                                                           Foreground="#00BFFF" FontSize="11" FontWeight="Medium"
-                                                                           TextWrapping="Wrap" Margin="0,0,0,4"
-                                                                           Visibility="{Binding Subtitle, Converter={StaticResource NullToBoolConverter}}"/>
-                                                                
+
                                                                 <!-- Description -->
-                                                                <TextBlock Text="{Binding Description}" 
-                                                                           Foreground="#D0D0D0" FontSize="11" 
-                                                                           TextWrapping="Wrap" LineHeight="15"/>
+                                                                <StackPanel Orientation="Horizontal" Margin="0 10 0 0">
+                                                                    <TextBlock Text="• " Foreground="White"/>
+                                                                    <TextBlock>
+        <Run Text="{Binding DescriptionLabel}" Foreground="White" FontWeight="Bold"/>     
+        <Run Text=" : " Foreground="#AAAAAA"/>
+        <Run Text="{Binding Description}" Foreground="White"/>
+                                                                    </TextBlock>
+                                                                </StackPanel>
+
+                                                                <!-- RangeBTW -->
+                                                                <StackPanel Orientation="Horizontal" Margin="0 2 0 0">
+                                                                    <TextBlock Text="• " Foreground="White"/>
+                                                                    <TextBlock>
+        <Run Text="{Binding RangeBTWLabel}" Foreground="White" FontWeight="Bold"/>
+        <Run Text=" : " Foreground="White"/>
+        <Run Text="{Binding RangeBTW}" Foreground="White"/>
+                                                                    </TextBlock>
+                                                                </StackPanel>
+
+                                                                <!-- Description -->
+                                                                <!--
+                                                                <StackPanel Orientation="Horizontal" Margin="0 10 0 0" VerticalAlignment="Center">
+                                                                    <TextBlock Text="{Binding DescriptionLabel}" Foreground="#D0D0D0" TextWrapping="Wrap"/>
+                                                                    <TextBlock Text=": " Foreground="#D0D0D0" TextWrapping="Wrap"/>
+                                                                    <TextBlock Text="{Binding Description}" Foreground="#D0D0D0" TextWrapping="Wrap"/>
+                                                                </StackPanel>
+
+                                                                --><!-- RangeBTW --><!--
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <TextBlock Text="{Binding RangeBTWLabel}" Foreground="#D0D0D0" TextWrapping="Wrap"/>
+                                                                    <TextBlock Text=": " Foreground="#D0D0D0" TextWrapping="Wrap"/>
+                                                                    <TextBlock Text="{Binding RangeBTW}" Foreground="#D0D0D0" TextWrapping="Wrap" Width="auto"/>
+                                                                </StackPanel>
+                                                                -->
+
                                                             </StackPanel>
                                                         </Border>
                                                     </DataTemplate>
@@ -329,27 +341,39 @@
                                     </Border>
                                 </Popup>
                                 
-                                <Grid.Triggers>
-                                    <EventTrigger RoutedEvent="MouseEnter" SourceName="HitArea">
-                                        <BeginStoryboard>
-                                            <Storyboard>
-                                                <BooleanAnimationUsingKeyFrames Storyboard.TargetName="EventPopup" Storyboard.TargetProperty="IsOpen">
-                                                    <DiscreteBooleanKeyFrame KeyTime="0:0:0" Value="True"/>
-                                                </BooleanAnimationUsingKeyFrames>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </EventTrigger>
-                                    <EventTrigger RoutedEvent="MouseLeave" SourceName="HitArea">
-                                        <BeginStoryboard>
-                                            <Storyboard>
-                                                <BooleanAnimationUsingKeyFrames Storyboard.TargetName="EventPopup" Storyboard.TargetProperty="IsOpen">
-                                                    <DiscreteBooleanKeyFrame KeyTime="0:0:0" Value="False"/>
-                                                </BooleanAnimationUsingKeyFrames>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </EventTrigger>
-                                </Grid.Triggers>
                             </Grid>
+                            
+                            <!-- [수정] Grid/ContentControl 내부에 있던 불가능한 트리거 대신, DataTemplate.Triggers에서 모든 요소 제어 -->
+                            <DataTemplate.Triggers>
+                                <!-- 마커 색상 및 뎁스 제어 -->
+                                <DataTrigger Binding="{Binding MaxPriority, Converter={StaticResource PriorityToTagConverter}}" Value="Critical">
+                                    <Setter TargetName="MarkerRoot" Property="Panel.ZIndex" Value="100"/>
+                                    <Setter TargetName="MarkerShape" Property="Background" Value="#d32f2f"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding MaxPriority, Converter={StaticResource PriorityToTagConverter}}" Value="Warning">
+                                    <Setter TargetName="MarkerRoot" Property="Panel.ZIndex" Value="50"/>
+                                    <Setter TargetName="MarkerShape" Property="Background" Value="#f57c00"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding MaxPriority, Converter={StaticResource PriorityToTagConverter}}" Value="Normal">
+                                    <Setter TargetName="MarkerRoot" Property="Panel.ZIndex" Value="10"/>
+                                    <Setter TargetName="MarkerShape" Property="Background" Value="#1976d2"/>
+                                </DataTrigger>
+
+                                <!-- 이벤트가 1개일 때 크기 축소 (클러스터 X) -->
+                                <DataTrigger Binding="{Binding Events.Count}" Value="1">
+                                    <Setter TargetName="MarkerShape" Property="Width" Value="14"/>
+                                    <Setter TargetName="MarkerShape" Property="Height" Value="14"/>
+                                    <Setter TargetName="MarkerShape" Property="CornerRadius" Value="7"/>
+                                    <Setter TargetName="MarkerText" Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+
+                                <!-- IsMouseOver 프로퍼티 트리거: EventTrigger 방식 대체 -->
+                                <!-- Slider Z=3 vs Marker Z=2 히트테스트 경쟁 문제를 피하기 위해 -->
+                                <!-- IsMouseOver는 WPF 논리 트리 기반으로 동작해 더 신뢰성 높음 -->
+                                <Trigger SourceName="MarkerRoot" Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="EventPopup" Property="IsOpen" Value="True"/>
+                                </Trigger>
+                            </DataTemplate.Triggers>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl> 
@@ -390,13 +414,17 @@
                     </Grid.Style>
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <TextBlock TextAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" MaxWidth="600">
+                        <TextBlock TextAlignment="Center" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" MaxWidth="600">
                             <Run Text="⚡ " Foreground="#FF5555" FontWeight="Bold"/> 
                             <Run Text="{Binding PrimaryEvent.Title}" Foreground="White" FontWeight="Bold"/>
-                            <Run Text=" : " Foreground="#AAAAAA"/>
-                            <Run Text="{Binding PrimaryEvent.Subtitle}" Foreground="#00BFFF"/>
-                            <Run Text=" - " Foreground="#555555"/>
+                            <!--<Run Text=" : " Foreground="#AAAAAA"/>
+                            <Run Text="{Binding PrimaryEvent.DescriptionLabel}" Foreground="#00BFFF"/>
+                            <Run Text=": " Foreground="#555555"/>
                             <Run Text="{Binding PrimaryEvent.Description}" FontWeight="Normal" Foreground="#DDDDDD"/>
+                            <Run Text="  "/>
+                            <Run Text="{Binding PrimaryEvent.RangeBTWLabel}" Foreground="#00BFFF"/>
+                            <Run Text=": " Foreground="#555555"/>
+                            <Run Text="{Binding PrimaryEvent.RangeBTW}" FontWeight="Normal" Foreground="#DDDDDD"/>-->
                         </TextBlock>
 
                         <!-- 추가 이벤트 배지 (+N) -->
@@ -424,14 +452,32 @@
                             <ItemsControl ItemsSource="{Binding CurrentEvents}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <StackPanel Orientation="Horizontal" Margin="0,2">
-                                            <TextBlock Text="• " Foreground="#AAAAAA"/>
-                                            <TextBlock>
-                                                <Run Text="{Binding Title}" Foreground="White" FontWeight="Bold"/>
-                                                <Run Text=" : " Foreground="#00BFFF"/>
-                                                <Run Text="{Binding Subtitle}" Foreground="#00BFFF"/>
-                                            </TextBlock>
-                                        </StackPanel>
+                                        <Border Background="#333333" CornerRadius="5" Margin="0 5 0 5" Padding="5" BorderBrush="#444444" BorderThickness="1">
+                                            <StackPanel Orientation="Vertical" Margin="0,2">
+                                                <!-- Title -->
+                                                <TextBlock TextWrapping="Wrap" TextTrimming="CharacterEllipsis" MaxWidth="600">
+                                                    <Run Text="⚡ " Foreground="#FF5555" FontWeight="Bold"/>
+                                                    <Run Text="{Binding Title}" Foreground="White" FontWeight="Bold"/>
+                                                </TextBlock>
+                                                
+                                                <StackPanel Orientation="Horizontal" Margin="0 10 0 0">
+                                                    <TextBlock Text="• " Foreground="White"/>
+                                                    <TextBlock>
+                                                        <Run Text="{Binding DescriptionLabel}" Foreground="White" FontWeight="Bold"/>     
+                                                        <Run Text=" : " Foreground="#AAAAAA"/>
+                                                        <Run Text="{Binding Description}" Foreground="White"/>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                                <StackPanel Orientation="Horizontal" Margin="0 2 0 0">
+                                                    <TextBlock Text="• " Foreground="White"/>
+                                                    <TextBlock>
+                                                        <Run Text="{Binding RangeBTWLabel}" Foreground="White" FontWeight="Bold"/>
+                                                        <Run Text=" : " Foreground="White"/>
+                                                        <Run Text="{Binding RangeBTW}" Foreground="White"/>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </Border>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>

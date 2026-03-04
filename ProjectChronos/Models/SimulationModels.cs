@@ -25,7 +25,7 @@ namespace ProjectChronos.Models
         /// <summary>
         /// 이벤트 중요도 (마커 색상 및 모양 결정)
         /// </summary>
-        public EventPriority Priority { get; set; }
+        public EventPriority Priority { get; set; } = EventPriority.Medium;
 
         /// <summary>
         /// 이벤트 제목 (간단한 요약)
@@ -33,21 +33,33 @@ namespace ProjectChronos.Models
         public string Title { get; set; }
 
         /// <summary>
-        /// 이벤트 보조 제목 (타이틀 하위 개념)
+        /// 이벤트 상세 설명 라벨.
         /// </summary>
-        public string Subtitle { get; set; }
+        public string DescriptionLabel { get; set; }
 
         /// <summary>
         /// 이벤트 상세 설명
         /// </summary>
         public string Description { get; set; }
 
+        /// <summary>
+        /// 타겟간 거리 라벨명.
+        /// </summary>
+        public string RangeBTWLabel { get; set; }
+
+        /// <summary>
+        /// 타겟간 거리.
+        /// </summary>
+        public string RangeBTW { get; set; }
+
+        public SimulationEventMarker() { }
+
         public SimulationEventMarker(double timestamp, EventPriority priority, string title, string subtitle, string description)
         {
             Timestamp = timestamp;
             Priority = priority;
             Title = title;
-            Subtitle = subtitle;
+            DescriptionLabel = subtitle;
             Description = description;
         }
     }

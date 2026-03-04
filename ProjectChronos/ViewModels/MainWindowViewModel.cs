@@ -16,45 +16,65 @@ namespace ProjectChronos.ViewModels
             // 검증 시나리오를 위한 테스트 이벤트
             var exampleEvents = new List<Models.SimulationEventMarker>
             {
-                // [시나리오 1: 초기 이벤트] - 시작 직후
-                new Models.SimulationEventMarker(5.0, Models.EventPriority.Medium, "시뮬레이션 시작", "Initial Setup", "초기 상태 설정 완료"),
-                
-                // [시나리오 2: 간격이 좁은 이벤트] - Range 기반 감지 테스트 (0.3초 간격)
-                new Models.SimulationEventMarker(15.0, Models.EventPriority.High, "센서 활성화", "Sensor Init", "센서가 활성화되었습니다"),
-                new Models.SimulationEventMarker(15.3, Models.EventPriority.Medium, "데이터 수신 시작", "Data RX Start", "센서로부터 데이터 수신 중"),
-                
-                // [시나리오 3: 중간 간격 이벤트] - 일반적인 이벤트 간격 (2초)
-                new Models.SimulationEventMarker(25.0, Models.EventPriority.Medium, "1차 분석 완료", "Analysis Phase 1", "초기 데이터 분석이 완료되었습니다"),
-                new Models.SimulationEventMarker(27.0, Models.EventPriority.High, "이상 징후 감지", "Anomaly Detected", "임계값 초과 감지됨 (87%)"),
-                
-                // [시나리오 4: 넓은 간격 이벤트] - 고속 재생 시 건너뜀 테스트 (10초 간격)
-                new Models.SimulationEventMarker(40.0, Models.EventPriority.High, "위험 상황 발생", "Proximity Alert", "엔티티 A와 B가 충돌 위험 거리(5m) 이내 진입"),
-                new Models.SimulationEventMarker(50.0, Models.EventPriority.High, "회피 기동 시작", "Evasion Auto", "자동 회피 알고리즘 작동 중"),
-                new Models.SimulationEventMarker(60.0, Models.EventPriority.Medium, "안전 거리 확보", "Safe Distance", "충돌 위험 해제됨"),
-                
-                // [시나리오 5: 연속 이벤트 & 동시 이벤트] - 매우 좁은 간격 (0.1초) 및 중첩
-                new Models.SimulationEventMarker(80.0, Models.EventPriority.High, "시스템 부하 상승", "CPU Load High", "CPU 사용률 85%"),
-                new Models.SimulationEventMarker(80.0, Models.EventPriority.Medium, "네트워크 지연", "Network Lag", "핑 150ms 초과"), // 동시 발생 이벤트 추가
-                new Models.SimulationEventMarker(80.0, Models.EventPriority.Medium, "네트워크 지연", "Network Lag", "핑 150ms 초과"), // 동시 발생 이벤트 추가
-                new Models.SimulationEventMarker(80.0, Models.EventPriority.Medium, "네트워크 지연", "Network Lag", "핑 150ms 초과"), // 동시 발생 이벤트 추가
-                new Models.SimulationEventMarker(80.0, Models.EventPriority.Medium, "네트워크 지연", "Network Lag", "핑 150ms 초과"), // 동시 발생 이벤트 추가
-                new Models.SimulationEventMarker(80.0, Models.EventPriority.Medium, "네트워크 지연", "Network Lag", "핑 150ms 초과"), // 동시 발생 이벤트 추가
-                new Models.SimulationEventMarker(80.0, Models.EventPriority.Medium, "네트워크 지연", "Network Lag", "핑 150ms 초과"), // 동시 발생 이벤트 추가
-                //new Models.SimulationEventMarker(80.01, Models.EventPriority.High, "메모리 경고", "Mem Usage High", "메모리 사용률 90%"),
-                //new Models.SimulationEventMarker(80.02, Models.EventPriority.High, "메모리 경고", "Mem Critical", "메모리 사용률 95%"),
-                //new Models.SimulationEventMarker(80.05, Models.EventPriority.High, "과부하 임계", "Overload Limit", "시스템 부하 위험 수준"),
-                
-                // [시나리오 6: 긴 간격 이벤트] - 20초 이상 간격
-                new Models.SimulationEventMarker(100.0, Models.EventPriority.Medium, "정상화 완료", "Normalized", "시스템이 정상 상태로 복귀했습니다"),
-                new Models.SimulationEventMarker(150.0, Models.EventPriority.Medium, "중간 체크포인트", "Checkpoint 50%", "시뮬레이션 50% 진행"),
-                
-                // [시나리오 7: 종료 시퀀스]
-                new Models.SimulationEventMarker(200.0, Models.EventPriority.Medium, "최종 분석 시작", "Final Analysis", "누적 데이터 분석 중"),
-                new Models.SimulationEventMarker(220.0, Models.EventPriority.High, "결과 생성 완료", "Report Generated", "시뮬레이션 결과 리포트 생성됨"),
-                new Models.SimulationEventMarker(240.0, Models.EventPriority.Medium, "시뮬레이션 종료", "Job Done", "모든 작업이 완료되었습니다"),
+                // ── [A] 단독 이벤트 (Low Priority, 완전 고립) ──────────────────
+                new Models.SimulationEventMarker(30.0, Models.EventPriority.Low, "초기화 완료", "System Init", "모든 서브시스템 초기화 완료")
+                {
+                    RangeBTWLabel = "고도",
+                    RangeBTW = "500m"
+                },
+
+                // ── [B] High Priority 단독 이벤트 ────────────────────────────
+                new Models.SimulationEventMarker(80.0, Models.EventPriority.High, "위협 신호 탐지", "Threat Signal", "미확인 RF 신호 수신 — 추가 분석 필요")
+                {
+                    RangeBTWLabel = "신호 거리",
+                    RangeBTW = "2.1km"
+                },
+
+                // ── [C] 픽셀상 겹치는 스택: 80.3s (80.0과 픽셀 기준 22px 이내) ──
+                new Models.SimulationEventMarker(80.3, Models.EventPriority.Medium, "신호 분석 시작", "Signal Analysis", "위협 신호 주파수 분석 중"),
+
+                // ── [D] 모두 고립된 단독 구간 ────────────────────────────────
+                new Models.SimulationEventMarker(130.0, Models.EventPriority.Low, "중간 체크포인트", "Checkpoint A", "전방 스캔 정상"),
+
+                // ── [E] 픽셀 겹침 3연속 스택 (150.0 / 150.2 / 150.4) ─────────
+                new Models.SimulationEventMarker(150.0, Models.EventPriority.High, "전방 장애물", "Obstacle Front", "정면 1.2km 비행체 감지")
+                {
+                    RangeBTWLabel = "충돌 여유",
+                    RangeBTW = "1.2km"
+                },
+                new Models.SimulationEventMarker(150.2, Models.EventPriority.Medium, "회피 경로 계산", "Evasion Calc", "좌측 회피 경로 계산 완료"),
+                new Models.SimulationEventMarker(150.4, Models.EventPriority.Low, "회피 기동 시작", "Evasion Start", "회피 기동 명령 전달됨"),
+
+                // ── [F] 동일 타임스탬프 2개 (클러스터 배지 '2') ──────────────
+                new Models.SimulationEventMarker(200.0, Models.EventPriority.High, "엔진 오버로드", "Engine Overload", "2번 엔진 과부하 감지")
+                {
+                    RangeBTWLabel = "온도",
+                    RangeBTW = "1,250°C"
+                },
+                new Models.SimulationEventMarker(200.0, Models.EventPriority.Medium, "냉각 시스템 가동", "Cooling Active", "비상 냉각 시스템 자동 투입")
+                {
+                    RangeBTWLabel = "냉각 유량",
+                    RangeBTW = "12 L/min"
+                },
+
+                // ── [G] 동일 타임스탬프 3개 (클러스터 배지 '3') ──────────────
+                new Models.SimulationEventMarker(240.0, Models.EventPriority.High, "목표 포착", "Target Lock", "레이더 목표 포착 — 추적 개시")
+                {
+                    RangeBTWLabel = "목표 거리",
+                    RangeBTW = "4.8km"
+                },
+                new Models.SimulationEventMarker(240.0, Models.EventPriority.Medium, "무장 시스템 준비", "Weapon Ready", "지정 무장 시스템 활성화 대기 중"),
+                new Models.SimulationEventMarker(240.0, Models.EventPriority.Low, "교전 규칙 확인", "ROE Check", "교전 규칙 승인 요청 전송됨"),
+
+                // ── [H] 종료 구간 단독 이벤트 ────────────────────────────────
+                new Models.SimulationEventMarker(280.0, Models.EventPriority.Low, "복귀 경로 설정", "RTB Route", "기지 복귀 경로 계산 완료")
+                {
+                    RangeBTWLabel = "기지 거리",
+                    RangeBTW = "38km"
+                },
             };
 
-            SimulationReplayViewModel.Initialize(250.0, exampleEvents);
+            SimulationReplayViewModel.Initialize(300.0, exampleEvents);
         }
     }
 }
