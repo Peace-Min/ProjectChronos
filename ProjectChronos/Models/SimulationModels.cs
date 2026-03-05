@@ -1,31 +1,53 @@
 using System;
+using System.ComponentModel;
 
 namespace ProjectChronos.Models
 {
     /// <summary>
-    /// 이벤트 중요도 수준
+    /// 시뮬레이션 이벤트 종류 (다중 차선 분배용)
     /// </summary>
-    public enum EventPriority
+    public enum SimulationEventType
     {
-        High,   // 높음 (Critical - 빨강)
-        Medium, // 중간 (Warning - 주황)
-        Low     // 낮음 (Info - 파랑)
+        SearchRadar,    // 탐색레이더
+        TrackRadar,     // 추적레이더
+        LaunchApproval, // 발사승인
+        MissileLaunch,  // 미사일발사
+        Intercept       // 요격
     }
 
     /// <summary>
     /// 시뮬레이션 타임라인에 표시될 이벤트 마커 데이터 모델
     /// </summary>
-    public class SimulationEventMarker
+    public class SimulationEventMarker : INotifyPropertyChanged
     {
+        private bool _isActive;
+
+        /// <summary>
+        /// (UI 트랜지션용) 현재 재생 시간이 마커 위치와 일치하는지 여부
+        /// </summary>
+        public bool IsActive
+        {
+            get => _isActive;
+            set
+            {
+                if (_isActive != value)
+                {
+                    _isActive = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsActive)));
+                }
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
         /// <summary>
         /// 이벤트 발생 시점 (초 단위)
         /// </summary>
         public double Timestamp { get; set; }
 
         /// <summary>
-        /// 이벤트 중요도 (마커 색상 및 모양 결정)
+        /// 이벤트 종류 (차선 매핑 용도)
         /// </summary>
-        public EventPriority Priority { get; set; }
+        public SimulationEventType EventType { get; set; }
 
         /// <summary>
         /// 이벤트 제목 (간단한 요약)
@@ -33,53 +55,34 @@ namespace ProjectChronos.Models
         public string Title { get; set; }
 
         /// <summary>
-        /// 이벤트 보조 제목 (타이틀 하위 개념)
+        /// 이벤트 상세 설명 라벨.
         /// </summary>
-        public string Subtitle { get; set; }
+        public string DescriptionLabel { get; set; }
 
         /// <summary>
         /// 이벤트 상세 설명
         /// </summary>
         public string Description { get; set; }
 
-        public SimulationEventMarker(double timestamp, EventPriority priority, string title, string subtitle, string description)
-        {
-            Timestamp = timestamp;
-            Priority = priority;
-            Title = title;
-            Subtitle = subtitle;
-            Description = description;
-        }
-    }
-
-    /// <summary>
-    /// 동일 시간대에 발생한 이벤트들의 그룹 (시각적 마커 1개에 대응)
-    /// </summary>
-    public class SimulationMarkerGroup
-    {
-        public double Timestamp { get; }
-        public System.Collections.Generic.List<SimulationEventMarker> Events { get; }
+        /// <summary>
+        /// 타겟간 거리 라벨명.
+        /// </summary>
+        public string RangeBTWLabel { get; set; }
 
         /// <summary>
-        /// 그룹 내 가장 높은 중요도 (마커 색상 결정용)
+        /// 타겟간 거리.
         /// </summary>
-        public EventPriority MaxPriority { get; }
+        public string RangeBTW { get; set; }
 
-        public SimulationMarkerGroup(double timestamp, System.Collections.Generic.IEnumerable<SimulationEventMarker> events)
+        public SimulationEventMarker() { }
+
+        public SimulationEventMarker(double timestamp, SimulationEventType eventType, string title, string subtitle, string description)
         {
             Timestamp = timestamp;
-            Events = new System.Collections.Generic.List<SimulationEventMarker>(events);
-
-            // 기본값 Low, 하나라도 High가 있으면 High, 그 외 Medium이 있으면 Medium
-            MaxPriority = EventPriority.Low;
-            if (Events.Exists(e => e.Priority == EventPriority.High))
-            {
-                MaxPriority = EventPriority.High;
-            }
-            else if (Events.Exists(e => e.Priority == EventPriority.Medium))
-            {
-                MaxPriority = EventPriority.Medium;
-            }
+            EventType = eventType;
+            Title = title;
+            DescriptionLabel = subtitle;
+            Description = description;
         }
     }
 }
