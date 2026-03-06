@@ -22,7 +22,7 @@
         <SolidColorBrush x:Key="ControlBackground" Color="#444444"/>
         <SolidColorBrush x:Key="ControlHover" Color="#555555"/>
         <SolidColorBrush x:Key="ControlPressed" Color="#333333"/>
-        
+
         <!-- 버튼 스타일 -->
         <Style x:Key="ModernButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="{StaticResource ControlBackground}"/>
@@ -69,17 +69,17 @@
                                 <RowDefinition Height="Auto" MinHeight="{TemplateBinding MinHeight}"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
-                            
+
                             <!-- 트랙 (배경 투명 - 별도 Border로 위임) -->
                             <Border x:Name="TrackBackground" Grid.Row="1" Height="4" 
                                     Background="Transparent" CornerRadius="2" VerticalAlignment="Center"/>
-                            
+
                             <!-- 선택 범위 (진행률) -->
                             <!-- 참고: 표준 WPF Slider는 PART_SelectionRange 없이 0부터 값까지의 '선택' 범위를 시각적으로 쉽게 지원하지 않습니다.
                                  간단하게 하기 위해 기본 트랙을 사용하되 썸(Thumb) 스타일을 적용합니다.
                                  '채워진' 느낌을 주려면 PART_SelectionRange나 별도 바인딩이 포함된 복잡한 템플릿이 필요합니다.
                                  여기서는 안정성을 위해 깔끔한 트랙과 썸을 유지합니다. -->
-                            
+
                             <Track x:Name="PART_Track" Grid.Row="1">
                                 <Track.DecreaseRepeatButton>
                                     <RepeatButton Command="{x:Static Slider.DecreaseLarge}" Background="{StaticResource AccentColor}" Height="4" BorderThickness="0">
@@ -120,7 +120,8 @@
         <!-- 콤보박스 스타일 (기본 다크) -->
         <Style TargetType="ComboBox">
             <Setter Property="Background" Value="{StaticResource ControlBackground}"/>
-            <Setter Property="Foreground" Value="Black"/> <!-- Content usually black unless specific template -->
+            <Setter Property="Foreground" Value="Black"/>
+            <!-- Content usually black unless specific template -->
             <Setter Property="BorderBrush" Value="#666"/>
         </Style>
 
@@ -148,18 +149,21 @@
         </Style>
 
     </UserControl.Resources>
-    
+
     <Border Background="{StaticResource PanelBackground}" Padding="15" CornerRadius="8" Effect="{x:Null}">
         <!-- Optional Shadow Effect if desired, removed for clean look -->
         <!-- <Border.Effect>
             <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.3"/>
         </Border.Effect> -->
-        
+
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/> <!-- Timeline -->
-                <RowDefinition Height="30"/>   <!-- Spacer (Text Overlay Area) -->
-                <RowDefinition Height="Auto"/> <!-- Controls -->
+                <RowDefinition Height="Auto"/>
+                <!-- Timeline -->
+                <RowDefinition Height="30"/>
+                <!-- Spacer (Text Overlay Area) -->
+                <RowDefinition Height="Auto"/>
+                <!-- Controls -->
             </Grid.RowDefinitions>
 
             <!-- 타임라인 영역 -->
@@ -179,12 +183,12 @@
                     3. Slider (Z=3): 투명한 트랙과 조작 가능한 썸(Thumb)이 가장 위에 위치합니다.
                                      Background="{x:Null}"로 설정하여 마우스가 빈 공간에서는 아래의 마커 툴팁에 닿을 수 있게 합니다.
                 -->
-                
+
                 <!-- 1. 배경 트랙 (Visual Only) -->
                 <!-- Slider의 Margin/Padding을 고려하여 수평 정렬. Slider가 꽉 차있으므로 Margin="9,0" (Thumb 반경 고려) -->
                 <Border Height="4" Background="#555555" CornerRadius="2" VerticalAlignment="Center" Panel.ZIndex="1" Margin="9,0"/>
 
-                                <!-- (2) 마커 (Markers) -->
+                <!-- (2) 마커 (Markers) -->
                 <ItemsControl ItemsSource="{Binding Events}" Panel.ZIndex="2">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -202,7 +206,7 @@
                                     </MultiBinding>
                                 </Setter.Value>
                             </Setter>
-                            <Setter Property="Canvas.Top" Value="0"/> 
+                            <Setter Property="Canvas.Top" Value="0"/>
                         </Style>
                     </ItemsControl.ItemContainerStyle>
                     <ItemsControl.ItemTemplate>
@@ -211,9 +215,9 @@
                                 <Grid.RenderTransform>
                                     <TranslateTransform X="-10"/>
                                 </Grid.RenderTransform>
-                                
+
                                 <Border x:Name="HitArea" Width="20" Height="30" Background="Transparent" Cursor="Hand"/>
-                                
+
                                 <!-- [수정] MaxPriority 기반 마커 색상 -->
                                 <ContentControl Tag="{Binding MaxPriority, Converter={StaticResource PriorityToTagConverter}}"
                                                 IsHitTestVisible="False" VerticalAlignment="Center" HorizontalAlignment="Center">
@@ -269,7 +273,7 @@
                                         </Style>
                                     </ContentControl.Style>
                                 </ContentControl>
-                                
+
                                 <!-- Popup -->
                                 <Popup x:Name="EventPopup" 
                                        PlacementTarget="{Binding ElementName=HitArea}"
@@ -278,7 +282,7 @@
                                        StaysOpen="True"
                                        VerticalOffset="8">
                                     <Border BorderBrush="#007acc" BorderThickness="2" 
-                                            CornerRadius="6" Padding="12,8" MinWidth="200" MaxWidth="320">
+                                            CornerRadius="6" Padding="12,8" MinWidth="200" MaxWidth="340">
                                         <Border.Background>
                                             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                                                 <GradientStop Color="#2D2D30" Offset="0"/>
@@ -288,13 +292,13 @@
                                         <Border.Effect>
                                             <DropShadowEffect ShadowDepth="0" BlurRadius="16" Opacity="0.7" Color="#007acc"/>
                                         </Border.Effect>
-                                        
+
                                         <StackPanel>
                                             <!-- 그룹 헤더: Timestamp -->
                                             <TextBlock Text="{Binding Timestamp, StringFormat='Time: {0:F2}s'}" 
                                                        FontFamily="Consolas" FontSize="11" Foreground="#808080" 
                                                        HorizontalAlignment="Right" Margin="0,0,0,8"/>
-                                            
+
                                             <Rectangle Height="1" Fill="#3E3E42" Margin="0,0,0,8"/>
 
                                             <!-- [수정] 이벤트 리스트 전시 (ItemsControl) -->
@@ -309,17 +313,27 @@
                                                                 <TextBlock Text="{Binding Title}" 
                                                                            Foreground="#FFFFFF" FontSize="13" FontWeight="Bold"
                                                                            TextWrapping="Wrap" Margin="0,0,0,2"/>
-                                                                
-                                                                <!-- Subtitle -->
-                                                                <TextBlock Text="{Binding Subtitle}" 
-                                                                           Foreground="#00BFFF" FontSize="11" FontWeight="Medium"
-                                                                           TextWrapping="Wrap" Margin="0,0,0,4"
-                                                                           Visibility="{Binding Subtitle, Converter={StaticResource NullToBoolConverter}}"/>
-                                                                
+
                                                                 <!-- Description -->
-                                                                <TextBlock Text="{Binding Description}" 
-                                                                           Foreground="#D0D0D0" FontSize="11" 
-                                                                           TextWrapping="Wrap" LineHeight="15"/>
+                                                                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                                                    <TextBlock Text="• " Foreground="White"/>
+                                                                    <TextBlock>
+                                                                        <Run Text="{Binding DescriptionLabel}" Foreground="White" FontWeight="Bold"/>     
+                                                                        <Run Text=" : " Foreground="#AAAAAA"/>
+                                                                        <Run Text="{Binding Description}" Foreground="White"/>
+                                                                    </TextBlock>
+                                                                </StackPanel>
+
+                                                                <!-- RangeBTW -->
+                                                                <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                                                    <TextBlock Text="• " Foreground="White"/>
+                                                                    <TextBlock>
+                                                                        <Run Text="{Binding RangeBTWLabel}" Foreground="White" FontWeight="Bold"/>
+                                                                        <Run Text=" : " Foreground="White"/>
+                                                                        <Run Text="{Binding RangeBTW}" Foreground="White"/>
+                                                                    </TextBlock>
+                                                                </StackPanel>
+
                                                             </StackPanel>
                                                         </Border>
                                                     </DataTemplate>
@@ -328,7 +342,7 @@
                                         </StackPanel>
                                     </Border>
                                 </Popup>
-                                
+
                                 <Grid.Triggers>
                                     <EventTrigger RoutedEvent="MouseEnter" SourceName="HitArea">
                                         <BeginStoryboard>
@@ -352,8 +366,8 @@
                             </Grid>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
-                </ItemsControl> 
-                
+                </ItemsControl>
+
                 <!-- 3. 슬라이더 (Z=3, Transparent Track) -->
                 <!-- 
                      Background="{x:Null}": 슬라이더의 빈 영역(트랙 주변)이 마우스 이벤트를 통과시키도록 합니다 (HitTestVisible=False 효과와 유사).
@@ -390,13 +404,9 @@
                     </Grid.Style>
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <TextBlock TextAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" MaxWidth="600">
+                        <TextBlock TextAlignment="Center" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" MaxWidth="600">
                             <Run Text="⚡ " Foreground="#FF5555" FontWeight="Bold"/> 
                             <Run Text="{Binding PrimaryEvent.Title}" Foreground="White" FontWeight="Bold"/>
-                            <Run Text=" : " Foreground="#AAAAAA"/>
-                            <Run Text="{Binding PrimaryEvent.Subtitle}" Foreground="#00BFFF"/>
-                            <Run Text=" - " Foreground="#555555"/>
-                            <Run Text="{Binding PrimaryEvent.Description}" FontWeight="Normal" Foreground="#DDDDDD"/>
                         </TextBlock>
 
                         <!-- 추가 이벤트 배지 (+N) -->
@@ -424,14 +434,32 @@
                             <ItemsControl ItemsSource="{Binding CurrentEvents}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <StackPanel Orientation="Horizontal" Margin="0,2">
-                                            <TextBlock Text="• " Foreground="#AAAAAA"/>
-                                            <TextBlock>
-                                                <Run Text="{Binding Title}" Foreground="White" FontWeight="Bold"/>
-                                                <Run Text=" : " Foreground="#00BFFF"/>
-                                                <Run Text="{Binding Subtitle}" Foreground="#00BFFF"/>
-                                            </TextBlock>
-                                        </StackPanel>
+                                        <Border Background="#333333" CornerRadius="5" Margin="0,5,0,5" Padding="5" BorderBrush="#444444" BorderThickness="1">
+                                            <StackPanel Orientation="Vertical" Margin="0,2">
+                                                <!-- Title -->
+                                                <TextBlock TextWrapping="Wrap" TextTrimming="CharacterEllipsis" MaxWidth="600">
+                                                    <Run Text="⚡ " Foreground="#FF5555" FontWeight="Bold"/>
+                                                    <Run Text="{Binding Title}" Foreground="White" FontWeight="Bold"/>
+                                                </TextBlock>
+                                                
+                                                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                                    <TextBlock Text="• " Foreground="White"/>
+                                                    <TextBlock>
+                                                        <Run Text="{Binding DescriptionLabel}" Foreground="White" FontWeight="Bold"/>     
+                                                        <Run Text=" : " Foreground="#AAAAAA"/>
+                                                        <Run Text="{Binding Description}" Foreground="White"/>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                                <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                                    <TextBlock Text="• " Foreground="White"/>
+                                                    <TextBlock>
+                                                        <Run Text="{Binding RangeBTWLabel}" Foreground="White" FontWeight="Bold"/>
+                                                        <Run Text=" : " Foreground="White"/>
+                                                        <Run Text="{Binding RangeBTW}" Foreground="White"/>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </Border>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
@@ -443,9 +471,12 @@
             <!-- Controls (Grid.Row=2) -->
             <Grid Grid.Row="2">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/> <!-- 이전/다음 -->
-                    <ColumnDefinition Width="*"/>    <!-- 시간 표시 -->
-                    <ColumnDefinition Width="Auto"/> <!-- 설정 -->
+                    <ColumnDefinition Width="Auto"/>
+                    <!-- 이전/다음 -->
+                    <ColumnDefinition Width="*"/>
+                    <!-- 시간 표시 -->
+                    <ColumnDefinition Width="Auto"/>
+                    <!-- 설정 -->
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Orientation="Horizontal" Grid.Column="0" >
@@ -465,7 +496,7 @@
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
                     <!-- 렌더링 모드 토글 -->
                     <TextBlock Text="렌더링:" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                    
+
                     <!-- 현대적인 토글 스위치 (CheckBox 기반) -->
                     <CheckBox IsChecked="{Binding IsRealtimeRenderingEnabled}" VerticalAlignment="Center" Margin="0,0,15,0" MinWidth="100"
                               ToolTip="• 실시간: 모든 움직임 렌더링&#x0a;• 성능 우선: 이벤트 시점만 렌더링">
@@ -484,13 +515,13 @@
                                             </Ellipse.RenderTransform>
                                         </Ellipse>
                                     </Border>
-                                    
+
                                     <!-- 상태 레이블 -->
                                     <TextBlock x:Name="StateLabel" Text="성능 우선" 
                                                Foreground="{StaticResource TextSecondary}" 
                                                FontSize="11" VerticalAlignment="Center" Margin="8,0,0,0"/>
                                 </StackPanel>
-                                
+
                                 <ControlTemplate.Triggers>
                                     <!-- Checked 상태 (실시간 렌더링 ON) -->
                                     <Trigger Property="IsChecked" Value="True">
@@ -524,7 +555,7 @@
                                             </BeginStoryboard>
                                         </Trigger.ExitActions>
                                     </Trigger>
-                                    
+
                                     <!-- Hover 효과 -->
                                     <Trigger Property="IsMouseOver" Value="True">
                                         <Setter TargetName="SwitchThumb" Property="Effect">
@@ -537,22 +568,22 @@
                             </ControlTemplate>
                         </CheckBox.Template>
                     </CheckBox>
-                    
+
                     <TextBlock Text="재생 속도:" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" Margin="0,0,5,0"/>
                     <TextBox Text="{Binding PlaybackSpeedText, UpdateSourceTrigger=LostFocus}" Width="50" Height="26" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
-                    
+
                     <TextBlock Text="이동 간격:" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" Margin="15,0,5,0"/>
                     <TextBox Text="{Binding StepIntervalText, UpdateSourceTrigger=LostFocus}" Width="50" Height="26" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
 
                     <!-- 수동 시간 이동 (Time Jump) -->
-                    <Rectangle Width="1" Height="16" Fill="#555555" Margin="15,0"/>
+                    <Rectangle Width="1" Height="16" Fill="#555555" Margin="15,0,15,0"/>
                     <TextBlock Text="시간 이동:" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" Margin="0,0,5,0"/>
                     <TextBox Text="{Binding JumpTargetTimeText, UpdateSourceTrigger=LostFocus}" Width="60" Height="26" VerticalContentAlignment="Center" HorizontalContentAlignment="Center">
                         <TextBox.InputBindings>
                             <KeyBinding Key="Enter" Command="{Binding JumpToTimeCommand}"/>
                         </TextBox.InputBindings>
                     </TextBox>
-                    <Button Style="{StaticResource ModernButtonStyle}" Command="{Binding JumpToTimeCommand}" Content="➜" Margin="5,0,0,0" ToolTip="입력한 시간으로 이동 (Enter)"/>
+                    <Button Style="{StaticResource ModernButtonStyle}" Command="{Binding JumpToTimeCommand}" Content="➜" Margin="5,0,10,0" ToolTip="입력한 시간으로 이동 (Enter)"/>
                 </StackPanel>
             </Grid>
         </Grid>
