@@ -1,4 +1,5 @@
 using System;
+using ProjectChronos.Core;
 
 namespace ProjectChronos.Models
 {
@@ -15,7 +16,7 @@ namespace ProjectChronos.Models
     /// <summary>
     /// 시뮬레이션 타임라인에 표시될 이벤트 마커 데이터 모델
     /// </summary>
-    public class SimulationEventMarker
+    public class SimulationEventMarker : ViewModelBase
     {
         /// <summary>
         /// 이벤트 발생 시점 (초 단위)
@@ -51,6 +52,26 @@ namespace ProjectChronos.Models
         /// 타겟간 거리.
         /// </summary>
         public string RangeBTW { get; set; }
+
+        /// <summary>
+        /// 동일 시간에 여러 이벤트가 있을 때, 대표 마커(Tick)를 그릴지 여부
+        /// </summary>
+        public bool IsPrimaryMarker { get; set; } = true;
+
+        /// <summary>
+        /// 대표 마커일 경우 표시할 우선순위 (그룹 내 MaxPriority 반영용)
+        /// </summary>
+        public EventPriority MarkerPriority { get; set; } = EventPriority.Medium;
+
+        private bool _isHighlighted;
+        /// <summary>
+        /// 현재 시간과 겹쳐서 UI에서 하이라이트 상태인지 여부
+        /// </summary>
+        public bool IsHighlighted
+        {
+            get => _isHighlighted;
+            set => SetProperty(ref _isHighlighted, value);
+        }
 
         public SimulationEventMarker() { }
 

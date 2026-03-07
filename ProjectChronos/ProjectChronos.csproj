@@ -55,6 +55,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converters\LevelToMarginConverter.cs" />
     <Compile Include="Converters\NullToBoolConverter.cs" />
     <Compile Include="Converters\PriorityToTagConverter.cs" />
     <Compile Include="Core\RelayCommand.cs" />
@@ -62,6 +63,7 @@
     <Compile Include="Models\SimulationModels.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="ViewModels\SimulationReplayViewModel.cs" />
+    <Compile Include="Views\EventMarkerPanel.cs" />
     <Compile Include="Views\SimulationReplayView.xaml.cs">
       <DependentUpon>SimulationReplayView.xaml</DependentUpon>
     </Compile>

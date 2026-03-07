@@ -64,7 +64,9 @@ namespace ProjectChronos.ViewModels
         // -----------------------------------------------------------
         public SimulationReplayViewModel()
         {
-            Events = new ObservableCollection<SimulationMarkerGroup>();
+            // Events: 각 SimulationEventMarker를 개별 마커로 EventMarkerPanel에 넣음
+            // → EventMarkerPanel이 레이블 X너비 기반 충돌 감지 후 Level 자동 배정
+            Events = new ObservableCollection<SimulationEventMarker>();
 
             // 커맨드 초기화
             PlayPauseCommand = new RelayCommand(_ => TogglePlayPause());
@@ -86,20 +88,26 @@ namespace ProjectChronos.ViewModels
             Events.Clear();
             if (events != null)
             {
-                // 성능 최적화: 이벤트를 타임스탬프 기준으로 그룹화 및 정렬
-                var groupedList = events
-                    .GroupBy(e => Math.Round(e.Timestamp, 3)) // 소수점 3자리(1ms) 기준으로 그룹화
+                // 1. StepEvent 기능을 위해 그룹 캐시 생성
+                _sortedGroups = events
+                    .GroupBy(e => Math.Round(e.Timestamp, 3))
                     .Select(g => new SimulationMarkerGroup(g.Key, g))
                     .OrderBy(g => g.Timestamp)
                     .ToList();
 
-                foreach (var group in groupedList)
+                // 2. 개별 이벤트 리스트(Events) 채우기 및 Primary 마커(Tick 용) 설정
+                // EventMarkerPanel이 개별 이벤트마다 레이블 너비를 실측하여 X축 충돌을 감지합니다.
+                foreach (var group in _sortedGroups)
                 {
-                    Events.Add(group);
+                    bool isFirst = true;
+                    foreach (var ev in group.Events)
+                    {
+                        ev.IsPrimaryMarker = isFirst;
+                        ev.MarkerPriority = group.MaxPriority; // 그룹 내 가장 높은 우선순위 색상을 틱에 적용
+                        Events.Add(ev);
+                        isFirst = false;
+                    }
                 }
-
-                // 정렬된 리스트를 캐싱 (StepEvent에서 사용)
-                _sortedGroups = groupedList;
             }
             else
             {
@@ -126,7 +134,7 @@ namespace ProjectChronos.ViewModels
 
             // 0초 근처(EventMatchEpsilon 이내)에 있는 그룹 찾기
             var zeroGroup = _sortedGroups.FirstOrDefault(g => Math.Abs(g.Timestamp) <= EventMatchEpsilon);
-            
+
             if (zeroGroup != null)
             {
                 CurrentEvents = zeroGroup.Events;
@@ -190,8 +198,8 @@ namespace ProjectChronos.ViewModels
         public string CurrentTimeDisplay => TimeSpan.FromSeconds(CurrentTime).ToString(@"mm\:ss\.ff");
         public string TotalTimeDisplay => TimeSpan.FromSeconds(TotalDuration).ToString(@"mm\:ss\.ff");
 
-        // 타임라인 이벤트 목록 Collection (그룹 단위)
-        public ObservableCollection<SimulationMarkerGroup> Events { get; }
+        // 타임라인 이벤트 목록 Collection (개별 이벤트 단위)
+        public ObservableCollection<SimulationEventMarker> Events { get; }
 
         /// <summary>
         /// 재생 상태 (True=재생 중, False=일시 정지)
@@ -290,6 +298,8 @@ namespace ProjectChronos.ViewModels
         /// NotifyTimeChanged에서 갱신됩니다.
         /// </summary>
         private System.Collections.Generic.List<SimulationEventMarker> _currentEvents;
+        private System.Collections.Generic.List<SimulationEventMarker> _previousHighlightedEvents;
+
         public System.Collections.Generic.List<SimulationEventMarker> CurrentEvents
         {
             get => _currentEvents;
@@ -297,6 +307,19 @@ namespace ProjectChronos.ViewModels
             {
                 if (SetProperty(ref _currentEvents, value))
                 {
+                    // 기존 하이라이트 해제
+                    if (_previousHighlightedEvents != null)
+                    {
+                        foreach (var ev in _previousHighlightedEvents) ev.IsHighlighted = false;
+                    }
+
+                    // 새 이벤트 하이라이트 활성화
+                    if (_currentEvents != null)
+                    {
+                        foreach (var ev in _currentEvents) ev.IsHighlighted = true;
+                    }
+                    _previousHighlightedEvents = _currentEvents;
+
                     if (_currentEvents != null && _currentEvents.Count > 0)
                     {
                         System.Diagnostics.Debug.WriteLine($"[Events Detected] Count: {_currentEvents.Count} at {_currentEvents[0].Timestamp:F2}s");
@@ -320,7 +343,7 @@ namespace ProjectChronos.ViewModels
             get => _extraEventCount;
             set => SetProperty(ref _extraEventCount, value);
         }
-        
+
         private void UpdateEventSummary()
         {
             if (CurrentEvents != null && CurrentEvents.Count > 0)
@@ -381,7 +404,7 @@ namespace ProjectChronos.ViewModels
                         .Where(g => Math.Abs(g.Timestamp - newTime) <= EventMatchEpsilon)
                         .OrderBy(g => Math.Abs(g.Timestamp - newTime))
                         .FirstOrDefault();
-                        
+
                     CurrentEvents = matchedGroup?.Events;
                 }
 
@@ -464,7 +487,7 @@ namespace ProjectChronos.ViewModels
             else
             {
                 // 이벤트가 없으면 원래 목표대로 이동하고, CurrentEvents 초기화
-                
+
                 // [Range Check 결과 이벤트 없음]
                 CurrentEvents = null;
                 CurrentTime = nextTime;

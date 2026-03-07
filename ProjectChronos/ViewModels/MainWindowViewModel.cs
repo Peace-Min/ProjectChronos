@@ -16,11 +16,11 @@ namespace ProjectChronos.ViewModels
             // 검증 시나리오를 위한 테스트 이벤트
             var exampleEvents = new List<Models.SimulationEventMarker>
             {
-                new Models.SimulationEventMarker(40.0, Models.EventPriority.High, "위험 상황 발생", "Proximity Alert", "엔티티 A와 B가 충돌 위험 거리(5m) 이내 진입"),
+                new Models.SimulationEventMarker(40.0, Models.EventPriority.Medium, "위험 상황 발생", "Proximity Alert", "엔티티 A와 B가 충돌 위험 거리(5m) 이내 진입"),
 
-                new Models.SimulationEventMarker(80.0, Models.EventPriority.High, "시스템 부하 상승", "CPU Load High", "CPU 사용률 85%"),
-                new Models.SimulationEventMarker(80.1, Models.EventPriority.Medium, "네트워크 지연", "Network Lag", "핑 150ms 초과"), // 동시 발생 이벤트 추가
-                new Models.SimulationEventMarker(80.1, Models.EventPriority.Medium, "네트워크 지연", "Network Lag", "핑 150ms 초과"), // 동시 발생 이벤트 추가
+                new Models.SimulationEventMarker(80.0, Models.EventPriority.Medium, "시스템 부하 상승", "CPU Load High", "CPU 사용률 85%"),
+                new Models.SimulationEventMarker(80.1, Models.EventPriority.Medium, "네트워크 지연1", "Network Lag", "핑 150ms 초과"), // 동시 발생 이벤트 추가
+                new Models.SimulationEventMarker(80.1, Models.EventPriority.Medium, "네트워크 지연2", "Network Lag", "핑 150ms 초과"), // 동시 발생 이벤트 추가
                 
                 new Models.SimulationEventMarker(220.0, Models.EventPriority.Medium, "시뮬레이션 종료", "Job Done", "모든 작업이 완료되었습니다"),
             };
