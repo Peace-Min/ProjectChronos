@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>이벤트 마커 가시성 개선 프로토타입 v2</title>
+    <style>
+        :root {
+            --bg-color: #1a1a1b;
+            --panel-bg: #2d2d2e;
+            --accent-color: #007acc;
+            --high-priority: #ff5555;
+            --medium-priority: #ffb86c;
+            --text-primary: #ffffff;
+            --text-secondary: #999999;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 1000px;
+            background: var(--panel-bg);
+            padding: 80px 60px;
+            border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            margin-top: 50px;
+        }
+
+        .header {
+            margin-bottom: 60px;
+            border-left: 4px solid var(--accent-color);
+            padding-left: 20px;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin: 0;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-top: 8px;
+        }
+
+        .timeline-container {
+            position: relative;
+            height: 300px; /* 레이블이 쌓일 높이 확보 */
+            width: 100%;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+
+        .timeline-track {
+            position: absolute;
+            bottom: 40px; /* 트랙을 아래쪽에 배치 */
+            left: 20px;
+            right: 20px;
+            height: 4px;
+            background: #444;
+            border-radius: 2px;
+        }
+
+        .marker {
+            position: absolute;
+            bottom: 32px; /* 트랙 중심에 맞춤 */
+            width: 4px;
+            height: 20px;
+            background: var(--high-priority);
+            border-radius: 2px;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+
+        .marker.medium {
+            background: var(--medium-priority);
+        }
+
+        /* 레이블 컨테이너 */
+        .marker-label {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #111;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.8);
+            border-left: 3px solid var(--accent-color);
+            z-index: 20;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .time-tag {
+            color: var(--medium-priority);
+            font-weight: bold;
+            margin-right: 8px;
+            font-family: 'Consolas', monospace;
+        }
+
+        /* 레이블과 마커를 잇는 선 */
+        .connecting-line {
+            position: absolute;
+            bottom: 20px; /* 레이블 아래에서 시작 */
+            left: 50%;
+            width: 1px;
+            background: rgba(255,255,255,0.15);
+            transform: translateX(-50%);
+            z-index: 5;
+        }
+
+        .legend {
+            margin-top: 40px;
+            display: flex;
+            gap: 20px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Dynamic Neighborhood Stacking Prototype</h1>
+            <p class="subtitle">수평 인접 마커 간의 레이블 충돌 자동 해결 모델링</p>
+        </div>
+        
+        <div id="timeline" class="timeline-container">
+            <div class="timeline-track"></div>
+            <!-- 마커들이 여기에 동적으로 생성됨 -->
+        </div>
+
+        <div class="legend">
+            <div class="legend-item"><div class="dot" style="background: var(--high-priority)"></div> High Priority</div>
+            <div class="legend-item"><div class="dot" style="background: var(--medium-priority)"></div> Medium Priority</div>
+            <div class="legend-item">💡 마커 시간이 다르더라도 레이블 길이가 겹치면 자동으로 위로 쌓입니다.</div>
+        </div>
+    </div>
+
+    <script>
+        const events = [
+            { t: 30.0, p: 'High', title: '엔진 온도 경고' },
+            { t: 31.5, p: 'Medium', title: '냉각수 압력 저하 감지' }, // 30초와 가깝고 제목이 길어 겹칠 가능성 높음
+            { t: 80.0, p: 'High', title: '시스템 부하 상승' },
+            { t: 80.1, p: 'Medium', title: '네트워크 지연' },
+            { t: 80.1, p: 'Medium', title: '네트워크 지연 (재시도)' },
+            { t: 220.0, p: 'Medium', title: '시뮬레이션 종료' }
+        ];
+
+        const timeline = document.getElementById('timeline');
+        const timelineWidth = timeline.offsetWidth - 40; // 좌우 여백 제외
+        const duration = 250; // 전체 시간 범위
+
+        // 레벨별 점유 공간 관리 (x_start, x_end)
+        const levels = []; 
+
+        function getX(time) {
+            return (time / duration) * timelineWidth + 20;
+        }
+
+        events.forEach(event => {
+            const x = getX(event.t);
+            
+            // 1. 마커 생성
+            const marker = document.createElement('div');
+            marker.className = `marker ${event.p.toLowerCase()}`;
+            marker.style.left = `${x}px`;
+            timeline.appendChild(marker);
+
+            // 2. 레이블 너비 예측 (폰트 크기 및 글자 수 기반 대략적 계산)
+            // 실제 구현에선 렌더링 후 ActualWidth를 써야 함
+            const labelText = `${event.t.toFixed(1)}s ${event.title}`;
+            const predictedWidth = labelText.length * 8 + 30; 
+            const halfWidth = predictedWidth / 2;
+            const padding = 10; // 레이블 간 간격
+
+            // 3. 적절한 레벨 찾기 (충돌 감지)
+            let level = 0;
+            while (true) {
+                if (!levels[level]) levels[level] = [];
+                
+                const myStart = x - halfWidth - padding;
+                const myEnd = x + halfWidth + padding;
+                
+                const hasConflict = levels[level].some(range => {
+                    return !(myEnd < range.start || myStart > range.end);
+                });
+
+                if (!hasConflict) {
+                    levels[level].push({ start: myStart, end: myEnd });
+                    break;
+                }
+                level++;
+            }
+
+            // 4. 레이블 생성
+            const labelHeight = 35; // 한 층의 높이
+            const baseBottom = 60; // 트랙으로부터 기본 높이
+            
+            const label = document.createElement('div');
+            label.className = 'marker-label';
+            label.innerHTML = `<span class="time-tag">${event.t.toFixed(1)}s</span>${event.title}`;
+            label.style.left = `${x}px`;
+            label.style.bottom = `${baseBottom + (level * labelHeight)}px`;
+            label.style.borderLeftColor = event.p === 'High' ? 'var(--high-priority)' : 'var(--medium-priority)';
+            timeline.appendChild(label);
+
+            // 5. 연결선 생성
+            const line = document.createElement('div');
+            line.className = 'connecting-line';
+            line.style.left = `${x}px`;
+            line.style.bottom = `40px`; // 트랙 위치
+            line.style.height = `${baseBottom + (level * labelHeight) - 40}px`;
+            timeline.appendChild(line);
+        });
+    </script>
+</body>
+</html>

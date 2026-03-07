@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>이벤트 마커 가시성 개선 프로토타입</title>
+    <style>
+        :root {
+            --bg-color: #1e1e1e;
+            --panel-bg: #2d2d2d;
+            --accent-color: #007acc;
+            --high-priority: #ff5555;
+            --medium-priority: #ffb86c;
+            --text-primary: #ffffff;
+            --text-secondary: #aaaaaa;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 900px;
+            background: var(--panel-bg);
+            padding: 60px 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 40px;
+            font-weight: 300;
+            color: var(--text-secondary);
+        }
+
+        .timeline-container {
+            position: relative;
+            height: 200px;
+            width: 100%;
+            margin-top: 100px;
+        }
+
+        .timeline-track {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: #555;
+            transform: translateY(-50%);
+            border-radius: 2px;
+        }
+
+        .marker {
+            position: absolute;
+            top: 50%;
+            width: 6px;
+            height: 20px;
+            background: var(--high-priority);
+            transform: translate(-50%, -50%);
+            border-radius: 2px;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        /* [핵심] 상단 레이블 스타일 */
+        .marker-label {
+            position: absolute;
+            bottom: 30px; /* 마커 위에 배치 */
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            color: #fff;
+            border-left: 2px solid var(--accent-color);
+            pointer-events: none;
+            transition: transform 0.2s, opacity 0.2s;
+            z-index: 3;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        /* 시간 표시 */
+        .time-tag {
+            color: var(--medium-priority);
+            font-family: 'Consolas', monospace;
+            margin-right: 5px;
+        }
+
+        /* 중첩 시 스태킹 보정 */
+        .marker[data-overlap="1"] .marker-label {
+            bottom: 55px; /* 약간 위로 이동 */
+        }
+        .marker[data-overlap="2"] .marker-label {
+            bottom: 80px; /* 더 위로 이동 */
+        }
+
+        /* 헬퍼 라인 (마커와 레이블 연결) */
+        .marker-label::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            width: 1px;
+            height: 10px;
+            background: rgba(255,255,255,0.2);
+        }
+
+        .marker[data-overlap="1"] .marker-label::after { height: 35px; }
+        .marker[data-overlap="2"] .marker-label::after { height: 60px; }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>이벤트 레이블 중첩 식별 프로토타입</h1>
+        
+        <div class="timeline-container">
+            <div class="timeline-track"></div>
+            
+            <!-- 40.0s -->
+            <div class="marker" style="left: 10%;">
+                <div class="marker-label">
+                    <span class="time-tag">40.0s</span> 위험 상황 발생
+                </div>
+            </div>
+
+            <!-- 80.0s -->
+            <div class="marker" style="left: 30%;">
+                <div class="marker-label">
+                    <span class="time-tag">80.0s</span> 시스템 부하 상승
+                </div>
+            </div>
+
+            <!-- 80.1s (1) -->
+            <div class="marker" style="left: 30.5%;" data-overlap="1">
+                <div class="marker-label" style="border-left-color: var(--medium-priority);">
+                    <span class="time-tag">80.1s</span> 네트워크 지연
+                </div>
+            </div>
+
+            <!-- 80.1s (2) -->
+            <div class="marker" style="left: 30.5%;" data-overlap="2">
+                <div class="marker-label" style="border-left-color: var(--medium-priority);">
+                    <span class="time-tag">80.1s</span> 네트워크 지연
+                </div>
+            </div>
+
+            <!-- 220.0s -->
+            <div class="marker" style="left: 80%;">
+                <div class="marker-label" style="border-left-color: var(--medium-priority);">
+                    <span class="time-tag">220.0s</span> 시뮬레이션 종료
+                </div>
+            </div>
+
+        </div>
+
+        <p style="margin-top: 80px; color: var(--text-secondary); font-size: 0.9rem; text-align: center;">
+            * 마커가 가로로 겹치더라도 상단의 레이블을 스태킹하여 개별 이벤트를 식별할 수 있습니다.
+        </p>
+    </div>
+</body>
+</html>

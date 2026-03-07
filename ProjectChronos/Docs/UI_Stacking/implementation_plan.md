@@ -1,0 +1,32 @@
+# 이벤트 마커 가시성 개선 구현 계획
+
+이벤트 발생 간격이 매우 짧을 때(예: 0.1초) 시각적 마커가 겹쳐서 정보를 식별하기 어려운 문제를 해결하기 위해, 마커 상단에 요약 레이블을 표시하는 기능을 추가합니다.
+
+## 제안된 변경 사항
+
+### [Component] UI/UX 개선
+- **이벤트 마커 상단 레이블**: 각 마커 상단에 `[발생시간]: [제목]` 형태의 텍스트 레이블을 추가합니다.
+- **WPF 커스텀 패널 (`EventMarkerPanel`) 도입 배경**:
+    - **Converter의 한계**: 컨버터는 '현재 아이템 하나'의 정보만 알 수 있고, '이웃 레이블이 물리적으로 얼마나 긴지'는 알 수 없습니다. 창 크기가 바뀔 때 유연하게 대응하기 어렵습니다.
+    - **Panel의 장점**: 모든 자식의 **Actual Width**를 측정(`Measure`)한 후 위치를 결정(`Arrange`)하므로, 제목이 길어서 발생하는 수평 중첩을 100% 잡아낼 수 있습니다.
+- **상세 레이아웃 알고리즘**:
+    1. `MeasureOverride`: 모든 자식 레이블과 마커의 크기를 측정합니다.
+    2. `ArrangeOverride`: 
+        - 자식들을 시간순으로 정렬한 뒤, 첫 번째 레벨(Level 0)에 가로 배치를 시도합니다.
+        - 만약 현재 레이블의 가로 영역(`X_start` ~ `X_end`)이 해당 레벨의 이전 레이블 영역과 겹치면, `Level + 1`로 이동하여 다시 검사합니다.
+        - 결정된 `Level`에 따라 최종 Y 좌표를 할당합니다.
+    3. **시각적 완성도**: 계산된 레벨 높이에 맞춰 마커와 레이블을 잇는 `Vertical Line`의 높이를 패널이 직접 조정합니다.
+
+### [NEW] [EventMarkerPanel.cs](file:///c:/Users/minph/source/repos/ProjectChronos/ProjectChronos/Views/EventMarkerPanel.cs)
+- `Panel` 상속 및 `Timestamp`, `TotalDuration` 의존성 속성 구현.
+- `DesiredSize`와 `Arrange` 로직을 통한 동적 스태킹 구현.
+
+### [Modify] [SimulationReplayView.xaml](file:///c:/Users/minph/source/repos/ProjectChronos/ProjectChronos/Views/SimulationReplayView.xaml)
+- **ViewModel 수정 없음**: 기존 `ItemsSource="{Binding Events}"`를 그대로 유지합니다.
+- `ItemsPanel`만 `local:EventMarkerPanel`로 교체하여 레이아웃 연산 주체를 변경합니다.
+
+## 검증 계획
+
+### 수동 검증
+- 0.1초 간격의 테스트 시나리오를 사용하여 마커들이 겹치더라도 상단 레이블을 통해 이벤트 개수와 내용을 확인할 수 있는지 테스트합니다.
+- 화면 너비를 조절할 때 레이블들이 동적으로 재배치되는지 확인합니다.

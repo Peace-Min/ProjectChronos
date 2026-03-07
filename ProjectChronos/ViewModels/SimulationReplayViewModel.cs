@@ -157,8 +157,6 @@ namespace ProjectChronos.ViewModels
             set => SetProperty(ref _isAutoPauseEnabled, value);
         }
 
-        private double _lastHighlightTime = -1;
-
         /// <summary>
         /// 전체 시뮬레이션 길이 (초 단위)
         /// </summary>
@@ -500,31 +498,15 @@ namespace ProjectChronos.ViewModels
                 }
                 else
                 {
-                    // 자동 멈춤 OFF: 멈추지 않고 흘러가지만 잔상(Highlight)을 남김
+                    // 자동 멈춤 OFF: 멈추지 않고 흘러감 (잔상 기능 제거됨)
                     SetCurrentTimeInternal(matchedGroup.Timestamp, forceNotify: true);
                     CurrentTime = nextTime;
-                    _lastHighlightTime = nextTime;
                 }
             }
             else
             {
                 // 이벤트가 없으면 원래 목표대로 이동하고, CurrentEvents 초기화
-
-                // [Range Check 결과 이벤트 없음]
-                if (!IsAutoPauseEnabled && _lastHighlightTime >= 0)
-                {
-                    // 1초 뒤에 잔상 해제
-                    if (nextTime - _lastHighlightTime > 1.0 * PlaybackSpeed)
-                    {
-                        CurrentEvents = null;
-                        _lastHighlightTime = -1;
-                    }
-                }
-                else
-                {
-                    CurrentEvents = null;
-                }
-
+                CurrentEvents = null;
                 CurrentTime = nextTime;
             }
         }

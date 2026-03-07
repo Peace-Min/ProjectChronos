@@ -1,0 +1,849 @@
+﻿Build started 2026-03-07 오후 3:58:54.
+Logging verbosity is set to: Detailed.     0>Terminal Logger was not used because the output is being redirected to a file.
+       Process = "C:\Program Files\dotnet\dotnet.exe"
+       MSBuild executable path = "C:\Program Files\dotnet\sdk\9.0.304\MSBuild.dll"
+       Command line arguments = "C:\Program Files\dotnet\sdk\9.0.304\MSBuild.dll -maxcpucount -verbosity:m -tlp:default=auto -nologo -restore -consoleloggerparameters:Summary --property:GenerateResourceMSBuildArchitecture=CurrentArchitecture -fl -flp:logfile=build.log -distributedlogger:Microsoft.DotNet.Tools.MSBuild.MSBuildLogger,C:\Program Files\dotnet\sdk\9.0.304\dotnet.dll*Microsoft.DotNet.Tools.MSBuild.MSBuildForwardingLogger,C:\Program Files\dotnet\sdk\9.0.304\dotnet.dll"
+       Current directory = "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos"
+       MSBuild version = "17.14.16+5d8159c5f"
+       Based on the Windows registry key LongPathsEnabled, the LongPaths feature is disabled.
+       Based on the Windows registry key VerifiedAndReputablePolicyState, SAC state = 0: turned off.
+       C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj(3,92): message : Property 'MSBuildExtensionsPath' with value 'C:\Program Files\dotnet\sdk\9.0.304\' expanded from the environment.
+       C:\Program Files\dotnet\sdk\9.0.304\Current\Microsoft.Common.props(60,5): message : Property reassignment: $(MSBuildProjectExtensionsPath)="C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\obj\" (previous value: "obj\") at C:\Program Files\dotnet\sdk\9.0.304\Current\Microsoft.Common.props (60,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Current\Microsoft.Common.props(84,119): message : Property 'MSBuildUserExtensionsPath' with value 'C:\Users\minph\AppData\Local\Microsoft\MSBuild' expanded from the environment.
+       Assembly loaded during Evaluation: System.Collections.NonGeneric, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a (location: C:\Program Files\dotnet\shared\Microsoft.NETCore.App\9.0.8\System.Collections.NonGeneric.dll, MVID: d1fb4146-e6cd-4939-be94-69ed7d0c6f14, AssemblyLoadContext: Default)
+       C:\Program Files\dotnet\sdk\9.0.304\Roslyn\Microsoft.CSharp.Core.targets(200,5): message : Property reassignment: $(CommandLineArgsForDesignTimeEvaluation)="-langversion:7.3 -define:DEBUG;TRACE" (previous value: "-langversion:7.3") at C:\Program Files\dotnet\sdk\9.0.304\Roslyn\Microsoft.CSharp.Core.targets (200,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.props(117,5): message : Property reassignment: $(AvailablePlatforms)="Any CPU,x86,x64,ARM64" (previous value: "Any CPU,x86,x64") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.props (117,5)
+       Assembly loaded during Evaluation: Microsoft.Build.Utilities.Core, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a (location: C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Build.Utilities.Core.dll, MVID: a80e9bbc-a6fa-45e5-829b-e8cef913666f, AssemblyLoadContext: Default)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(175,5): message : Property reassignment: $(_DebugSymbolsProduced)="true" (previous value: "false") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (175,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(185,5): message : Property reassignment: $(_DocumentationFileProduced)="false" (previous value: "true") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (185,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(392,5): message : Property reassignment: $(MSBuildCopyMarkerName)="ProjectC.D64CCA24" (previous value: "ProjectChronos.csproj") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (392,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(393,5): message : Property reassignment: $(MSBuildCopyMarkerName)="ProjectC.D64CCA24.Up2Date" (previous value: "ProjectC.D64CCA24") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (393,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(527,5): message : Property reassignment: $(ProcessorArchitecture)="msil" (previous value: "AnyCPU") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (527,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(580,5): message : Property reassignment: $(DelaySign)="" (previous value: "false") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (580,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(649,5): message : Property reassignment: $(AssemblySearchPaths)="{CandidateAssemblyFiles};" (previous value: "{CandidateAssemblyFiles}") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (649,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(650,5): message : Property reassignment: $(AssemblySearchPaths)="{CandidateAssemblyFiles};;{HintPathFromItem}" (previous value: "{CandidateAssemblyFiles};") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (650,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(651,5): message : Property reassignment: $(AssemblySearchPaths)="{CandidateAssemblyFiles};;{HintPathFromItem};{TargetFrameworkDirectory}" (previous value: "{CandidateAssemblyFiles};;{HintPathFromItem}") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (651,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(652,5): message : Property reassignment: $(AssemblySearchPaths)="{CandidateAssemblyFiles};;{HintPathFromItem};{TargetFrameworkDirectory};" (previous value: "{CandidateAssemblyFiles};;{HintPathFromItem};{TargetFrameworkDirectory}") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (652,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(653,5): message : Property reassignment: $(AssemblySearchPaths)="{CandidateAssemblyFiles};;{HintPathFromItem};{TargetFrameworkDirectory};;{Registry:Software\Microsoft\.NETFramework,v4.7.2,AssemblyFoldersEx}" (previous value: "{CandidateAssemblyFiles};;{HintPathFromItem};{TargetFrameworkDirectory};") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (653,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(654,5): message : Property reassignment: $(AssemblySearchPaths)="{CandidateAssemblyFiles};;{HintPathFromItem};{TargetFrameworkDirectory};;{Registry:Software\Microsoft\.NETFramework,v4.7.2,AssemblyFoldersEx};{AssemblyFolders}" (previous value: "{CandidateAssemblyFiles};;{HintPathFromItem};{TargetFrameworkDirectory};;{Registry:Software\Microsoft\.NETFramework,v4.7.2,AssemblyFoldersEx}") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (654,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(655,5): message : Property reassignment: $(AssemblySearchPaths)="{CandidateAssemblyFiles};;{HintPathFromItem};{TargetFrameworkDirectory};;{Registry:Software\Microsoft\.NETFramework,v4.7.2,AssemblyFoldersEx};{AssemblyFolders};{GAC}" (previous value: "{CandidateAssemblyFiles};;{HintPathFromItem};{TargetFrameworkDirectory};;{Registry:Software\Microsoft\.NETFramework,v4.7.2,AssemblyFoldersEx};{AssemblyFolders}") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (655,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(656,5): message : Property reassignment: $(AssemblySearchPaths)="{CandidateAssemblyFiles};;{HintPathFromItem};{TargetFrameworkDirectory};;{Registry:Software\Microsoft\.NETFramework,v4.7.2,AssemblyFoldersEx};{AssemblyFolders};{GAC};{RawFileName}" (previous value: "{CandidateAssemblyFiles};;{HintPathFromItem};{TargetFrameworkDirectory};;{Registry:Software\Microsoft\.NETFramework,v4.7.2,AssemblyFoldersEx};{AssemblyFolders};{GAC}") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (656,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(657,5): message : Property reassignment: $(AssemblySearchPaths)="{CandidateAssemblyFiles};;{HintPathFromItem};{TargetFrameworkDirectory};;{Registry:Software\Microsoft\.NETFramework,v4.7.2,AssemblyFoldersEx};{AssemblyFolders};{GAC};{RawFileName};bin\Debug\" (previous value: "{CandidateAssemblyFiles};;{HintPathFromItem};{TargetFrameworkDirectory};;{Registry:Software\Microsoft\.NETFramework,v4.7.2,AssemblyFoldersEx};{AssemblyFolders};{GAC};{RawFileName}") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (657,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(2619,5): message : Property 'LOCALAPPDATA' with value 'C:\Users\minph\AppData\Local' expanded from the environment.
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(3947,5): message : Property reassignment: $(_SGenGenerateSerializationAssembliesConfig)="Auto" (previous value: "") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (3947,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(3948,5): message : Property reassignment: $(_SGenGenerateSerializationAssembliesConfig)="Off" (previous value: "Auto") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (3948,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(5159,5): message : Property reassignment: $(_TargetsThatPrepareProjectReferences)="
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(5159,5): message :       AssignProjectConfiguration;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(5159,5): message :       _SplitProjectReferencesByFileExistence
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(5159,5): message :     " (previous value: "_SplitProjectReferencesByFileExistence") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (5159,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(6954,5): message : Property 'MSBuildExtensionsPath32' with value 'C:\Program Files\dotnet\sdk\9.0.304' expanded from the environment.
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message : Property reassignment: $(ResolveReferencesDependsOn)="
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       BeforeResolveReferences;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       AssignProjectConfiguration;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       ResolveProjectReferences;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       FindInvalidProjectReferences;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       ResolveNativeReferences;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       ResolveAssemblyReferences;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       GenerateBindingRedirects;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       GenerateBindingRedirectsUpdateAppConfig;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       ResolveComReferences;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       AfterResolveReferences
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :     ;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       ImplicitlyExpandDesignTimeFacades
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :     " (previous value: "
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       BeforeResolveReferences;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       AssignProjectConfiguration;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       ResolveProjectReferences;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       FindInvalidProjectReferences;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       ResolveNativeReferences;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       ResolveAssemblyReferences;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       GenerateBindingRedirects;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       GenerateBindingRedirectsUpdateAppConfig;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       ResolveComReferences;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       AfterResolveReferences
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :     ") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets (74,5)
+       Assembly loaded during Evaluation: System.Threading.Tasks.Parallel, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a (location: C:\Program Files\dotnet\shared\Microsoft.NETCore.App\9.0.8\System.Threading.Tasks.Parallel.dll, MVID: 1af4dee5-e6e2-41b4-8956-d0888b6207d0, AssemblyLoadContext: Default)
+       Overriding target "GetFrameworkPaths" in project "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets" with target "GetFrameworkPaths" from project "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets".
+       The target "ResolveNuGetPackageAssets" listed in an AfterTargets attribute at "C:\Program Files\dotnet\sdk\9.0.304\Microsoft\Microsoft.NET.Build.Extensions\Microsoft.NET.Build.Extensions.ConflictResolution.targets (27,11)" does not exist in the project, and will be ignored.
+     1>Project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" on node 1 (Restore target(s)).
+     1>Project file contains ToolsVersion="15.0". This toolset may be unknown or missing, in which case you may be able to resolve this by installing the appropriate version of MSBuild, or the build may have been forced to a particular ToolsVersion for policy reasons. Treating the project as if it had ToolsVersion="Current". For more information, please see http://go.microsoft.com/fwlink/?LinkId=293424.
+     1>Target "_LoadRestoreGraphEntryPoints" in file "C:\Program Files\dotnet\sdk\9.0.304\NuGet.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "_FilterRestoreGraphProjectInputItems" depends on it):
+       Task "GetRestoreSolutionProjectsTask" skipped, due to false condition; ( $(MSBuildProjectFullPath.EndsWith('.metaproj')) == 'true' AND @(RestoreGraphProjectInputItems) == '' ) was evaluated as ( False == 'true' AND C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj == '' ).
+     1>Done building target "_LoadRestoreGraphEntryPoints" in project "ProjectChronos.csproj".
+     1>Target "_FilterRestoreGraphProjectInputItems" in file "C:\Program Files\dotnet\sdk\9.0.304\NuGet.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "_GenerateRestoreGraph" depends on it):
+       Using "RemoveDuplicates" task from assembly "Microsoft.Build.Tasks.Core, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a".
+       Task "RemoveDuplicates"
+       Done executing task "RemoveDuplicates".
+       Using "MSBuild" task from assembly "Microsoft.Build.Tasks.Core, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a".
+       Task "MSBuild"
+         Global Properties:
+           ExcludeRestorePackageImports=true
+     0>C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj(3,92): message : Property 'MSBuildExtensionsPath' with value 'C:\Program Files\dotnet\sdk\9.0.304\' expanded from the environment.
+       C:\Program Files\dotnet\sdk\9.0.304\Current\Microsoft.Common.props(60,5): message : Property reassignment: $(MSBuildProjectExtensionsPath)="C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\obj\" (previous value: "obj\") at C:\Program Files\dotnet\sdk\9.0.304\Current\Microsoft.Common.props (60,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Current\Microsoft.Common.props(84,119): message : Property 'MSBuildUserExtensionsPath' with value 'C:\Users\minph\AppData\Local\Microsoft\MSBuild' expanded from the environment.
+       C:\Program Files\dotnet\sdk\9.0.304\Roslyn\Microsoft.CSharp.Core.targets(200,5): message : Property reassignment: $(CommandLineArgsForDesignTimeEvaluation)="-langversion:7.3 -define:DEBUG;TRACE" (previous value: "-langversion:7.3") at C:\Program Files\dotnet\sdk\9.0.304\Roslyn\Microsoft.CSharp.Core.targets (200,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.props(117,5): message : Property reassignment: $(AvailablePlatforms)="Any CPU,x86,x64,ARM64" (previous value: "Any CPU,x86,x64") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.props (117,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(175,5): message : Property reassignment: $(_DebugSymbolsProduced)="true" (previous value: "false") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (175,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(185,5): message : Property reassignment: $(_DocumentationFileProduced)="false" (previous value: "true") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (185,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(392,5): message : Property reassignment: $(MSBuildCopyMarkerName)="ProjectC.D64CCA24" (previous value: "ProjectChronos.csproj") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (392,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(393,5): message : Property reassignment: $(MSBuildCopyMarkerName)="ProjectC.D64CCA24.Up2Date" (previous value: "ProjectC.D64CCA24") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (393,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(527,5): message : Property reassignment: $(ProcessorArchitecture)="msil" (previous value: "AnyCPU") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (527,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(580,5): message : Property reassignment: $(DelaySign)="" (previous value: "false") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (580,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(649,5): message : Property reassignment: $(AssemblySearchPaths)="{CandidateAssemblyFiles};" (previous value: "{CandidateAssemblyFiles}") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (649,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(650,5): message : Property reassignment: $(AssemblySearchPaths)="{CandidateAssemblyFiles};;{HintPathFromItem}" (previous value: "{CandidateAssemblyFiles};") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (650,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(651,5): message : Property reassignment: $(AssemblySearchPaths)="{CandidateAssemblyFiles};;{HintPathFromItem};{TargetFrameworkDirectory}" (previous value: "{CandidateAssemblyFiles};;{HintPathFromItem}") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (651,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(652,5): message : Property reassignment: $(AssemblySearchPaths)="{CandidateAssemblyFiles};;{HintPathFromItem};{TargetFrameworkDirectory};" (previous value: "{CandidateAssemblyFiles};;{HintPathFromItem};{TargetFrameworkDirectory}") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (652,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(653,5): message : Property reassignment: $(AssemblySearchPaths)="{CandidateAssemblyFiles};;{HintPathFromItem};{TargetFrameworkDirectory};;{Registry:Software\Microsoft\.NETFramework,v4.7.2,AssemblyFoldersEx}" (previous value: "{CandidateAssemblyFiles};;{HintPathFromItem};{TargetFrameworkDirectory};") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (653,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(654,5): message : Property reassignment: $(AssemblySearchPaths)="{CandidateAssemblyFiles};;{HintPathFromItem};{TargetFrameworkDirectory};;{Registry:Software\Microsoft\.NETFramework,v4.7.2,AssemblyFoldersEx};{AssemblyFolders}" (previous value: "{CandidateAssemblyFiles};;{HintPathFromItem};{TargetFrameworkDirectory};;{Registry:Software\Microsoft\.NETFramework,v4.7.2,AssemblyFoldersEx}") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (654,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(655,5): message : Property reassignment: $(AssemblySearchPaths)="{CandidateAssemblyFiles};;{HintPathFromItem};{TargetFrameworkDirectory};;{Registry:Software\Microsoft\.NETFramework,v4.7.2,AssemblyFoldersEx};{AssemblyFolders};{GAC}" (previous value: "{CandidateAssemblyFiles};;{HintPathFromItem};{TargetFrameworkDirectory};;{Registry:Software\Microsoft\.NETFramework,v4.7.2,AssemblyFoldersEx};{AssemblyFolders}") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (655,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(656,5): message : Property reassignment: $(AssemblySearchPaths)="{CandidateAssemblyFiles};;{HintPathFromItem};{TargetFrameworkDirectory};;{Registry:Software\Microsoft\.NETFramework,v4.7.2,AssemblyFoldersEx};{AssemblyFolders};{GAC};{RawFileName}" (previous value: "{CandidateAssemblyFiles};;{HintPathFromItem};{TargetFrameworkDirectory};;{Registry:Software\Microsoft\.NETFramework,v4.7.2,AssemblyFoldersEx};{AssemblyFolders};{GAC}") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (656,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(657,5): message : Property reassignment: $(AssemblySearchPaths)="{CandidateAssemblyFiles};;{HintPathFromItem};{TargetFrameworkDirectory};;{Registry:Software\Microsoft\.NETFramework,v4.7.2,AssemblyFoldersEx};{AssemblyFolders};{GAC};{RawFileName};bin\Debug\" (previous value: "{CandidateAssemblyFiles};;{HintPathFromItem};{TargetFrameworkDirectory};;{Registry:Software\Microsoft\.NETFramework,v4.7.2,AssemblyFoldersEx};{AssemblyFolders};{GAC};{RawFileName}") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (657,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(2619,5): message : Property 'LOCALAPPDATA' with value 'C:\Users\minph\AppData\Local' expanded from the environment.
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(3947,5): message : Property reassignment: $(_SGenGenerateSerializationAssembliesConfig)="Auto" (previous value: "") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (3947,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(3948,5): message : Property reassignment: $(_SGenGenerateSerializationAssembliesConfig)="Off" (previous value: "Auto") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (3948,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(5159,5): message : Property reassignment: $(_TargetsThatPrepareProjectReferences)="
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(5159,5): message :       AssignProjectConfiguration;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(5159,5): message :       _SplitProjectReferencesByFileExistence
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(5159,5): message :     " (previous value: "_SplitProjectReferencesByFileExistence") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (5159,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(6954,5): message : Property 'MSBuildExtensionsPath32' with value 'C:\Program Files\dotnet\sdk\9.0.304' expanded from the environment.
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message : Property reassignment: $(ResolveReferencesDependsOn)="
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       BeforeResolveReferences;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       AssignProjectConfiguration;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       ResolveProjectReferences;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       FindInvalidProjectReferences;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       ResolveNativeReferences;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       ResolveAssemblyReferences;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       GenerateBindingRedirects;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       GenerateBindingRedirectsUpdateAppConfig;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       ResolveComReferences;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       AfterResolveReferences
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :     ;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       ImplicitlyExpandDesignTimeFacades
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :     " (previous value: "
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       BeforeResolveReferences;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       AssignProjectConfiguration;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       ResolveProjectReferences;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       FindInvalidProjectReferences;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       ResolveNativeReferences;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       ResolveAssemblyReferences;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       GenerateBindingRedirects;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       GenerateBindingRedirectsUpdateAppConfig;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       ResolveComReferences;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       AfterResolveReferences
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :     ") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets (74,5)
+       Overriding target "GetFrameworkPaths" in project "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets" with target "GetFrameworkPaths" from project "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets".
+       The target "ResolveNuGetPackageAssets" listed in an AfterTargets attribute at "C:\Program Files\dotnet\sdk\9.0.304\Microsoft\Microsoft.NET.Build.Extensions\Microsoft.NET.Build.Extensions.ConflictResolution.targets (27,11)" does not exist in the project, and will be ignored.
+     1>Project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (1) is building "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (1:2) on node 1 (_IsProjectRestoreSupported target(s)).
+   1:2>Project file contains ToolsVersion="15.0". This toolset may be unknown or missing, in which case you may be able to resolve this by installing the appropriate version of MSBuild, or the build may have been forced to a particular ToolsVersion for policy reasons. Treating the project as if it had ToolsVersion="Current". For more information, please see http://go.microsoft.com/fwlink/?LinkId=293424.
+   1:2>Target "_IsProjectRestoreSupported" in file "C:\Program Files\dotnet\sdk\9.0.304\NuGet.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (entry point):
+   1:2>Done building target "_IsProjectRestoreSupported" in project "ProjectChronos.csproj".
+   1:2>Done Building Project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (_IsProjectRestoreSupported target(s)).
+     1>Done executing task "MSBuild".
+       Task "MSBuild" skipped, due to false condition; ( '$(RestoreUseSkipNonexistentTargets)' != 'true' ) was evaluated as ( 'true' != 'true' ).
+       Assembly loaded during TaskRun: NuGet.Build.Tasks, Version=6.14.0.116, Culture=neutral, PublicKeyToken=31bf3856ad364e35 (location: C:\Program Files\dotnet\sdk\9.0.304\NuGet.Build.Tasks.dll, MVID: c545d64d-0cbb-4fc0-971c-b5c1c1e75cf3, AssemblyLoadContext: MSBuild plugin C:\Program Files\dotnet\sdk\9.0.304\NuGet.Build.Tasks.dll)
+       Assembly loaded during TaskRun: System.Reflection.Metadata, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a (location: C:\Program Files\dotnet\shared\Microsoft.NETCore.App\9.0.8\System.Reflection.Metadata.dll, MVID: dbaf5a55-ca96-423e-a0a5-854421f927b8, AssemblyLoadContext: Default)
+       Assembly loaded during TaskRun: NuGet.Common, Version=6.14.0.116, Culture=neutral, PublicKeyToken=31bf3856ad364e35 (location: C:\Program Files\dotnet\sdk\9.0.304\NuGet.Common.dll, MVID: 0fbb79ae-e358-4591-bc91-e34371a3d05b, AssemblyLoadContext: MSBuild plugin C:\Program Files\dotnet\sdk\9.0.304\NuGet.Build.Tasks.dll)
+       Assembly loaded during TaskRun: NuGet.Commands, Version=6.14.0.116, Culture=neutral, PublicKeyToken=31bf3856ad364e35 (location: C:\Program Files\dotnet\sdk\9.0.304\NuGet.Commands.dll, MVID: e743f127-1013-45a0-a669-058903e72acf, AssemblyLoadContext: MSBuild plugin C:\Program Files\dotnet\sdk\9.0.304\NuGet.Build.Tasks.dll)
+       Assembly loaded during TaskRun: NuGet.ProjectModel, Version=6.14.0.116, Culture=neutral, PublicKeyToken=31bf3856ad364e35 (location: C:\Program Files\dotnet\sdk\9.0.304\NuGet.ProjectModel.dll, MVID: 08d0df58-191b-4580-9b46-c281ab5b9b36, AssemblyLoadContext: MSBuild plugin C:\Program Files\dotnet\sdk\9.0.304\NuGet.Build.Tasks.dll)
+       Using "WarnForInvalidProjectsTask" task from assembly "C:\Program Files\dotnet\sdk\9.0.304\NuGet.Build.Tasks.dll".
+       Task "WarnForInvalidProjectsTask"
+       Done executing task "WarnForInvalidProjectsTask".
+     1>Done building target "_FilterRestoreGraphProjectInputItems" in project "ProjectChronos.csproj".
+       Target "_FilterRestoreGraphProjectInputItems" skipped. Previously built successfully.
+     1>Target "_GetAllRestoreProjectPathItems" in file "C:\Program Files\dotnet\sdk\9.0.304\NuGet.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "_GenerateRestoreGraph" depends on it):
+       Using "NuGetMessageTask" task from assembly "C:\Program Files\dotnet\sdk\9.0.304\NuGet.Build.Tasks.dll".
+       Task "NuGetMessageTask"
+         Determining projects to restore...
+       Done executing task "NuGetMessageTask".
+       Task "MSBuild"
+         Global Properties:
+           ExcludeRestorePackageImports=true
+     1>Project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (1) is building "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (1:3) on node 1 (_GenerateRestoreProjectPathWalk target(s)).
+   1:3>Project file contains ToolsVersion="15.0". This toolset may be unknown or missing, in which case you may be able to resolve this by installing the appropriate version of MSBuild, or the build may have been forced to a particular ToolsVersion for policy reasons. Treating the project as if it had ToolsVersion="Current". For more information, please see http://go.microsoft.com/fwlink/?LinkId=293424.
+       Target "_GenerateRestoreProjectPathItemsAllFrameworks" skipped, due to false condition; ( '$(TargetFrameworks)' != '' ) was evaluated as ( '' != '' ).
+   1:3>Target "_GenerateRestoreProjectPathItemsPerFramework" in file "C:\Program Files\dotnet\sdk\9.0.304\NuGet.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "_GenerateRestoreProjectPathItemsCurrentProject" depends on it):
+       Using "ConvertToAbsolutePath" task from assembly "Microsoft.Build.Tasks.Core, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a".
+       Task "ConvertToAbsolutePath"
+       Done executing task "ConvertToAbsolutePath".
+   1:3>Done building target "_GenerateRestoreProjectPathItemsPerFramework" in project "ProjectChronos.csproj".
+   1:3>Target "_GenerateRestoreProjectPathItemsCurrentProject" in file "C:\Program Files\dotnet\sdk\9.0.304\NuGet.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "_GenerateRestoreProjectPathItems" depends on it):
+   1:3>Done building target "_GenerateRestoreProjectPathItemsCurrentProject" in project "ProjectChronos.csproj".
+   1:3>Target "_GenerateRestoreProjectPathItems" in file "C:\Program Files\dotnet\sdk\9.0.304\NuGet.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "_GenerateRestoreProjectPathWalk" depends on it):
+       Task "RemoveDuplicates"
+       Done executing task "RemoveDuplicates".
+   1:3>Done building target "_GenerateRestoreProjectPathItems" in project "ProjectChronos.csproj".
+   1:3>Target "_GenerateRestoreProjectPathWalk" in file "C:\Program Files\dotnet\sdk\9.0.304\NuGet.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (entry point):
+       Task "MSBuild"
+       Done executing task "MSBuild".
+       Task "MSBuild" skipped, due to false condition; ( '$(RestoreUseSkipNonexistentTargets)' != 'true' ) was evaluated as ( 'true' != 'true' ).
+       Task "RemoveDuplicates"
+       Done executing task "RemoveDuplicates".
+   1:3>Done building target "_GenerateRestoreProjectPathWalk" in project "ProjectChronos.csproj".
+   1:3>Done Building Project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (_GenerateRestoreProjectPathWalk target(s)).
+     1>Done executing task "MSBuild".
+       Task "MSBuild" skipped, due to false condition; ( '$(RestoreUseSkipNonexistentTargets)' != 'true' ) was evaluated as ( 'true' != 'true' ).
+       Task "RemoveDuplicates"
+       Done executing task "RemoveDuplicates".
+       Task "MSBuild"
+         Global Properties:
+           ExcludeRestorePackageImports=true
+     1>Project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (1) is building "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (1:4) on node 1 (_IsProjectRestoreSupported target(s)).
+   1:4>Target "_IsProjectRestoreSupported" skipped. Previously built successfully.
+   1:4>Done Building Project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (_IsProjectRestoreSupported target(s)).
+     1>Done executing task "MSBuild".
+       Task "MSBuild" skipped, due to false condition; ( '$(RestoreUseSkipNonexistentTargets)' != 'true' ) was evaluated as ( 'true' != 'true' ).
+     1>Done building target "_GetAllRestoreProjectPathItems" in project "ProjectChronos.csproj".
+     1>Target "_GenerateRestoreGraph" in file "C:\Program Files\dotnet\sdk\9.0.304\NuGet.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "Restore" depends on it):
+       Using "Message" task from assembly "Microsoft.Build.Tasks.Core, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a".
+       Task "Message"
+         Generating dg file
+       Done executing task "Message".
+       Task "Message"
+         C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj
+       Done executing task "Message".
+       Task "MSBuild"
+         Global Properties:
+           ExcludeRestorePackageImports=true
+     1>Project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (1) is building "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (1:5) on node 1 (_GenerateRestoreGraphProjectEntry target(s)).
+   1:5>Project file contains ToolsVersion="15.0". This toolset may be unknown or missing, in which case you may be able to resolve this by installing the appropriate version of MSBuild, or the build may have been forced to a particular ToolsVersion for policy reasons. Treating the project as if it had ToolsVersion="Current". For more information, please see http://go.microsoft.com/fwlink/?LinkId=293424.
+   1:5>Target "_GetProjectJsonPath" in file "C:\Program Files\dotnet\sdk\9.0.304\NuGet.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "_GetRestoreProjectStyle" depends on it):
+       Using "GetRestoreProjectJsonPathTask" task from assembly "C:\Program Files\dotnet\sdk\9.0.304\NuGet.Build.Tasks.dll".
+       Task "GetRestoreProjectJsonPathTask"
+       Done executing task "GetRestoreProjectJsonPathTask".
+   1:5>Done building target "_GetProjectJsonPath" in project "ProjectChronos.csproj".
+   1:5>Target "CollectPackageReferences" in file "C:\Program Files\dotnet\sdk\9.0.304\NuGet.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "_GetRestoreProjectStyle" depends on it):
+       Using "CheckForDuplicateNuGetItemsTask" task from assembly "C:\Program Files\dotnet\sdk\9.0.304\NuGet.Build.Tasks.dll".
+       Task "CheckForDuplicateNuGetItemsTask"
+       Done executing task "CheckForDuplicateNuGetItemsTask".
+   1:5>Done building target "CollectPackageReferences" in project "ProjectChronos.csproj".
+   1:5>Target "_GetRestoreProjectStyle" in file "C:\Program Files\dotnet\sdk\9.0.304\NuGet.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "_GenerateRestoreSpecs" depends on it):
+       Using "GetRestoreProjectStyleTask" task from assembly "C:\Program Files\dotnet\sdk\9.0.304\NuGet.Build.Tasks.dll".
+       Task "GetRestoreProjectStyleTask"
+         Assembly loaded during TaskRun (NuGet.Build.Tasks.GetRestoreProjectStyleTask): NuGet.Configuration, Version=6.14.0.116, Culture=neutral, PublicKeyToken=31bf3856ad364e35 (location: C:\Program Files\dotnet\sdk\9.0.304\NuGet.Configuration.dll, MVID: b0f2e3cc-b478-45a0-a863-e83c6e00406f, AssemblyLoadContext: MSBuild plugin C:\Program Files\dotnet\sdk\9.0.304\NuGet.Build.Tasks.dll)
+       Done executing task "GetRestoreProjectStyleTask".
+   1:5>Done building target "_GetRestoreProjectStyle" in project "ProjectChronos.csproj".
+   1:5>Target "_GenerateRestoreSpecs" in file "C:\Program Files\dotnet\sdk\9.0.304\NuGet.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "_GenerateRestoreGraphProjectEntry" depends on it):
+       Task "Message"
+         Restore entry point C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj
+       Done executing task "Message".
+   1:5>Done building target "_GenerateRestoreSpecs" in project "ProjectChronos.csproj".
+       Target "_GetRestoreSettings" skipped, due to false condition; ( '$(RestoreProjectStyle)' == 'PackageReference' OR '$(RestoreProjectStyle)' == 'ProjectJson' OR '$(RestoreProjectStyle)' == 'DotnetToolReference' OR '$(RestoreProjectStyle)' == 'PackagesConfig') was evaluated as ( 'Unknown' == 'PackageReference' OR 'Unknown' == 'ProjectJson' OR 'Unknown' == 'DotnetToolReference' OR 'Unknown' == 'PackagesConfig').
+   1:5>Target "_GenerateDotnetCliToolReferenceSpecs" in file "C:\Program Files\dotnet\sdk\9.0.304\NuGet.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "_GenerateRestoreGraphProjectEntry" depends on it):
+       Using "GetRestoreDotnetCliToolsTask" task from assembly "C:\Program Files\dotnet\sdk\9.0.304\NuGet.Build.Tasks.dll".
+       Task "GetRestoreDotnetCliToolsTask"
+       Done executing task "GetRestoreDotnetCliToolsTask".
+   1:5>Done building target "_GenerateDotnetCliToolReferenceSpecs" in project "ProjectChronos.csproj".
+   1:5>Target "_GenerateRestoreGraphProjectEntry" in file "C:\Program Files\dotnet\sdk\9.0.304\NuGet.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (entry point):
+   1:5>Done building target "_GenerateRestoreGraphProjectEntry" in project "ProjectChronos.csproj".
+   1:5>Done Building Project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (_GenerateRestoreGraphProjectEntry target(s)).
+     1>Done executing task "MSBuild".
+       Task "MSBuild"
+         Global Properties:
+           ExcludeRestorePackageImports=true
+     1>Project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (1) is building "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (1:6) on node 1 (_GenerateProjectRestoreGraph target(s)).
+   1:6>Project file contains ToolsVersion="15.0". This toolset may be unknown or missing, in which case you may be able to resolve this by installing the appropriate version of MSBuild, or the build may have been forced to a particular ToolsVersion for policy reasons. Treating the project as if it had ToolsVersion="Current". For more information, please see http://go.microsoft.com/fwlink/?LinkId=293424.
+       Target "_GetRestoreProjectStyle" skipped. Previously built successfully.
+       Target "_GetRestoreProjectStyle" skipped. Previously built successfully.
+       Target "_GetRestoreProjectStyle" skipped. Previously built successfully.
+   1:6>Target "_GetRestoreTargetFrameworkOverride" in file "C:\Program Files\dotnet\sdk\9.0.304\NuGet.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "_GetRestoreTargetFrameworksOutput" depends on it):
+       Task "GetGlobalPropertyValueTask" skipped, due to false condition; ( '$(TargetFrameworks)' != '' ) was evaluated as ( '' != '' ).
+   1:6>Done building target "_GetRestoreTargetFrameworkOverride" in project "ProjectChronos.csproj".
+   1:6>Target "_GetRestoreTargetFrameworksOutput" in file "C:\Program Files\dotnet\sdk\9.0.304\NuGet.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "_GenerateRestoreProjectSpec" depends on it):
+       Using "GetProjectTargetFrameworksTask" task from assembly "C:\Program Files\dotnet\sdk\9.0.304\NuGet.Build.Tasks.dll".
+       Task "GetProjectTargetFrameworksTask"
+         Assembly loaded during TaskRun (NuGet.Build.Tasks.GetProjectTargetFrameworksTask): NuGet.Frameworks, Version=6.14.0.116, Culture=neutral, PublicKeyToken=31bf3856ad364e35 (location: C:\Program Files\dotnet\sdk\9.0.304\NuGet.Frameworks.dll, MVID: 6b5909cd-5145-46c4-9595-25461e82c126, AssemblyLoadContext: MSBuild plugin C:\Program Files\dotnet\sdk\9.0.304\NuGet.Build.Tasks.dll)
+       Done executing task "GetProjectTargetFrameworksTask".
+   1:6>Done building target "_GetRestoreTargetFrameworksOutput" in project "ProjectChronos.csproj".
+       Target "_GetRestoreSettings" skipped, due to false condition; ( '$(RestoreProjectStyle)' == 'PackageReference' OR '$(RestoreProjectStyle)' == 'ProjectJson' OR '$(RestoreProjectStyle)' == 'DotnetToolReference' OR '$(RestoreProjectStyle)' == 'PackagesConfig') was evaluated as ( 'Unknown' == 'PackageReference' OR 'Unknown' == 'ProjectJson' OR 'Unknown' == 'DotnetToolReference' OR 'Unknown' == 'PackagesConfig').
+   1:6>Target "_GenerateRestoreProjectSpec" in file "C:\Program Files\dotnet\sdk\9.0.304\NuGet.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "_GenerateProjectRestoreGraph" depends on it):
+       Task "ConvertToAbsolutePath" skipped, due to false condition; ( '$(PackageReferenceCompatibleProjectStyle)' == 'true' OR '$(RestoreProjectStyle)' == 'ProjectJson') was evaluated as ( 'False' == 'true' OR 'Unknown' == 'ProjectJson').
+   1:6>Done building target "_GenerateRestoreProjectSpec" in project "ProjectChronos.csproj".
+       Target "_GenerateProjectRestoreGraphAllFrameworks" skipped, due to false condition; ( '$(TargetFrameworks)' != '' ) was evaluated as ( '' != '' ).
+       Target "_GetRestoreProjectStyle" skipped. Previously built successfully.
+       Target "CollectPackageReferences" skipped. Previously built successfully.
+   1:6>Target "CollectPackageDownloads" in file "C:\Program Files\dotnet\sdk\9.0.304\NuGet.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "_CollectRestoreInputs" depends on it):
+       Task "CheckForDuplicateNuGetItemsTask"
+       Done executing task "CheckForDuplicateNuGetItemsTask".
+   1:6>Done building target "CollectPackageDownloads" in project "ProjectChronos.csproj".
+   1:6>Target "CollectFrameworkReferences" in file "C:\Program Files\dotnet\sdk\9.0.304\NuGet.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "_CollectRestoreInputs" depends on it):
+   1:6>Done building target "CollectFrameworkReferences" in project "ProjectChronos.csproj".
+   1:6>Target "CollectCentralPackageVersions" in file "C:\Program Files\dotnet\sdk\9.0.304\NuGet.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "_CollectRestoreInputs" depends on it):
+       Task "CheckForDuplicateNuGetItemsTask"
+       Done executing task "CheckForDuplicateNuGetItemsTask".
+   1:6>Done building target "CollectCentralPackageVersions" in project "ProjectChronos.csproj".
+   1:6>Target "CollectNuGetAuditSuppressions" in file "C:\Program Files\dotnet\sdk\9.0.304\NuGet.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "_CollectRestoreInputs" depends on it):
+       Task "CheckForDuplicateNuGetItemsTask"
+       Done executing task "CheckForDuplicateNuGetItemsTask".
+   1:6>Done building target "CollectNuGetAuditSuppressions" in project "ProjectChronos.csproj".
+   1:6>Target "CollectPrunePackageReferences" in file "C:\Program Files\dotnet\sdk\9.0.304\NuGet.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "_CollectRestoreInputs" depends on it):
+       Task "CheckForDuplicateNuGetItemsTask"
+       Done executing task "CheckForDuplicateNuGetItemsTask".
+   1:6>Done building target "CollectPrunePackageReferences" in project "ProjectChronos.csproj".
+   1:6>Target "_CollectRestoreInputs" in file "C:\Program Files\dotnet\sdk\9.0.304\NuGet.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "_GenerateProjectRestoreGraphPerFramework" depends on it):
+   1:6>Done building target "_CollectRestoreInputs" in project "ProjectChronos.csproj".
+   1:6>Target "_GenerateProjectRestoreGraphPerFramework" in file "C:\Program Files\dotnet\sdk\9.0.304\NuGet.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "_GenerateProjectRestoreGraphCurrentProject" depends on it):
+       Using "GetRestoreProjectReferencesTask" task from assembly "C:\Program Files\dotnet\sdk\9.0.304\NuGet.Build.Tasks.dll".
+       Task "GetRestoreProjectReferencesTask"
+       Done executing task "GetRestoreProjectReferencesTask".
+       Task "GetRestorePackageReferencesTask" skipped, due to false condition; ( '$(PackageReferenceCompatibleProjectStyle)' == 'true' ) was evaluated as ( 'False' == 'true' ).
+       Task "GetCentralPackageVersionsTask" skipped, due to false condition; ( '$(PackageReferenceCompatibleProjectStyle)' == 'true' AND '$(_CentralPackageVersionsEnabled)' == 'true' ) was evaluated as ( 'False' == 'true' AND '' == 'true' ).
+       Task "GetRestorePackageDownloadsTask" skipped, due to false condition; ( '$(PackageReferenceCompatibleProjectStyle)' == 'true' ) was evaluated as ( 'False' == 'true' ).
+       Task "GetRestoreFrameworkReferencesTask" skipped, due to false condition; ( '$(PackageReferenceCompatibleProjectStyle)' == 'true' ) was evaluated as ( 'False' == 'true' ).
+       Using "GetRestoreNuGetAuditSuppressionsTask" task from assembly "C:\Program Files\dotnet\sdk\9.0.304\NuGet.Build.Tasks.dll".
+       Task "GetRestoreNuGetAuditSuppressionsTask"
+       Done executing task "GetRestoreNuGetAuditSuppressionsTask".
+       Using "GetRestorePrunePackageReferencesTask" task from assembly "C:\Program Files\dotnet\sdk\9.0.304\NuGet.Build.Tasks.dll".
+       Task "GetRestorePrunePackageReferencesTask"
+       Done executing task "GetRestorePrunePackageReferencesTask".
+   1:6>Done building target "_GenerateProjectRestoreGraphPerFramework" in project "ProjectChronos.csproj".
+   1:6>Target "_GenerateProjectRestoreGraphCurrentProject" in file "C:\Program Files\dotnet\sdk\9.0.304\NuGet.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "_GenerateRestoreDependencies" depends on it):
+   1:6>Done building target "_GenerateProjectRestoreGraphCurrentProject" in project "ProjectChronos.csproj".
+   1:6>Target "_GenerateRestoreDependencies" in file "C:\Program Files\dotnet\sdk\9.0.304\NuGet.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "_GenerateProjectRestoreGraph" depends on it):
+   1:6>Done building target "_GenerateRestoreDependencies" in project "ProjectChronos.csproj".
+   1:6>Target "_GenerateProjectRestoreGraph" in file "C:\Program Files\dotnet\sdk\9.0.304\NuGet.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (entry point):
+   1:6>Done building target "_GenerateProjectRestoreGraph" in project "ProjectChronos.csproj".
+   1:6>Done Building Project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (_GenerateProjectRestoreGraph target(s)).
+     1>Done executing task "MSBuild".
+     1>Done building target "_GenerateRestoreGraph" in project "ProjectChronos.csproj".
+     1>Target "Restore" in file "C:\Program Files\dotnet\sdk\9.0.304\NuGet.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (entry point):
+       Task "RemoveDuplicates"
+       Done executing task "RemoveDuplicates".
+       Using "RestoreTask" task from assembly "C:\Program Files\dotnet\sdk\9.0.304\NuGet.Build.Tasks.dll".
+       Task "RestoreTask"
+         Assembly loaded during TaskRun (NuGet.Build.Tasks.RestoreTask): NuGet.Packaging, Version=6.14.0.116, Culture=neutral, PublicKeyToken=31bf3856ad364e35 (location: C:\Program Files\dotnet\sdk\9.0.304\NuGet.Packaging.dll, MVID: cdc50a13-9777-4bbf-997e-763beae18a61, AssemblyLoadContext: MSBuild plugin C:\Program Files\dotnet\sdk\9.0.304\NuGet.Build.Tasks.dll)
+         Assembly loaded during TaskRun (NuGet.Build.Tasks.RestoreTask): NuGet.LibraryModel, Version=6.14.0.116, Culture=neutral, PublicKeyToken=31bf3856ad364e35 (location: C:\Program Files\dotnet\sdk\9.0.304\NuGet.LibraryModel.dll, MVID: e00b38b3-9e45-44a2-8023-8c8ae09208b7, AssemblyLoadContext: MSBuild plugin C:\Program Files\dotnet\sdk\9.0.304\NuGet.Build.Tasks.dll)
+         Assembly loaded during TaskRun (NuGet.Build.Tasks.RestoreTask): NuGet.Versioning, Version=6.14.0.116, Culture=neutral, PublicKeyToken=31bf3856ad364e35 (location: C:\Program Files\dotnet\sdk\9.0.304\NuGet.Versioning.dll, MVID: ecae64d3-0ef8-4164-9110-1e65ba08bca4, AssemblyLoadContext: MSBuild plugin C:\Program Files\dotnet\sdk\9.0.304\NuGet.Build.Tasks.dll)
+         Assembly loaded during TaskRun (NuGet.Build.Tasks.RestoreTask): NuGet.Protocol, Version=6.14.0.116, Culture=neutral, PublicKeyToken=31bf3856ad364e35 (location: C:\Program Files\dotnet\sdk\9.0.304\NuGet.Protocol.dll, MVID: f8777b05-1686-441b-9cec-a9710c5aa900, AssemblyLoadContext: MSBuild plugin C:\Program Files\dotnet\sdk\9.0.304\NuGet.Build.Tasks.dll)
+         Assembly loaded during TaskRun (NuGet.Build.Tasks.RestoreTask): NuGet.Credentials, Version=6.14.0.116, Culture=neutral, PublicKeyToken=31bf3856ad364e35 (location: C:\Program Files\dotnet\sdk\9.0.304\NuGet.Credentials.dll, MVID: bd6612c0-8432-48ef-9aa9-96a29d2c500a, AssemblyLoadContext: MSBuild plugin C:\Program Files\dotnet\sdk\9.0.304\NuGet.Build.Tasks.dll)
+         X.509 certificate chain validation will use the default trust store selected by .NET for code signing.
+         X.509 certificate chain validation will use the default trust store selected by .NET for timestamping.
+         Assembly loaded during TaskRun (NuGet.Build.Tasks.RestoreTask): NuGet.DependencyResolver.Core, Version=6.14.0.116, Culture=neutral, PublicKeyToken=31bf3856ad364e35 (location: C:\Program Files\dotnet\sdk\9.0.304\NuGet.DependencyResolver.Core.dll, MVID: 6b197cc7-1c4a-4e48-895c-328987fdea28, AssemblyLoadContext: MSBuild plugin C:\Program Files\dotnet\sdk\9.0.304\NuGet.Build.Tasks.dll)
+         Nothing to do. None of the projects specified contain packages to restore.
+       Done executing task "RestoreTask".
+     1>Done building target "Restore" in project "ProjectChronos.csproj".
+     1>Done Building Project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (Restore target(s)).
+     0>C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj(3,92): message : Property 'MSBuildExtensionsPath' with value 'C:\Program Files\dotnet\sdk\9.0.304\' expanded from the environment.
+       C:\Program Files\dotnet\sdk\9.0.304\Current\Microsoft.Common.props(60,5): message : Property reassignment: $(MSBuildProjectExtensionsPath)="C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\obj\" (previous value: "obj\") at C:\Program Files\dotnet\sdk\9.0.304\Current\Microsoft.Common.props (60,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Current\Microsoft.Common.props(84,119): message : Property 'MSBuildUserExtensionsPath' with value 'C:\Users\minph\AppData\Local\Microsoft\MSBuild' expanded from the environment.
+       C:\Program Files\dotnet\sdk\9.0.304\Roslyn\Microsoft.CSharp.Core.targets(200,5): message : Property reassignment: $(CommandLineArgsForDesignTimeEvaluation)="-langversion:7.3 -define:DEBUG;TRACE" (previous value: "-langversion:7.3") at C:\Program Files\dotnet\sdk\9.0.304\Roslyn\Microsoft.CSharp.Core.targets (200,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.props(117,5): message : Property reassignment: $(AvailablePlatforms)="Any CPU,x86,x64,ARM64" (previous value: "Any CPU,x86,x64") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.props (117,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(175,5): message : Property reassignment: $(_DebugSymbolsProduced)="true" (previous value: "false") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (175,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(185,5): message : Property reassignment: $(_DocumentationFileProduced)="false" (previous value: "true") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (185,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(392,5): message : Property reassignment: $(MSBuildCopyMarkerName)="ProjectC.D64CCA24" (previous value: "ProjectChronos.csproj") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (392,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(393,5): message : Property reassignment: $(MSBuildCopyMarkerName)="ProjectC.D64CCA24.Up2Date" (previous value: "ProjectC.D64CCA24") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (393,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(527,5): message : Property reassignment: $(ProcessorArchitecture)="msil" (previous value: "AnyCPU") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (527,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(580,5): message : Property reassignment: $(DelaySign)="" (previous value: "false") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (580,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(649,5): message : Property reassignment: $(AssemblySearchPaths)="{CandidateAssemblyFiles};" (previous value: "{CandidateAssemblyFiles}") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (649,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(650,5): message : Property reassignment: $(AssemblySearchPaths)="{CandidateAssemblyFiles};;{HintPathFromItem}" (previous value: "{CandidateAssemblyFiles};") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (650,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(651,5): message : Property reassignment: $(AssemblySearchPaths)="{CandidateAssemblyFiles};;{HintPathFromItem};{TargetFrameworkDirectory}" (previous value: "{CandidateAssemblyFiles};;{HintPathFromItem}") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (651,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(652,5): message : Property reassignment: $(AssemblySearchPaths)="{CandidateAssemblyFiles};;{HintPathFromItem};{TargetFrameworkDirectory};" (previous value: "{CandidateAssemblyFiles};;{HintPathFromItem};{TargetFrameworkDirectory}") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (652,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(653,5): message : Property reassignment: $(AssemblySearchPaths)="{CandidateAssemblyFiles};;{HintPathFromItem};{TargetFrameworkDirectory};;{Registry:Software\Microsoft\.NETFramework,v4.7.2,AssemblyFoldersEx}" (previous value: "{CandidateAssemblyFiles};;{HintPathFromItem};{TargetFrameworkDirectory};") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (653,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(654,5): message : Property reassignment: $(AssemblySearchPaths)="{CandidateAssemblyFiles};;{HintPathFromItem};{TargetFrameworkDirectory};;{Registry:Software\Microsoft\.NETFramework,v4.7.2,AssemblyFoldersEx};{AssemblyFolders}" (previous value: "{CandidateAssemblyFiles};;{HintPathFromItem};{TargetFrameworkDirectory};;{Registry:Software\Microsoft\.NETFramework,v4.7.2,AssemblyFoldersEx}") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (654,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(655,5): message : Property reassignment: $(AssemblySearchPaths)="{CandidateAssemblyFiles};;{HintPathFromItem};{TargetFrameworkDirectory};;{Registry:Software\Microsoft\.NETFramework,v4.7.2,AssemblyFoldersEx};{AssemblyFolders};{GAC}" (previous value: "{CandidateAssemblyFiles};;{HintPathFromItem};{TargetFrameworkDirectory};;{Registry:Software\Microsoft\.NETFramework,v4.7.2,AssemblyFoldersEx};{AssemblyFolders}") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (655,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(656,5): message : Property reassignment: $(AssemblySearchPaths)="{CandidateAssemblyFiles};;{HintPathFromItem};{TargetFrameworkDirectory};;{Registry:Software\Microsoft\.NETFramework,v4.7.2,AssemblyFoldersEx};{AssemblyFolders};{GAC};{RawFileName}" (previous value: "{CandidateAssemblyFiles};;{HintPathFromItem};{TargetFrameworkDirectory};;{Registry:Software\Microsoft\.NETFramework,v4.7.2,AssemblyFoldersEx};{AssemblyFolders};{GAC}") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (656,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(657,5): message : Property reassignment: $(AssemblySearchPaths)="{CandidateAssemblyFiles};;{HintPathFromItem};{TargetFrameworkDirectory};;{Registry:Software\Microsoft\.NETFramework,v4.7.2,AssemblyFoldersEx};{AssemblyFolders};{GAC};{RawFileName};bin\Debug\" (previous value: "{CandidateAssemblyFiles};;{HintPathFromItem};{TargetFrameworkDirectory};;{Registry:Software\Microsoft\.NETFramework,v4.7.2,AssemblyFoldersEx};{AssemblyFolders};{GAC};{RawFileName}") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (657,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(2619,5): message : Property 'LOCALAPPDATA' with value 'C:\Users\minph\AppData\Local' expanded from the environment.
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(3947,5): message : Property reassignment: $(_SGenGenerateSerializationAssembliesConfig)="Auto" (previous value: "") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (3947,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(3948,5): message : Property reassignment: $(_SGenGenerateSerializationAssembliesConfig)="Off" (previous value: "Auto") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (3948,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(5159,5): message : Property reassignment: $(_TargetsThatPrepareProjectReferences)="
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(5159,5): message :       AssignProjectConfiguration;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(5159,5): message :       _SplitProjectReferencesByFileExistence
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(5159,5): message :     " (previous value: "_SplitProjectReferencesByFileExistence") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (5159,5)
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(6954,5): message : Property 'MSBuildExtensionsPath32' with value 'C:\Program Files\dotnet\sdk\9.0.304' expanded from the environment.
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message : Property reassignment: $(ResolveReferencesDependsOn)="
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       BeforeResolveReferences;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       AssignProjectConfiguration;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       ResolveProjectReferences;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       FindInvalidProjectReferences;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       ResolveNativeReferences;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       ResolveAssemblyReferences;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       GenerateBindingRedirects;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       GenerateBindingRedirectsUpdateAppConfig;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       ResolveComReferences;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       AfterResolveReferences
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :     ;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       ImplicitlyExpandDesignTimeFacades
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :     " (previous value: "
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       BeforeResolveReferences;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       AssignProjectConfiguration;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       ResolveProjectReferences;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       FindInvalidProjectReferences;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       ResolveNativeReferences;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       ResolveAssemblyReferences;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       GenerateBindingRedirects;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       GenerateBindingRedirectsUpdateAppConfig;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       ResolveComReferences;
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :       AfterResolveReferences
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets(74,5): message :     ") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets (74,5)
+       Overriding target "GetFrameworkPaths" in project "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets" with target "GetFrameworkPaths" from project "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets".
+       The target "ResolveNuGetPackageAssets" listed in an AfterTargets attribute at "C:\Program Files\dotnet\sdk\9.0.304\Microsoft\Microsoft.NET.Build.Extensions\Microsoft.NET.Build.Extensions.ConflictResolution.targets (27,11)" does not exist in the project, and will be ignored.
+   1:7>Project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" on node 1 (default targets).
+   1:7>Project file contains ToolsVersion="15.0". This toolset may be unknown or missing, in which case you may be able to resolve this by installing the appropriate version of MSBuild, or the build may have been forced to a particular ToolsVersion for policy reasons. Treating the project as if it had ToolsVersion="Current". For more information, please see http://go.microsoft.com/fwlink/?LinkId=293424.
+       Target "EnableIntermediateOutputPathMismatchWarning" skipped, due to false condition; ('$(RestoreProjectStyle)' == 'PackageReference') was evaluated as ('' == 'PackageReference').
+   1:7>Target "_CheckForInvalidConfigurationAndPlatform" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "BeforeBuild" depends on it):
+       Task "MSBuildInternalMessage" skipped, due to false condition; ('$(_InvalidConfigurationMessageSeverity)' != '') was evaluated as ('' != '').
+       Task "Message"
+         Configuration=Debug
+       Done executing task "Message".
+       Task "Message"
+         Platform=AnyCPU
+       Done executing task "Message".
+       Task "MSBuildInternalMessage" skipped, due to false condition; ('$(OutDir)' != '' and !HasTrailingSlash('$(OutDir)')) was evaluated as ('bin\Debug\' != '' and !HasTrailingSlash('bin\Debug\')).
+       Task "MSBuildInternalMessage" skipped, due to false condition; ('$(IntermediateOutputPath)' != '' and !HasTrailingSlash('$(IntermediateOutputPath)')) was evaluated as ('obj\Debug\' != '' and !HasTrailingSlash('obj\Debug\')).
+       Task "MSBuildInternalMessage" skipped, due to false condition; ('$(BaseIntermediateOutputPath)' != '' and !HasTrailingSlash('$(BaseIntermediateOutputPath)')) was evaluated as ('obj\' != '' and !HasTrailingSlash('obj\')).
+       Task "MSBuildInternalMessage" skipped, due to false condition; ( '$(Prefer32Bit)' == 'true' and '$(PreferNativeArm64)' == 'true' ) was evaluated as ( 'true' == 'true' and '' == 'true' ).
+       Task "MSBuildInternalMessage" skipped, due to false condition; ( '$(NoWin32Manifest)' == 'true' and '$(PreferNativeArm64)' == 'true' ) was evaluated as ( '' == 'true' and '' == 'true' ).
+       Task "MSBuildInternalMessage" skipped, due to false condition; ( '$(PreferNativeArm64)' == 'true' and '$(Platform)' != 'AnyCPU' ) was evaluated as ( '' == 'true' and 'AnyCPU' != 'AnyCPU' ).
+       Task "MSBuildInternalMessage" skipped, due to false condition; ( '$(_InitialMSBuildProjectExtensionsPath)' != '' And '$(MSBuildProjectExtensionsPath)' != '$(_InitialMSBuildProjectExtensionsPath)' ) was evaluated as ( 'C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\obj\' != '' And 'C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\obj\' != 'C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\obj\' ).
+       Task "MSBuildInternalMessage" skipped, due to false condition; ( '$(EnableBaseIntermediateOutputPathMismatchWarning)' == 'true' And '$(_InitialBaseIntermediateOutputPath)' != '$(BaseIntermediateOutputPath)' And '$(BaseIntermediateOutputPath)' != '$(MSBuildProjectExtensionsPath)' ) was evaluated as ( '' == 'true' And 'obj\' != 'obj\' And 'obj\' != 'C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\obj\' ).
+   1:7>Done building target "_CheckForInvalidConfigurationAndPlatform" in project "ProjectChronos.csproj".
+   1:7>Target "BeforeBuild" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "Build" depends on it):
+   1:7>Done building target "BeforeBuild" in project "ProjectChronos.csproj".
+   1:7>Target "BuildOnlySettings" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "CoreBuild" depends on it):
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(1168,7): message : Property reassignment: $(BuildingProject)="true" (previous value: "false") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (1168,7) [C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj]
+   1:7>Done building target "BuildOnlySettings" in project "ProjectChronos.csproj".
+   1:7>Target "GetFrameworkPaths" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "PrepareForBuild" depends on it):
+   1:7>Done building target "GetFrameworkPaths" in project "ProjectChronos.csproj".
+       Target "GetFrameworkPaths" skipped. Previously built successfully.
+   1:7>Target "GetReferenceAssemblyPaths" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "PrepareForBuild" depends on it):
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(1255,7): message : Property reassignment: $(TargetFrameworkDirectory)="" (previous value: "v4.0.30319") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (1255,7) [C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj]
+       Using "GetReferenceAssemblyPaths" task from assembly "Microsoft.Build.Tasks.Core, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a".
+       Task "GetReferenceAssemblyPaths"
+       Done executing task "GetReferenceAssemblyPaths".
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(1272,7): message : Property reassignment: $(TargetFrameworkDirectory)="C:\Program Files %28x86%29\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\;;" (previous value: "v4.0.30319") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (1272,7) [C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj]
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(1293,7): message : Property reassignment: $(TargetFrameworkDirectory)="C:\Program Files %28x86%29\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\;;;C:\Program Files %28x86%29\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\Facades\" (previous value: "v4.0.30319") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (1293,7) [C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj]
+   1:7>Done building target "GetReferenceAssemblyPaths" in project "ProjectChronos.csproj".
+       Target "AssignLinkMetadata" skipped, due to false condition; ( '$(SynthesizeLinkMetadata)' == 'true' ) was evaluated as ( '' == 'true' ).
+   1:7>Target "PrepareForBuild" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "CoreBuild" depends on it):
+       Using "FindAppConfigFile" task from assembly "Microsoft.Build.Tasks.Core, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a".
+       Task "FindAppConfigFile"
+         Found "App.config".
+       Done executing task "FindAppConfigFile".
+       Using "MakeDir" task from assembly "Microsoft.Build.Tasks.Core, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a".
+       Task "MakeDir"
+       Done executing task "MakeDir".
+   1:7>Done building target "PrepareForBuild" in project "ProjectChronos.csproj".
+       Target "PreBuildEvent" skipped, due to false condition; ('$(PreBuildEvent)'!='') was evaluated as (''!='').
+   1:7>Target "BeforeResolveReferences" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "ResolveReferences" depends on it):
+   1:7>Done building target "BeforeResolveReferences" in project "ProjectChronos.csproj".
+       Target "AssignProjectConfiguration" skipped, due to false condition; ('$(CurrentSolutionConfigurationContents)' != '' or '@(ProjectReference)'!='') was evaluated as ('' != '' or ''!='').
+   1:7>Target "IgnoreJavaScriptOutputAssembly" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "AssignProjectConfiguration" depends on it):
+   1:7>Done building target "IgnoreJavaScriptOutputAssembly" in project "ProjectChronos.csproj".
+       Target "AssignProjectConfiguration" skipped, due to false condition; ('$(CurrentSolutionConfigurationContents)' != '' or '@(ProjectReference)'!='') was evaluated as ('' != '' or ''!='').
+   1:7>Target "_SplitProjectReferencesByFileExistence" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "PrepareProjectReferences" depends on it):
+       Task "ResolveNonMSBuildProjectOutput" skipped, due to false condition; ('$(BuildingInsideVisualStudio)'=='true' and '@(ProjectReferenceWithConfiguration)'!='') was evaluated as (''=='true' and ''!='').
+   1:7>Done building target "_SplitProjectReferencesByFileExistence" in project "ProjectChronos.csproj".
+   1:7>Target "_AddOutputPathToGlobalPropertiesToRemove" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "_GetProjectReferenceTargetFrameworkProperties" depends on it):
+   1:7>Done building target "_AddOutputPathToGlobalPropertiesToRemove" in project "ProjectChronos.csproj".
+   1:7>Target "_GetProjectReferenceTargetFrameworkProperties" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "PrepareProjectReferences" depends on it):
+       Task "MSBuild"
+       Done executing task "MSBuild".
+       Task "MSBuild" skipped, due to false condition; ('%(_MSBuildProjectReferenceExistent.SkipGetTargetFrameworkProperties)' != 'true' and '$(EnableDynamicPlatformResolution)' == 'true') was evaluated as ('' != 'true' and '' == 'true').
+       Task "GetReferenceNearestTargetFrameworkTask" skipped, due to false condition; ('@(_ProjectReferenceTargetFrameworkPossibilities)' != '' and '$(ReferringTargetFrameworkForProjectReferences)' != ''
+                                                               And '$(GetReferenceNearestTargetFrameworkTaskSupportsTargetPlatformParameter)' == 'true' and '%(_ProjectReferenceTargetFrameworkPossibilities.IsVcxOrNativeProj)' != 'true') was evaluated as ('' != '' and '.NETFramework,Version=v4.7.2' != ''
+                                                               And 'true' == 'true' and '' != 'true').
+       Task "GetReferenceNearestTargetFrameworkTask" skipped, due to false condition; ('@(_ProjectReferenceTargetFrameworkPossibilities)' != '' and '$(ReferringTargetFrameworkForProjectReferences)' != ''
+                                                               And '$(GetReferenceNearestTargetFrameworkTaskSupportsTargetPlatformParameter)' != 'true' and '%(_ProjectReferenceTargetFrameworkPossibilities.IsVcxOrNativeProj)' != 'true') was evaluated as ('' != '' and '.NETFramework,Version=v4.7.2' != ''
+                                                               And 'true' != 'true' and '' != 'true').
+       Using "SetRidAgnosticValueForProjects" task from assembly "Microsoft.Build.Tasks.Core, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a".
+       Task "SetRidAgnosticValueForProjects"
+       Done executing task "SetRidAgnosticValueForProjects".
+   1:7>Done building target "_GetProjectReferenceTargetFrameworkProperties" in project "ProjectChronos.csproj".
+       Target "_GetProjectReferencePlatformProperties" skipped, due to false condition; ('$(EnableDynamicPlatformResolution)' == 'true'
+                            and '@(_MSBuildProjectReferenceExistent)' != '') was evaluated as ('' == 'true'
+                            and '' != '').
+   1:7>Target "PrepareProjectReferences" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "ResolveProjectReferences" depends on it):
+   1:7>Done building target "PrepareProjectReferences" in project "ProjectChronos.csproj".
+   1:7>Target "ResolveProjectReferences" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "ResolveReferences" depends on it):
+       Task "MSBuild" skipped, due to false condition; ('%(_MSBuildProjectReferenceExistent.BuildReference)' == 'true' and '@(ProjectReferenceWithConfiguration)' != '' and ('$(BuildingInsideVisualStudio)' == 'true' or '$(BuildProjectReferences)' != 'true') and '$(VisualStudioVersion)' != '10.0' and '@(_MSBuildProjectReferenceExistent)' != '') was evaluated as ('' == 'true' and '' != '' and ('' == 'true' or 'true' != 'true') and '17.0' != '10.0' and '' != '').
+       Task "MSBuild" skipped, due to false condition; ('%(_MSBuildProjectReferenceExistent.BuildReference)' == 'true' and '@(ProjectReferenceWithConfiguration)' != '' and '$(BuildingInsideVisualStudio)' != 'true' and '$(BuildProjectReferences)' == 'true' and '@(_MSBuildProjectReferenceExistent)' != '') was evaluated as ('' == 'true' and '' != '' and '' != 'true' and 'true' == 'true' and '' != '').
+       Task "MSBuild" skipped, due to false condition; ('%(_MSBuildProjectReferenceExistent.BuildReference)' == 'true' and '@(ProjectReferenceWithConfiguration)' != '' and '$(BuildingProject)' == 'true' and '@(_MSBuildProjectReferenceExistent)' != '') was evaluated as ('' == 'true' and '' != '' and 'true' == 'true' and '' != '').
+       Task "MSBuildInternalMessage" skipped, due to false condition; ('$(_NonExistentProjectReferenceSeverity)' != '') was evaluated as ('' != '').
+   1:7>Done building target "ResolveProjectReferences" in project "ProjectChronos.csproj".
+       Target "FindInvalidProjectReferences" skipped, due to false condition; ('$(FindInvalidProjectReferences)' == 'true') was evaluated as ('' == 'true').
+       Target "ResolveNativeReferences" skipped, due to false condition; ('@(NativeReference)'!='') was evaluated as (''!='').
+       Target "ResolveProjectReferences" skipped. Previously built successfully.
+       Target "FindInvalidProjectReferences" skipped, due to false condition; ('$(FindInvalidProjectReferences)' == 'true') was evaluated as ('' == 'true').
+       Target "GetFrameworkPaths" skipped. Previously built successfully.
+       Target "GetReferenceAssemblyPaths" skipped. Previously built successfully.
+       Target "PrepareForBuild" skipped. Previously built successfully.
+       Target "GetInstalledSDKLocations" skipped, due to false condition; ('@(SDKReference)' != '') was evaluated as ('' != '').
+   1:7>Target "ResolveSDKReferences" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "ResolveAssemblyReferences" depends on it):
+       Task "ResolveSDKReference" skipped, due to false condition; ('@(SDKReference)'!='') was evaluated as (''!='').
+   1:7>Done building target "ResolveSDKReferences" in project "ProjectChronos.csproj".
+       Target "ResolveSDKReferences" skipped. Previously built successfully.
+   1:7>Target "ExpandSDKReferences" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "ResolveAssemblyReferences" depends on it):
+       Task "GetSDKReferenceFiles" skipped, due to false condition; ('@(ResolvedSDKReference)'!='') was evaluated as (''!='').
+   1:7>Done building target "ExpandSDKReferences" in project "ProjectChronos.csproj".
+   1:7>Target "ImplicitlyExpandNETStandardFacades" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft\Microsoft.NET.Build.Extensions\Microsoft.NET.Build.Extensions.NETFramework.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "ResolveAssemblyReferences" depends on it):
+       Task "GetDependsOnNETStandard" skipped, due to false condition; ('$(_RunGetDependsOnNETStandard)' == 'true') was evaluated as ('' == 'true').
+       Task "NETBuildExtensionsError" skipped, due to false condition; ('$(DependsOnNETStandard)' == 'true' AND '$(NETStandardInbox)' != 'true' AND '$(_UsingOldSDK)' == 'true') was evaluated as ('' == 'true' AND 'true' != 'true' AND '' == 'true').
+       Task "AddFacadesToReferences" skipped, due to false condition; ('@(_NETStandardLibraryNETFrameworkLib)' != '') was evaluated as ('' != '').
+   1:7>Done building target "ImplicitlyExpandNETStandardFacades" in project "ProjectChronos.csproj".
+       Target "GetFrameworkPaths" skipped. Previously built successfully.
+       Target "GetReferenceAssemblyPaths" skipped. Previously built successfully.
+   1:7>Target "_HandlePackageFileConflicts" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft\Microsoft.NET.Build.Extensions\Microsoft.NET.Build.Extensions.ConflictResolution.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "ResolveAssemblyReferences" depends on it):
+       Using "ResolvePackageFileConflicts" task from assembly "C:\Program Files\dotnet\sdk\9.0.304\Microsoft\Microsoft.NET.Build.Extensions\\tools\net9.0\Microsoft.NET.Build.Extensions.Tasks.dll".
+       Task "ResolvePackageFileConflicts"
+       Done executing task "ResolvePackageFileConflicts".
+   1:7>Done building target "_HandlePackageFileConflicts" in project "ProjectChronos.csproj".
+   1:7>Target "ResolveAssemblyReferences" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "ResolveReferences" depends on it):
+       Using "ResolveAssemblyReference" task from assembly "Microsoft.Build.Tasks.Core, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a".
+       Task "ResolveAssemblyReference"
+         TargetFrameworkMoniker:
+             .NETFramework,Version=v4.7.2
+         TargetFrameworkMonikerDisplayName:
+             .NET Framework 4.7.2
+         TargetedRuntimeVersion:
+             v
+         Assemblies:
+             System
+             System.Data
+             System.Xml
+             Microsoft.CSharp
+             System.Xml.Linq
+             System.Data.DataSetExtensions
+             System.Net.Http
+             System.Xaml
+             WindowsBase
+             PresentationCore
+             PresentationFramework
+             System.Core
+         AssemblyFiles:
+             C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\mscorlib.dll
+         CandidateAssemblyFiles:
+         TargetFrameworkDirectories:
+             C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\,C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\Facades\
+         NonCultureResourceDirectories:
+             
+         InstalledAssemblyTables:
+         IgnoreInstalledAssemblyTable:
+             False
+         SearchPaths:
+             {CandidateAssemblyFiles}
+             {HintPathFromItem}
+             {TargetFrameworkDirectory}
+             {Registry:Software\Microsoft\.NETFramework,v4.7.2,AssemblyFoldersEx}
+             {AssemblyFolders}
+             {GAC}
+             {RawFileName}
+             bin\Debug\
+         AllowedAssemblyExtensions:
+             .winmd
+             .dll
+             .exe
+         AllowedRelatedFileExtensions:
+             .pdb
+             .xml
+             .pri
+             .dll.config
+             .exe.config
+         AppConfigFile:
+             App.config
+         AutoUnify:
+             True
+         EnableCustomCulture:
+             False
+         CopyLocalDependenciesWhenParentReferenceInGac:
+             True
+         FindDependencies:
+             True
+         TargetProcessorArchitecture:
+             msil
+         StateFile:
+             obj\Debug\ProjectChronos.csproj.AssemblyReference.cache
+         InstalledAssemblySubsetTables:
+         IgnoreInstalledAssemblySubsetTable:
+             False
+         TargetFrameworkSubsets:
+         FullTargetFrameworkSubsetNames:
+             Full
+         ProfileName:
+             
+         FullFrameworkFolders:
+             C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\
+         LatestTargetFrameworkDirectories:
+         ProfileTablesLocation:
+         Primary reference "mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089".
+             Resolved file path is "C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\mscorlib.dll".
+             Reference found at search path location "C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\mscorlib.dll".
+             This reference is not "CopyLocal" because it's in a Frameworks directory.
+         Primary reference "System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089".
+             Resolved file path is "C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.dll".
+             Reference found at search path location "{TargetFrameworkDirectory}".
+                 For SearchPath "{TargetFrameworkDirectory}".
+                 Considered "C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.winmd", but it didn't exist.
+             This reference is not "CopyLocal" because it's a prerequisite file.
+         Primary reference "System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089".
+             Resolved file path is "C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.Data.dll".
+             Reference found at search path location "{TargetFrameworkDirectory}".
+                 For SearchPath "{TargetFrameworkDirectory}".
+                 Considered "C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.Data.winmd", but it didn't exist.
+             This reference is not "CopyLocal" because it's a prerequisite file.
+         Primary reference "System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089".
+             Resolved file path is "C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.Xml.dll".
+             Reference found at search path location "{TargetFrameworkDirectory}".
+                 For SearchPath "{TargetFrameworkDirectory}".
+                 Considered "C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.Xml.winmd", but it didn't exist.
+             This reference is not "CopyLocal" because it's a prerequisite file.
+         Primary reference "Microsoft.CSharp, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a".
+             Resolved file path is "C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\Microsoft.CSharp.dll".
+             Reference found at search path location "{TargetFrameworkDirectory}".
+                 For SearchPath "{TargetFrameworkDirectory}".
+                 Considered "C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\Microsoft.CSharp.winmd", but it didn't exist.
+             This reference is not "CopyLocal" because it's a prerequisite file.
+         Primary reference "System.Xml.Linq, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089".
+             Resolved file path is "C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.Xml.Linq.dll".
+             Reference found at search path location "{TargetFrameworkDirectory}".
+                 For SearchPath "{TargetFrameworkDirectory}".
+                 Considered "C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.Xml.Linq.winmd", but it didn't exist.
+             This reference is not "CopyLocal" because it's a prerequisite file.
+         Primary reference "System.Data.DataSetExtensions, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089".
+             Resolved file path is "C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.Data.DataSetExtensions.dll".
+             Reference found at search path location "{TargetFrameworkDirectory}".
+                 For SearchPath "{TargetFrameworkDirectory}".
+                 Considered "C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.Data.DataSetExtensions.winmd", but it didn't exist.
+             This reference is not "CopyLocal" because it's a prerequisite file.
+         Primary reference "System.Net.Http, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a".
+             Resolved file path is "C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.Net.Http.dll".
+             Reference found at search path location "{TargetFrameworkDirectory}".
+                 For SearchPath "{TargetFrameworkDirectory}".
+                 Considered "C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.Net.Http.winmd", but it didn't exist.
+             This reference is not "CopyLocal" because it's a prerequisite file.
+         Primary reference "System.Xaml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089".
+             Resolved file path is "C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.Xaml.dll".
+             Reference found at search path location "{TargetFrameworkDirectory}".
+                 For SearchPath "{TargetFrameworkDirectory}".
+                 Considered "C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.Xaml.winmd", but it didn't exist.
+             This reference is not "CopyLocal" because it's a prerequisite file.
+         Primary reference "WindowsBase, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35".
+             Resolved file path is "C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\WindowsBase.dll".
+             Reference found at search path location "{TargetFrameworkDirectory}".
+                 For SearchPath "{TargetFrameworkDirectory}".
+                 Considered "C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\WindowsBase.winmd", but it didn't exist.
+             This reference is not "CopyLocal" because it's a prerequisite file.
+         Primary reference "PresentationCore, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35".
+             Resolved file path is "C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\PresentationCore.dll".
+             Reference found at search path location "{TargetFrameworkDirectory}".
+                 For SearchPath "{TargetFrameworkDirectory}".
+                 Considered "C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\PresentationCore.winmd", but it didn't exist.
+             This reference is not "CopyLocal" because it's a prerequisite file.
+         Primary reference "PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35".
+             Resolved file path is "C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\PresentationFramework.dll".
+             Reference found at search path location "{TargetFrameworkDirectory}".
+                 For SearchPath "{TargetFrameworkDirectory}".
+                 Considered "C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\PresentationFramework.winmd", but it didn't exist.
+             This reference is not "CopyLocal" because it's a prerequisite file.
+         Primary reference "System.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089".
+             Resolved file path is "C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.Core.dll".
+             Reference found at search path location "{TargetFrameworkDirectory}".
+                 For SearchPath "{TargetFrameworkDirectory}".
+                 Considered "C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.Core.winmd", but it didn't exist.
+             This reference is not "CopyLocal" because it's a prerequisite file.
+       Done executing task "ResolveAssemblyReference".
+   1:7>Done building target "ResolveAssemblyReferences" in project "ProjectChronos.csproj".
+       Target "GenerateBindingRedirects" skipped, due to false condition; ('$(AutoGenerateBindingRedirects)' == 'true' and '$(GenerateBindingRedirectsOutputType)' == 'true' and '@(SuggestedBindingRedirects)' != '' and '$(DesignTimeBuild)' != 'true' and '$(BuildingProject)' == 'true') was evaluated as ('true' == 'true' and 'true' == 'true' and '' != '' and '' != 'true' and 'true' == 'true').
+       Target "ResolveAssemblyReferences" skipped. Previously built successfully.
+   1:7>Target "_RemoveZipFileSuggestedRedirect" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft\Microsoft.NET.Build.Extensions\Microsoft.NET.Build.Extensions.NETFramework.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "GenerateBindingRedirects" depends on it):
+   1:7>Done building target "_RemoveZipFileSuggestedRedirect" in project "ProjectChronos.csproj".
+   1:7>Target "GenerateBindingRedirectsUpdateAppConfig" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "ResolveReferences" depends on it):
+       Task "Copy" skipped, due to false condition; ('$(ConfigFileExists)' == 'true' and '$(HasNoBindingRedirects)' == 'true' and '$(DesignTimeBuild)' != 'true') was evaluated as ('' == 'true' and 'true' == 'true' and '' != 'true').
+       Task "Touch" skipped, due to false condition; ('$(ConfigFileExists)' == 'true' and '$(HasNoBindingRedirects)' == 'true' and '$(DesignTimeBuild)' != 'true') was evaluated as ('' == 'true' and 'true' == 'true' and '' != 'true').
+   1:7>Done building target "GenerateBindingRedirectsUpdateAppConfig" in project "ProjectChronos.csproj".
+       Target "ResolveComReferences" skipped, due to false condition; ('@(COMReference)'!='' or '@(COMFileReference)'!='') was evaluated as (''!='' or ''!='').
+   1:7>Target "AfterResolveReferences" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "ResolveReferences" depends on it):
+   1:7>Done building target "AfterResolveReferences" in project "ProjectChronos.csproj".
+       Target "GetReferenceAssemblyPaths" skipped. Previously built successfully.
+   1:7>Target "ImplicitlyExpandDesignTimeFacades" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.NETFramework.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "ResolveReferences" depends on it):
+   1:7>Done building target "ImplicitlyExpandDesignTimeFacades" in project "ProjectChronos.csproj".
+   1:7>Target "ResolveReferences" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "CoreBuild" depends on it):
+   1:7>Done building target "ResolveReferences" in project "ProjectChronos.csproj".
+   1:7>Target "CopyAdditionalFiles" in file "C:\Program Files\dotnet\sdk\9.0.304\Roslyn\Microsoft.Managed.Core.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "AssignTargetPaths" depends on it):
+   1:7>Done building target "CopyAdditionalFiles" in project "ProjectChronos.csproj".
+   1:7>Target "AssignTargetPaths" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "PrepareResourceNames" depends on it):
+       Using "AssignTargetPath" task from assembly "Microsoft.Build.Tasks.Core, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a".
+       Task "AssignTargetPath"
+       Done executing task "AssignTargetPath".
+       Task "AssignTargetPath"
+       Done executing task "AssignTargetPath".
+       Task "AssignTargetPath"
+       Done executing task "AssignTargetPath".
+       Task "AssignTargetPath"
+       Done executing task "AssignTargetPath".
+       Task "AssignTargetPath" skipped, due to false condition; ('@(_DeploymentBaseManifestWithTargetPath)'=='' and '%(None.Extension)'=='.manifest') was evaluated as (''=='' and '.settings'=='.manifest').
+       Task "AssignTargetPath" skipped, due to false condition; ('@(_DeploymentBaseManifestWithTargetPath)'=='' and '%(None.Extension)'=='.manifest') was evaluated as (''=='' and '.config'=='.manifest').
+   1:7>Done building target "AssignTargetPaths" in project "ProjectChronos.csproj".
+       Target "AssignTargetPaths" skipped. Previously built successfully.
+   1:7>Target "SplitResourcesByCulture" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "PrepareResourceNames" depends on it):
+       Task "MSBuildInternalMessage" skipped, due to false condition; ('@(ResxWithNoCulture)'!='') was evaluated as (''!='').
+       Task "MSBuildInternalMessage" skipped, due to false condition; ('@(ResxWithCulture)'!='') was evaluated as (''!='').
+       Task "MSBuildInternalMessage" skipped, due to false condition; ('@(NonResxWithCulture)'!='') was evaluated as (''!='').
+       Task "MSBuildInternalMessage" skipped, due to false condition; ('@(NonResxWithNoCulture)'!='') was evaluated as (''!='').
+       Using "AssignCulture" task from assembly "Microsoft.Build.Tasks.Core, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a".
+       Task "AssignCulture"
+         Culture of "" was assigned to file "Properties\Resources.resx".
+       Done executing task "AssignCulture".
+   1:7>Done building target "SplitResourcesByCulture" in project "ProjectChronos.csproj".
+   1:7>Target "CreateManifestResourceNames" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.CSharp.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "PrepareResourceNames" depends on it):
+       Using "CreateCSharpManifestResourceName" task from assembly "Microsoft.Build.Tasks.Core, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a".
+       Task "CreateCSharpManifestResourceName"
+         Root namespace is 'ProjectChronos'.
+         Resource file 'Properties\Resources.resx' doesn't depend on any other file.
+         Resource file 'Properties\Resources.resx' gets manifest resource name 'ProjectChronos.Properties.Resources'.
+       Done executing task "CreateCSharpManifestResourceName".
+       Task "CreateCSharpManifestResourceName" skipped, due to false condition; ('%(EmbeddedResource.ManifestResourceName)' == '' and '%(EmbeddedResource.WithCulture)' == 'true' and '%(EmbeddedResource.Type)' == 'Non-Resx') was evaluated as ('' == '' and 'false' == 'true' and 'Resx' == 'Non-Resx').
+   1:7>Done building target "CreateManifestResourceNames" in project "ProjectChronos.csproj".
+   1:7>Target "CreateCustomManifestResourceNames" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "PrepareResourceNames" depends on it):
+   1:7>Done building target "CreateCustomManifestResourceNames" in project "ProjectChronos.csproj".
+   1:7>Target "PrepareResourceNames" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "PrepareResources" depends on it):
+   1:7>Done building target "PrepareResourceNames" in project "ProjectChronos.csproj".
+       Target "ResolveAssemblyReferences" skipped. Previously built successfully.
+       Target "SplitResourcesByCulture" skipped. Previously built successfully.
+   1:7>Target "BeforeResGen" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "ResGen" depends on it):
+   1:7>Done building target "BeforeResGen" in project "ProjectChronos.csproj".
+       Target "ResolveReferences" skipped. Previously built successfully.
+   1:7>Target "FindReferenceAssembliesForReferences" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "CoreResGen" depends on it):
+   1:7>Done building target "FindReferenceAssembliesForReferences" in project "ProjectChronos.csproj".
+   1:7>Target "CoreResGen" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "ResGen" depends on it):
+       Using "GenerateResource" task from assembly "Microsoft.Build.Tasks.Core, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a".
+       Task "GenerateResource"
+         No resources are out of date with respect to their source files. Skipping resource generation.
+       Done executing task "GenerateResource".
+       Task "GenerateResource" skipped, due to false condition; ('%(EmbeddedResource.Type)' == 'Resx' and '%(EmbeddedResource.GenerateResource)' != 'false' and '$(GenerateResourceMSBuildRuntime)' == 'CLR2') was evaluated as ('Resx' == 'Resx' and '' != 'false' and '' == 'CLR2').
+   1:7>Done building target "CoreResGen" in project "ProjectChronos.csproj".
+   1:7>Target "AfterResGen" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "ResGen" depends on it):
+   1:7>Done building target "AfterResGen" in project "ProjectChronos.csproj".
+   1:7>Target "ResGen" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "PrepareResources" depends on it):
+   1:7>Done building target "ResGen" in project "ProjectChronos.csproj".
+       Target "CompileLicxFiles" skipped, due to false condition; ('@(_LicxFile)'!='') was evaluated as (''!='').
+   1:7>Target "PrepareResources" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "CoreBuild" depends on it):
+   1:7>Done building target "PrepareResources" in project "ProjectChronos.csproj".
+       Target "ResolveKeySource" skipped, due to false condition; ($(SignManifests) == 'true' or $(SignAssembly) == 'true') was evaluated as ( == 'true' or  == 'true').
+       Target "ResolveReferences" skipped. Previously built successfully.
+       Target "ResolveKeySource" skipped, due to false condition; ($(SignManifests) == 'true' or $(SignAssembly) == 'true') was evaluated as ( == 'true' or  == 'true').
+       Target "ResolveComReferences" skipped, due to false condition; ('@(COMReference)'!='' or '@(COMFileReference)'!='') was evaluated as (''!='' or ''!='').
+       Target "ResolveNativeReferences" skipped, due to false condition; ('@(NativeReference)'!='') was evaluated as (''!='').
+       Target "_SetExternalWin32ManifestProperties" skipped, due to false condition; ('$(GenerateClickOnceManifests)'=='true' or '@(NativeReference)'!='' or '@(ResolvedIsolatedComModules)'!='') was evaluated as (''=='true' or ''!='' or ''!='').
+   1:7>Target "_SetEmbeddedWin32ManifestProperties" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "SetWin32ManifestProperties" depends on it):
+       Using "GetFrameworkPath" task from assembly "Microsoft.Build.Tasks.Core, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a".
+       Task "GetFrameworkPath"
+       Done executing task "GetFrameworkPath".
+   1:7>Done building target "_SetEmbeddedWin32ManifestProperties" in project "ProjectChronos.csproj".
+   1:7>Target "SetWin32ManifestProperties" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "Compile" depends on it):
+   1:7>Done building target "SetWin32ManifestProperties" in project "ProjectChronos.csproj".
+       Target "_SetPreferNativeArm64Win32ManifestProperties" skipped, due to false condition; ( '$(PreferNativeArm64)'=='true' and '$(NoWin32Manifest)'!='true') was evaluated as ( ''=='true' and ''!='true').
+       Target "FindReferenceAssembliesForReferences" skipped. Previously built successfully.
+   1:7>Target "_GenerateCompileInputs" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "Compile" depends on it):
+       Task "MSBuildInternalMessage" skipped, due to false condition; ('@(ManifestResourceWithNoCulture)'!='' and '%(ManifestResourceWithNoCulture.EmittedForCompatibilityOnly)'=='') was evaluated as ('obj\Debug\ProjectChronos.Properties.Resources.resources'!='' and 'true'=='').
+       Task "MSBuildInternalMessage" skipped, due to false condition; ('@(ManifestNonResxWithNoCultureOnDisk)'!='' and '%(ManifestNonResxWithNoCultureOnDisk.EmittedForCompatibilityOnly)'=='') was evaluated as (''!='' and ''=='').
+   1:7>Done building target "_GenerateCompileInputs" in project "ProjectChronos.csproj".
+       Target "PrepareForBuild" skipped. Previously built successfully.
+   1:7>Target "GenerateMSBuildEditorConfigFileShouldRun" in file "C:\Program Files\dotnet\sdk\9.0.304\Roslyn\Microsoft.Managed.Core.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "GenerateMSBuildEditorConfigFile" depends on it):
+   1:7>Done building target "GenerateMSBuildEditorConfigFileShouldRun" in project "ProjectChronos.csproj".
+       Target "GenerateMSBuildEditorConfigFileCore" skipped, due to false condition; ('$(_GeneratedEditorConfigShouldRun)' == 'true') was evaluated as ('' == 'true').
+   1:7>Target "GenerateMSBuildEditorConfigFile" in file "C:\Program Files\dotnet\sdk\9.0.304\Roslyn\Microsoft.Managed.Core.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "BeforeCompile" depends on it):
+   1:7>Done building target "GenerateMSBuildEditorConfigFile" in project "ProjectChronos.csproj".
+       Target "PrepareForBuild" skipped. Previously built successfully.
+       Target "GetReferenceAssemblyPaths" skipped. Previously built successfully.
+   1:7>Target "_SetTargetFrameworkMonikerAttribute" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.CSharp.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "GenerateTargetFrameworkMonikerAttribute" depends on it):
+   1:7>Done building target "_SetTargetFrameworkMonikerAttribute" in project "ProjectChronos.csproj".
+   1:7>Target "GenerateTargetFrameworkMonikerAttribute" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "BeforeCompile" depends on it):
+       Skipping target "GenerateTargetFrameworkMonikerAttribute" because all output files are up-to-date with respect to the input files.
+       Input files: C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.targets
+       Output files: obj\Debug\.NETFramework,Version=v4.7.2.AssemblyAttributes.cs
+   1:7>Done building target "GenerateTargetFrameworkMonikerAttribute" in project "ProjectChronos.csproj".
+       Target "GenerateAdditionalSources" skipped, due to false condition; ('@(AssemblyAttributes)' != '' and '$(GenerateAdditionalSources)' == 'true') was evaluated as ('' != '' and '' == 'true').
+   1:7>Target "BeforeCompile" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "Compile" depends on it):
+   1:7>Done building target "BeforeCompile" in project "ProjectChronos.csproj".
+       Target "_TimeStampBeforeCompile" skipped, due to false condition; ('$(RunPostBuildEvent)'=='OnOutputUpdated' or ('$(RegisterForComInterop)'=='true' and '$(OutputType)'=='library')) was evaluated as (''=='OnOutputUpdated' or (''=='true' and 'WinExe'=='library')).
+       Target "ResolveAssemblyReferences" skipped. Previously built successfully.
+       Target "_GenerateCompileInputs" skipped. Previously built successfully.
+   1:7>Target "_GenerateCompileDependencyCache" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "Compile" depends on it):
+       Using "Hash" task from assembly "Microsoft.Build.Tasks.Core, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a".
+       Task "Hash"
+       Done executing task "Hash".
+       Using "WriteLinesToFile" task from assembly "Microsoft.Build.Tasks.Core, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a".
+       Task "WriteLinesToFile"
+         Skipping write to file "obj\Debug\ProjectChronos.csproj.CoreCompileInputs.cache" because content would not change.
+       Done executing task "WriteLinesToFile".
+   1:7>Done building target "_GenerateCompileDependencyCache" in project "ProjectChronos.csproj".
+       Target "_ComputeNonExistentFileProperty" skipped, due to false condition; (('$(BuildingInsideVisualStudio)' == 'true') and ('$(BuildingOutOfProcess)' != 'true') and (('$(BuildingProject)' == 'false') or ('$(UseHostCompilerIfAvailable)' == 'true'))) was evaluated as (('' == 'true') and ('' != 'true') and (('true' == 'false') or ('true' == 'true'))).
+       Target "ResolveCodeAnalysisRuleSet" skipped, due to false condition; ('$(CodeAnalysisRuleSet)' != '') was evaluated as ('' != '').
+       Target "ShimReferencePathsWhenCommonTargetsDoesNotUnderstandReferenceAssemblies" skipped, due to false condition; ('@(ReferencePathWithRefAssemblies)' == '') was evaluated as ('C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\Microsoft.CSharp.dll;C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\mscorlib.dll;C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\PresentationCore.dll;...' == '').
+   1:7>Target "_BeforeVBCSCoreCompile" in file "C:\Program Files\dotnet\sdk\9.0.304\Roslyn\Microsoft.Managed.Core.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "CoreCompile" depends on it):
+   1:7>Done building target "_BeforeVBCSCoreCompile" in project "ProjectChronos.csproj".
+       Target "ShimReferencePathsWhenCommonTargetsDoesNotUnderstandReferenceAssemblies" skipped, due to false condition; ('@(ReferencePathWithRefAssemblies)' == '') was evaluated as ('C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\Microsoft.CSharp.dll;C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\mscorlib.dll;C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\PresentationCore.dll;...' == '').
+   1:7>Target "_ComputeSkipAnalyzers" in file "C:\Program Files\dotnet\sdk\9.0.304\Roslyn\Microsoft.Managed.Core.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "CoreCompile" depends on it):
+       Task "ShowMessageForImplicitlySkipAnalyzers" skipped, due to false condition; ('$(_ImplicitlySkipAnalyzers)' == 'true') was evaluated as ('' == 'true').
+   1:7>Done building target "_ComputeSkipAnalyzers" in project "ProjectChronos.csproj".
+       Target "_SetPathMapFromSourceRoots" skipped, due to false condition; ('$(DeterministicSourcePaths)' == 'true') was evaluated as ('' == 'true').
+       Target "CreateCompilerGeneratedFilesOutputPath" skipped, due to false condition; ('$(EmitCompilerGeneratedFiles)' == 'true' and !('$(DesignTimeBuild)' == 'true' OR '$(BuildingProject)' != 'true')) was evaluated as ('false' == 'true' and !('' == 'true' OR 'true' != 'true')).
+   1:7>Target "CoreCompile" in file "C:\Program Files\dotnet\sdk\9.0.304\Roslyn\Microsoft.CSharp.Core.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "Compile" depends on it):
+       Building target "CoreCompile" completely.
+       Output file "obj\Debug\ProjectChronos.exe" does not exist.
+       Using "Csc" task from assembly "C:\Program Files\dotnet\sdk\9.0.304\Roslyn\Microsoft.Build.Tasks.CodeAnalysis.dll".
+       Task "Csc"
+       C:\Program Files\dotnet\sdk\9.0.304\Roslyn\Microsoft.CSharp.Core.targets(137,10): message : Property 'PreferredUILang' with value 'en-US' expanded from the environment. [C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj]
+         C:\Program Files\dotnet\dotnet.exe exec "C:\Program Files\dotnet\sdk\9.0.304\Roslyn\bincore\csc.dll" /noconfig /nowarn:1701,1702 /fullpaths /nostdlib+ /platform:anycpu32bitpreferred /errorreport:prompt /warn:4 /define:DEBUG;TRACE /preferreduilang:en-US /highentropyva+ /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\Microsoft.CSharp.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\mscorlib.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\PresentationCore.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\PresentationFramework.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.Core.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.Data.DataSetExtensions.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.Data.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.Net.Http.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.Xaml.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.Xml.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.Xml.Linq.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\WindowsBase.dll" /debug+ /debug:full /filealign:512 /optimize- /out:obj\Debug\ProjectChronos.exe /subsystemversion:6.00 /resource:obj\Debug\ProjectChronos.Properties.Resources.resources /target:winexe /utf8output /deterministic+ /langversion:7.3 Converters\LevelToMarginConverter.cs Converters\NullToBoolConverter.cs Converters\PriorityToTagConverter.cs Core\RelayCommand.cs Core\ViewModelBase.cs Models\SimulationModels.cs ViewModels\MainWindowViewModel.cs ViewModels\SimulationReplayViewModel.cs Views\EventMarkerPanel.cs Views\SimulationReplayView.xaml.cs App.xaml.cs MainWindow.xaml.cs Properties\AssemblyInfo.cs Properties\Resources.Designer.cs Properties\Settings.Designer.cs "obj\Debug\.NETFramework,Version=v4.7.2.AssemblyAttributes.cs"
+         Assembly loaded during TaskRun (Microsoft.CodeAnalysis.BuildTasks.Csc): System.IO.Pipes, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a (location: C:\Program Files\dotnet\shared\Microsoft.NETCore.App\9.0.8\System.IO.Pipes.dll, MVID: 8cf0c4db-bf90-4779-96ec-d6c3eb8383ac, AssemblyLoadContext: Default)
+         Assembly loaded during TaskRun (Microsoft.CodeAnalysis.BuildTasks.Csc): System.Security.AccessControl, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a (location: C:\Program Files\dotnet\shared\Microsoft.NETCore.App\9.0.8\System.Security.AccessControl.dll, MVID: dfc7c495-f687-4529-a2fd-33c2b33589a2, AssemblyLoadContext: Default)
+         Microsoft (R) Visual C# Compiler version 4.14.0-3.25359.3 (6dbcfd2f)
+         Copyright (C) Microsoft Corporation. All rights reserved.
+         Assembly loaded during TaskRun (Microsoft.CodeAnalysis.BuildTasks.Csc): System.Reflection.Emit.Lightweight, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a (location: C:\Program Files\dotnet\shared\Microsoft.NETCore.App\9.0.8\System.Reflection.Emit.Lightweight.dll, MVID: 221fc0d9-f6e4-435b-b4ff-432165173d50, AssemblyLoadContext: Default)
+         Assembly loaded during TaskRun (Microsoft.CodeAnalysis.BuildTasks.Csc): System.Reflection.Emit.ILGeneration, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a (location: C:\Program Files\dotnet\shared\Microsoft.NETCore.App\9.0.8\System.Reflection.Emit.ILGeneration.dll, MVID: ae5500ba-7105-4684-8251-80efcb6e1043, AssemblyLoadContext: Default)
+         Assembly loaded during TaskRun (Microsoft.CodeAnalysis.BuildTasks.Csc): System.Reflection.Primitives, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a (location: C:\Program Files\dotnet\shared\Microsoft.NETCore.App\9.0.8\System.Reflection.Primitives.dll, MVID: 9eecd72a-aa3b-4397-b193-2dd129ac7612, AssemblyLoadContext: Default)
+   1:7>CSC : error CS5001: Program does not contain a static 'Main' method suitable for an entry point [C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj]
+   1:7>C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\MainWindow.xaml.cs(25,13): error CS0103: The name 'InitializeComponent' does not exist in the current context [C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj]
+   1:7>C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\Views\SimulationReplayView.xaml.cs(12,13): error CS0103: The name 'InitializeComponent' does not exist in the current context [C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj]
+         CompilerServer: server - server processed compilation - ProjectChronos
+       Done executing task "Csc" -- FAILED.
+   1:7>Done building target "CoreCompile" in project "ProjectChronos.csproj" -- FAILED.
+   1:7>Target "_CheckForCompileOutputs" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "_CleanGetCurrentAndPriorFileWrites" depends on it):
+       C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets(5589,7): message : Property reassignment: $(_DebugSymbolsProduced)="false" (previous value: "true") at C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets (5589,7) [C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj]
+   1:7>Done building target "_CheckForCompileOutputs" in project "ProjectChronos.csproj".
+       Target "_SGenCheckForOutputs" skipped, due to false condition; ('$(_SGenGenerateSerializationAssembliesConfig)' == 'On' or ('@(WebReferenceUrl)'!='' and '$(_SGenGenerateSerializationAssembliesConfig)' == 'Auto')) was evaluated as ('Off' == 'On' or (''!='' and 'Off' == 'Auto')).
+   1:7>Target "_CleanGetCurrentAndPriorFileWrites" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "_CleanRecordFileWrites" depends on it):
+       Using "ReadLinesFromFile" task from assembly "Microsoft.Build.Tasks.Core, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a".
+       Task "ReadLinesFromFile"
+       Done executing task "ReadLinesFromFile".
+       Task "ConvertToAbsolutePath"
+       Done executing task "ConvertToAbsolutePath".
+       Using "FindUnderPath" task from assembly "Microsoft.Build.Tasks.Core, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a".
+       Task "FindUnderPath"
+         Comparison path is "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos".
+       Done executing task "FindUnderPath".
+       Task "FindUnderPath"
+         Comparison path is "bin\Debug\".
+       Done executing task "FindUnderPath".
+       Task "FindUnderPath"
+         Comparison path is "obj\Debug\".
+       Done executing task "FindUnderPath".
+       Task "RemoveDuplicates"
+       Done executing task "RemoveDuplicates".
+   1:7>Done building target "_CleanGetCurrentAndPriorFileWrites" in project "ProjectChronos.csproj".
+   1:7>Target "_CleanRecordFileWrites" in file "C:\Program Files\dotnet\sdk\9.0.304\Microsoft.Common.CurrentVersion.targets" from project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (target "CoreBuild" depends on it):
+       Task "RemoveDuplicates"
+       Done executing task "RemoveDuplicates".
+       Task "MakeDir"
+       Done executing task "MakeDir".
+       Task "WriteLinesToFile"
+         Skipping write to file "obj\Debug\ProjectChronos.csproj.FileListAbsolute.txt" because content would not change.
+       Done executing task "WriteLinesToFile".
+   1:7>Done building target "_CleanRecordFileWrites" in project "ProjectChronos.csproj".
+   1:7>Done Building Project "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (default targets) -- FAILED.
+
+Build FAILED.
+
+       "C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj" (default target) (1:7) ->
+       (CoreCompile target) -> 
+         CSC : error CS5001: Program does not contain a static 'Main' method suitable for an entry point [C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj]
+         C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\MainWindow.xaml.cs(25,13): error CS0103: The name 'InitializeComponent' does not exist in the current context [C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj]
+         C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\Views\SimulationReplayView.xaml.cs(12,13): error CS0103: The name 'InitializeComponent' does not exist in the current context [C:\Users\minph\source\repos\ProjectChronos\ProjectChronos\ProjectChronos.csproj]
+
+    0 Warning(s)
+    3 Error(s)
+
+Time Elapsed 00:00:00.42

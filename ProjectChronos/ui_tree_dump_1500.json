@@ -1,0 +1,250 @@
+﻿[
+    {
+        "Name":  "MainWindow",
+        "Class":  "Window",
+        "Left":  20,
+        "Top":  20,
+        "Width":  1500,
+        "Height":  450
+    },
+    {
+        "Name":  "40.0s",
+        "Class":  "TextBlock",
+        "Left":  222,
+        "Top":  150,
+        "Width":  30,
+        "Height":  15
+    },
+    {
+        "Name":  "위험 상황 발생",
+        "Class":  "TextBlock",
+        "Left":  258,
+        "Top":  150,
+        "Width":  74,
+        "Height":  15
+    },
+    {
+        "Name":  "80.0s",
+        "Class":  "TextBlock",
+        "Left":  449,
+        "Top":  150,
+        "Width":  31,
+        "Height":  15
+    },
+    {
+        "Name":  "시스템 부하 상승",
+        "Class":  "TextBlock",
+        "Left":  486,
+        "Top":  150,
+        "Width":  84,
+        "Height":  15
+    },
+    {
+        "Name":  "80.1s",
+        "Class":  "TextBlock",
+        "Left":  454,
+        "Top":  125,
+        "Width":  31,
+        "Height":  15
+    },
+    {
+        "Name":  "네트워크 지연1",
+        "Class":  "TextBlock",
+        "Left":  491,
+        "Top":  125,
+        "Width":  75,
+        "Height":  15
+    },
+    {
+        "Name":  "80.1s",
+        "Class":  "TextBlock",
+        "Left":  454,
+        "Top":  150,
+        "Width":  31,
+        "Height":  14
+    },
+    {
+        "Name":  "네트워크 지연2",
+        "Class":  "TextBlock",
+        "Left":  491,
+        "Top":  150,
+        "Width":  75,
+        "Height":  14
+    },
+    {
+        "Name":  "220.0s",
+        "Class":  "TextBlock",
+        "Left":  1262,
+        "Top":  150,
+        "Width":  37,
+        "Height":  15
+    },
+    {
+        "Name":  "시뮬레이션 종료",
+        "Class":  "TextBlock",
+        "Left":  1305,
+        "Top":  150,
+        "Width":  81,
+        "Height":  15
+    },
+    {
+        "Name":  "PrevE",
+        "Class":  "Button",
+        "Left":  45,
+        "Top":  298,
+        "Width":  56,
+        "Height":  29
+    },
+    {
+        "Name":  "PrevE",
+        "Class":  "TextBlock",
+        "Left":  57,
+        "Top":  304,
+        "Width":  32,
+        "Height":  17
+    },
+    {
+        "Name":  "?",
+        "Class":  "Button",
+        "Left":  105,
+        "Top":  298,
+        "Width":  30,
+        "Height":  29
+    },
+    {
+        "Name":  "?",
+        "Class":  "TextBlock",
+        "Left":  117,
+        "Top":  304,
+        "Width":  6,
+        "Height":  17
+    },
+    {
+        "Name":  "재생",
+        "Class":  "Button",
+        "Left":  139,
+        "Top":  298,
+        "Width":  80,
+        "Height":  29
+    },
+    {
+        "Name":  "재생",
+        "Class":  "TextBlock",
+        "Left":  166,
+        "Top":  304,
+        "Width":  26,
+        "Height":  17
+    },
+    {
+        "Name":  "Fwd",
+        "Class":  "Button",
+        "Left":  223,
+        "Top":  298,
+        "Width":  48,
+        "Height":  29
+    },
+    {
+        "Name":  "Fwd",
+        "Class":  "TextBlock",
+        "Left":  235,
+        "Top":  304,
+        "Width":  24,
+        "Height":  17
+    },
+    {
+        "Name":  "NextE",
+        "Class":  "Button",
+        "Left":  275,
+        "Top":  298,
+        "Width":  58,
+        "Height":  29
+    },
+    {
+        "Name":  "NextE",
+        "Class":  "TextBlock",
+        "Left":  287,
+        "Top":  304,
+        "Width":  34,
+        "Height":  17
+    },
+    {
+        "Name":  "00:00.00",
+        "Class":  "TextBlock",
+        "Left":  509,
+        "Top":  302,
+        "Width":  70,
+        "Height":  21
+    },
+    {
+        "Name":  " / ",
+        "Class":  "TextBlock",
+        "Left":  584,
+        "Top":  302,
+        "Width":  18,
+        "Height":  21
+    },
+    {
+        "Name":  "04:10.00",
+        "Class":  "TextBlock",
+        "Left":  607,
+        "Top":  302,
+        "Width":  70,
+        "Height":  21
+    },
+    {
+        "Name":  "?뚮뜑留?",
+        "Class":  "TextBlock",
+        "Left":  851,
+        "Top":  305,
+        "Width":  47,
+        "Height":  16
+    },
+    {
+        "Name":  "Realtime",
+        "Class":  "TextBlock",
+        "Left":  954,
+        "Top":  305,
+        "Width":  43,
+        "Height":  15
+    },
+    {
+        "Name":  "?ъ깮 ?띾룄:",
+        "Class":  "TextBlock",
+        "Left":  1021,
+        "Top":  305,
+        "Width":  61,
+        "Height":  16
+    },
+    {
+        "Name":  "?대룞 媛꾧꺽:",
+        "Class":  "TextBlock",
+        "Left":  1152,
+        "Top":  305,
+        "Width":  72,
+        "Height":  16
+    },
+    {
+        "Name":  "?쒓컙 ?대룞:",
+        "Class":  "TextBlock",
+        "Left":  1310,
+        "Top":  305,
+        "Width":  66,
+        "Height":  16
+    },
+    {
+        "Name":  "Go",
+        "Class":  "Button",
+        "Left":  1446,
+        "Top":  298,
+        "Width":  41,
+        "Height":  29
+    },
+    {
+        "Name":  "Go",
+        "Class":  "TextBlock",
+        "Left":  1458,
+        "Top":  304,
+        "Width":  17,
+        "Height":  17
+    }
+]

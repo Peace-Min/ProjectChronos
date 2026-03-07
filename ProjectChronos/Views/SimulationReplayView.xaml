@@ -177,7 +177,7 @@
                  - 슬라이더(Slider)는 사용자가 드래그할 수 있어야 하므로 최상단에 위치해야 합니다.
                  - 그러나 슬라이더의 배경(Track)이 마커를 가리면 안 되므로, 슬라이더 배경을 투명하게 처리합니다.
             -->
-            <Grid Grid.Row="0" Margin="0,100">
+            <Grid Grid.Row="0" Margin="0,70,0,10">
                 <!-- 
                     [Z-Index 계층 구조 (Layering)]
                     1. Track Box (Z=1): 슬라이더의 시각적 배경 트랙입니다. (실제 Slider 트랙은 투명)
@@ -219,14 +219,15 @@
 
                                 <!-- (1) 타임라인 위쪽으로 삐져나오는 연결선 (Level에 따라 높이 조절) -->
                                 <!-- 동일 시점 중복 선 제거: IsPrimaryMarker 이벤트만 선을 그려 시각적 노이즈 방지 -->
-                                <Rectangle Width="1" Fill="#555555" VerticalAlignment="Top" HorizontalAlignment="Center"
+                                <!--<Rectangle Width="1" Fill="#555555" VerticalAlignment="Top" HorizontalAlignment="Center"
                                            Visibility="{Binding IsPrimaryMarker, Converter={StaticResource BooleanToVisibilityConverter}}"
                                            Height="{Binding (local:EventMarkerPanel.Level), RelativeSource={RelativeSource AncestorType=ContentPresenter}, Converter={StaticResource LevelToHeightConverter}, ConverterParameter='20,25'}"
-                                           Margin="{Binding (local:EventMarkerPanel.Level), RelativeSource={RelativeSource AncestorType=ContentPresenter}, Converter={StaticResource LevelToMarginConverter}, ConverterParameter='20,25'}"/>
+                                           Margin="{Binding (local:EventMarkerPanel.Level), RelativeSource={RelativeSource AncestorType=ContentPresenter}, Converter={StaticResource LevelToMarginConverter}, ConverterParameter='20,25'}"/>-->
                                 
                                 <!-- (2) 단일 이벤트 레이블: EventMarkerPanel이 이 요소의 너비를 실측하여 Level을 배정함 -->
                                 <Border x:Name="LabelControl"
                                         BorderBrush="{Binding Priority, Converter={StaticResource PriorityToBrushConverter}}"
+                                        BorderThickness="0"
                                         CornerRadius="4" Padding="6,4"
                                         VerticalAlignment="Top" HorizontalAlignment="Center"
                                         Margin="{Binding (local:EventMarkerPanel.Level), RelativeSource={RelativeSource AncestorType=ContentPresenter}, Converter={StaticResource LevelToMarginConverter}, ConverterParameter='20,25'}">
@@ -238,7 +239,7 @@
                                                 <DataTrigger Binding="{Binding IsHighlighted}" Value="True">
                                                     <!-- 하이라이트 효과: 강조된 배경과 테두리 -->
                                                     <Setter Property="Background" Value="#3A3A3A"/>
-                                                    <Setter Property="BorderThickness" Value="3,1,1,1"/>
+                                                    <Setter Property="TextElement.FontWeight" Value="Bold"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -247,7 +248,7 @@
                                         <DropShadowEffect ShadowDepth="2" BlurRadius="6" Opacity="0.8"/>
                                     </Border.Effect>
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding Timestamp, StringFormat='{}{0:F1}s'}" FontFamily="Consolas" FontWeight="Bold" 
+                                        <TextBlock Text="{Binding Timestamp, StringFormat='{}{0:F1}s'}" 
                                                    Foreground="{Binding Priority, Converter={StaticResource PriorityToBrushConverter}}" 
                                                    Margin="0,0,6,0" FontSize="11"/>
                                         <TextBlock Text="{Binding Title}" Foreground="#ffffff" FontSize="11"/>
@@ -315,12 +316,12 @@
 
                                 <Border x:Name="HitArea" Width="20" Background="Transparent" Cursor="Hand" />
 
-                                <!-- 
-                                =============================================================
+                                 
+                                <!--=============================================================
                                 🚨 [선택 기능 롤백 안내: 이벤트 마커 호버 팝업] 🚨
                                 아래 주석 처리된 영역은 각 이벤트 마커(틱 혹은 레이블)에 마우스 오버 시
                                 팝업 형태의 상세 정보를 보여주던 기능입니다. 필요 시 주석을 해제하여 사용하세요.
-                                ============================================================= 
+                                =============================================================--> 
                                 
                                 <Popup x:Name="EventPopup" 
                                        PlacementTarget="{Binding ElementName=LabelControl}"
@@ -328,7 +329,8 @@
                                        AllowsTransparency="True"
                                        StaysOpen="True"
                                        VerticalOffset="-4">
-                                    <Border BorderBrush="#007acc" BorderThickness="2" 
+                                    <Border IsHitTestVisible="False"
+                                            BorderBrush="#007acc" BorderThickness="2" 
                                             CornerRadius="6" Padding="12,8" MinWidth="200" MaxWidth="340">
                                         <Border.Background>
                                             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
@@ -377,7 +379,7 @@
                                 </Popup>
 
                                 <Grid.Triggers>
-                                    <EventTrigger RoutedEvent="MouseEnter" SourceName="HitArea">
+                                    <!--<EventTrigger RoutedEvent="MouseEnter" SourceName="HitArea">
                                         <BeginStoryboard>
                                             <Storyboard>
                                                 <BooleanAnimationUsingKeyFrames Storyboard.TargetName="EventPopup" Storyboard.TargetProperty="IsOpen">
@@ -394,7 +396,7 @@
                                                 </BooleanAnimationUsingKeyFrames>
                                             </Storyboard>
                                         </BeginStoryboard>
-                                    </EventTrigger>
+                                    </EventTrigger>-->
                                     <EventTrigger RoutedEvent="MouseEnter" SourceName="LabelControl">
                                         <BeginStoryboard>
                                             <Storyboard>
@@ -414,7 +416,7 @@
                                         </BeginStoryboard>
                                     </EventTrigger>
                                 </Grid.Triggers>
-                                -->
+                                
                             </Grid>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>

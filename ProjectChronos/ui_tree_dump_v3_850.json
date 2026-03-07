@@ -1,0 +1,242 @@
+﻿[
+    {
+        "Name":  "MainWindow",
+        "Class":  "Window",
+        "Left":  20,
+        "Top":  20,
+        "Width":  850,
+        "Height":  450
+    },
+    {
+        "Name":  "40.0s",
+        "Class":  "TextBlock",
+        "Left":  118,
+        "Top":  180,
+        "Width":  30,
+        "Height":  15
+    },
+    {
+        "Name":  "위험 상황 발생",
+        "Class":  "TextBlock",
+        "Left":  154,
+        "Top":  180,
+        "Width":  74,
+        "Height":  15
+    },
+    {
+        "Name":  "80.0s",
+        "Class":  "TextBlock",
+        "Left":  241,
+        "Top":  142,
+        "Width":  31,
+        "Height":  15
+    },
+    {
+        "Name":  "시스템 부하 상승",
+        "Class":  "TextBlock",
+        "Left":  278,
+        "Top":  142,
+        "Width":  84,
+        "Height":  15
+    },
+    {
+        "Name":  "80.1s",
+        "Class":  "TextBlock",
+        "Left":  246,
+        "Top":  104,
+        "Width":  30,
+        "Height":  15
+    },
+    {
+        "Name":  "네트워크 지연1",
+        "Class":  "TextBlock",
+        "Left":  282,
+        "Top":  104,
+        "Width":  76,
+        "Height":  15
+    },
+    {
+        "Name":  "80.1s",
+        "Class":  "TextBlock",
+        "Left":  246,
+        "Top":  66,
+        "Width":  30,
+        "Height":  15
+    },
+    {
+        "Name":  "네트워크 지연2",
+        "Class":  "TextBlock",
+        "Left":  282,
+        "Top":  66,
+        "Width":  76,
+        "Height":  15
+    },
+    {
+        "Name":  "220.0s",
+        "Class":  "TextBlock",
+        "Left":  690,
+        "Top":  180,
+        "Width":  37,
+        "Height":  15
+    },
+    {
+        "Name":  "시뮬레이션 종료",
+        "Class":  "TextBlock",
+        "Left":  733,
+        "Top":  180,
+        "Width":  81,
+        "Height":  15
+    },
+    {
+        "Name":  "PrevE",
+        "Class":  "Button",
+        "Left":  45,
+        "Top":  358,
+        "Width":  56,
+        "Height":  29
+    },
+    {
+        "Name":  "PrevE",
+        "Class":  "TextBlock",
+        "Left":  57,
+        "Top":  364,
+        "Width":  32,
+        "Height":  17
+    },
+    {
+        "Name":  "Back",
+        "Class":  "Button",
+        "Left":  105,
+        "Top":  358,
+        "Width":  51,
+        "Height":  29
+    },
+    {
+        "Name":  "Back",
+        "Class":  "TextBlock",
+        "Left":  117,
+        "Top":  364,
+        "Width":  27,
+        "Height":  17
+    },
+    {
+        "Name":  "Play",
+        "Class":  "Button",
+        "Left":  160,
+        "Top":  358,
+        "Width":  80,
+        "Height":  29
+    },
+    {
+        "Name":  "Play",
+        "Class":  "TextBlock",
+        "Left":  187,
+        "Top":  364,
+        "Width":  26,
+        "Height":  17
+    },
+    {
+        "Name":  "Fwd",
+        "Class":  "Button",
+        "Left":  244,
+        "Top":  358,
+        "Width":  48,
+        "Height":  29
+    },
+    {
+        "Name":  "Fwd",
+        "Class":  "TextBlock",
+        "Left":  256,
+        "Top":  364,
+        "Width":  24,
+        "Height":  17
+    },
+    {
+        "Name":  "NextE",
+        "Class":  "Button",
+        "Left":  296,
+        "Top":  358,
+        "Width":  58,
+        "Height":  29
+    },
+    {
+        "Name":  "NextE",
+        "Class":  "TextBlock",
+        "Left":  308,
+        "Top":  364,
+        "Width":  34,
+        "Height":  17
+    },
+    {
+        "Name":  "00:00.00",
+        "Class":  "TextBlock",
+        "Left":  293,
+        "Top":  362,
+        "Width":  70,
+        "Height":  21
+    },
+    {
+        "Name":  " / ",
+        "Class":  "TextBlock",
+        "Left":  368,
+        "Top":  362,
+        "Width":  18,
+        "Height":  21
+    },
+    {
+        "Name":  "04:10.00",
+        "Class":  "TextBlock",
+        "Left":  391,
+        "Top":  362,
+        "Width":  70,
+        "Height":  21
+    },
+    {
+        "Name":  "Render",
+        "Class":  "TextBlock",
+        "Left":  398,
+        "Top":  365,
+        "Width":  38,
+        "Height":  16
+    },
+    {
+        "Name":  "Speed:",
+        "Class":  "TextBlock",
+        "Left":  475,
+        "Top":  365,
+        "Width":  37,
+        "Height":  16
+    },
+    {
+        "Name":  "Step:",
+        "Class":  "TextBlock",
+        "Left":  582,
+        "Top":  365,
+        "Width":  26,
+        "Height":  16
+    },
+    {
+        "Name":  "Jump:",
+        "Class":  "TextBlock",
+        "Left":  694,
+        "Top":  365,
+        "Width":  32,
+        "Height":  16
+    },
+    {
+        "Name":  "Go",
+        "Class":  "Button",
+        "Left":  796,
+        "Top":  358,
+        "Width":  41,
+        "Height":  29
+    },
+    {
+        "Name":  "Go",
+        "Class":  "TextBlock",
+        "Left":  808,
+        "Top":  364,
+        "Width":  17,
+        "Height":  17
+    }
+]

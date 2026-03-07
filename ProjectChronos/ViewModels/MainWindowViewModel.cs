@@ -25,7 +25,7 @@ namespace ProjectChronos.ViewModels
                 new Models.SimulationEventMarker(220.0, Models.EventPriority.Medium, "시뮬레이션 종료", "Job Done", "모든 작업이 완료되었습니다"),
             };
 
-            SimulationReplayViewModel.Initialize(250.0, exampleEvents);
+            SimulationReplayViewModel.Initialize(300, exampleEvents);
         }
     }
 }
