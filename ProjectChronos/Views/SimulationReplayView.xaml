@@ -537,6 +537,55 @@
                         </CheckBox.Template>
                     </CheckBox>
 
+                    <!-- 이벤트 정지 토글 (Auto Pause) -->
+                    <TextBlock Text="이벤트 정지:" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" Margin="10,0,8,0"/>
+                    <CheckBox IsChecked="{Binding IsAutoPauseEnabled}" VerticalAlignment="Center" Margin="0,0,15,0" MinWidth="80"
+                              ToolTip="• ON: 이벤트 마커 상에서 멈춤&#x0a;• OFF: 지속 재생 (잔상 알림 유지)">
+                        <CheckBox.Template>
+                            <ControlTemplate TargetType="CheckBox">
+                                <StackPanel Orientation="Horizontal">
+                                    <Border x:Name="SwitchTrack" Width="40" Height="20" CornerRadius="10" 
+                                            Background="#555555" Cursor="Hand">
+                                        <Ellipse x:Name="SwitchThumb" Width="16" Height="16" 
+                                                 Fill="{StaticResource TextPrimary}" 
+                                                 HorizontalAlignment="Left" Margin="2,0,0,0">
+                                            <Ellipse.RenderTransform>
+                                                <TranslateTransform x:Name="ThumbTransform" X="0"/>
+                                            </Ellipse.RenderTransform>
+                                        </Ellipse>
+                                    </Border>
+                                    <TextBlock x:Name="StateLabel" Text="OFF" Foreground="{StaticResource TextSecondary}" 
+                                               FontSize="11" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                                </StackPanel>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsChecked" Value="True">
+                                        <Setter TargetName="SwitchTrack" Property="Background" Value="#ffb86c"/>
+                                        <Setter TargetName="StateLabel" Property="Text" Value="ON"/>
+                                        <Setter TargetName="StateLabel" Property="Foreground" Value="#ffb86c"/>
+                                        <Trigger.EnterActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetName="ThumbTransform" Storyboard.TargetProperty="X" To="18" Duration="0:0:0.2">
+                                                        <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                                                    </DoubleAnimation>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </Trigger.EnterActions>
+                                        <Trigger.ExitActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetName="ThumbTransform" Storyboard.TargetProperty="X" To="0" Duration="0:0:0.2">
+                                                        <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                                                    </DoubleAnimation>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </Trigger.ExitActions>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </CheckBox.Template>
+                    </CheckBox>
+
                     <TextBlock Text="재생 속도:" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" Margin="0,0,5,0"/>
                     <TextBox Text="{Binding PlaybackSpeedText, UpdateSourceTrigger=LostFocus}" Width="50" Height="26" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
 

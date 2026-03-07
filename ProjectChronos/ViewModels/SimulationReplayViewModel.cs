@@ -147,6 +147,18 @@ namespace ProjectChronos.ViewModels
         // -----------------------------------------------------------
         #region Properties
 
+        private bool _isAutoPauseEnabled = true;
+        /// <summary>
+        /// 이벤트 도달 시 자동 멈춤 기능 활성화 여부
+        /// </summary>
+        public bool IsAutoPauseEnabled
+        {
+            get => _isAutoPauseEnabled;
+            set => SetProperty(ref _isAutoPauseEnabled, value);
+        }
+
+        private double _lastHighlightTime = -1;
+
         /// <summary>
         /// 전체 시뮬레이션 길이 (초 단위)
         /// </summary>
@@ -476,20 +488,43 @@ namespace ProjectChronos.ViewModels
             {
                 CurrentEvents = matchedGroup.Events; // UI 알림 (먼저 설정하여 일관성 유지)
 
-                // 🎯 [SNAP] 이벤트가 있다면, 목표 시간(nextTime)을 무시하고 이벤트 시간으로 강제 착륙
-                // 스로틀링 무시하고 즉시 알림 전송 (forceNotify: true)
-                SetCurrentTimeInternal(matchedGroup.Timestamp, forceNotify: true);
+                if (IsAutoPauseEnabled)
+                {
+                    // 🎯 [SNAP] 이벤트가 있다면, 목표 시간(nextTime)을 무시하고 이벤트 시간으로 강제 착륙
+                    // 스로틀링 무시하고 즉시 알림 전송 (forceNotify: true)
+                    SetCurrentTimeInternal(matchedGroup.Timestamp, forceNotify: true);
 
-                IsPlaying = false; // 일시 정지
+                    IsPlaying = false; // 일시 정지
 
-                System.Diagnostics.Debug.WriteLine($"[Auto Pause] Event Group at {matchedGroup.Timestamp:F2}s - Count: {matchedGroup.Events.Count}");
+                    System.Diagnostics.Debug.WriteLine($"[Auto Pause] Event Group at {matchedGroup.Timestamp:F2}s - Count: {matchedGroup.Events.Count}");
+                }
+                else
+                {
+                    // 자동 멈춤 OFF: 멈추지 않고 흘러가지만 잔상(Highlight)을 남김
+                    SetCurrentTimeInternal(matchedGroup.Timestamp, forceNotify: true);
+                    CurrentTime = nextTime;
+                    _lastHighlightTime = nextTime;
+                }
             }
             else
             {
                 // 이벤트가 없으면 원래 목표대로 이동하고, CurrentEvents 초기화
 
                 // [Range Check 결과 이벤트 없음]
-                CurrentEvents = null;
+                if (!IsAutoPauseEnabled && _lastHighlightTime >= 0)
+                {
+                    // 1초 뒤에 잔상 해제
+                    if (nextTime - _lastHighlightTime > 1.0 * PlaybackSpeed)
+                    {
+                        CurrentEvents = null;
+                        _lastHighlightTime = -1;
+                    }
+                }
+                else
+                {
+                    CurrentEvents = null;
+                }
+
                 CurrentTime = nextTime;
             }
         }
