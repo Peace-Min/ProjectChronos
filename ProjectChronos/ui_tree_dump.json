@@ -2,248 +2,264 @@
     {
         "Name":  "MainWindow",
         "Class":  "Window",
-        "Left":  78,
-        "Top":  78,
+        "Left":  182,
+        "Top":  182,
         "Width":  800,
         "Height":  450
     },
     {
         "Name":  "40.0s",
         "Class":  "TextBlock",
-        "Left":  174,
-        "Top":  208,
-        "Width":  31,
-        "Height":  15
+        "Left":  257,
+        "Top":  302,
+        "Width":  26,
+        "Height":  14
     },
     {
         "Name":  "위험 상황 발생",
         "Class":  "TextBlock",
-        "Left":  211,
-        "Top":  208,
+        "Left":  289,
+        "Top":  302,
         "Width":  73,
-        "Height":  15
+        "Height":  14
     },
     {
         "Name":  "80.0s",
         "Class":  "TextBlock",
-        "Left":  287,
-        "Top":  183,
-        "Width":  30,
-        "Height":  15
+        "Left":  348,
+        "Top":  274,
+        "Width":  25,
+        "Height":  14
     },
     {
         "Name":  "시스템 부하 상승",
         "Class":  "TextBlock",
-        "Left":  323,
-        "Top":  183,
+        "Left":  379,
+        "Top":  274,
         "Width":  85,
-        "Height":  15
+        "Height":  14
     },
     {
         "Name":  "80.1s",
         "Class":  "TextBlock",
-        "Left":  291,
-        "Top":  158,
-        "Width":  30,
-        "Height":  15
+        "Left":  352,
+        "Top":  246,
+        "Width":  26,
+        "Height":  14
     },
     {
         "Name":  "네트워크 지연1",
         "Class":  "TextBlock",
-        "Left":  327,
-        "Top":  158,
+        "Left":  384,
+        "Top":  246,
         "Width":  76,
-        "Height":  15
+        "Height":  14
     },
     {
         "Name":  "80.1s",
         "Class":  "TextBlock",
-        "Left":  291,
-        "Top":  133,
-        "Width":  30,
-        "Height":  15
+        "Left":  352,
+        "Top":  218,
+        "Width":  26,
+        "Height":  14
     },
     {
         "Name":  "네트워크 지연2",
         "Class":  "TextBlock",
-        "Left":  327,
-        "Top":  133,
+        "Left":  384,
+        "Top":  218,
         "Width":  76,
-        "Height":  15
+        "Height":  14
     },
     {
         "Name":  "220.0s",
         "Class":  "TextBlock",
-        "Left":  698,
-        "Top":  208,
-        "Width":  36,
-        "Height":  15
+        "Left":  682,
+        "Top":  302,
+        "Width":  32,
+        "Height":  14
     },
     {
         "Name":  "시뮬레이션 종료",
         "Class":  "TextBlock",
-        "Left":  740,
-        "Top":  208,
-        "Width":  81,
-        "Height":  15
+        "Left":  720,
+        "Top":  302,
+        "Width":  80,
+        "Height":  14
     },
     {
         "Name":  "⏮",
         "Class":  "Button",
-        "Left":  103,
-        "Top":  356,
+        "Left":  207,
+        "Top":  365,
         "Width":  42,
         "Height":  29
     },
     {
         "Name":  "⏮",
         "Class":  "TextBlock",
-        "Left":  115,
-        "Top":  362,
+        "Left":  219,
+        "Top":  371,
         "Width":  18,
         "Height":  17
     },
     {
         "Name":  "◀",
         "Class":  "Button",
-        "Left":  149,
-        "Top":  356,
+        "Left":  253,
+        "Top":  365,
         "Width":  37,
         "Height":  29
     },
     {
         "Name":  "◀",
         "Class":  "TextBlock",
-        "Left":  161,
-        "Top":  362,
+        "Left":  265,
+        "Top":  371,
         "Width":  13,
         "Height":  17
     },
     {
         "Name":  "재생",
         "Class":  "Button",
-        "Left":  190,
-        "Top":  356,
+        "Left":  294,
+        "Top":  365,
         "Width":  80,
         "Height":  29
     },
     {
         "Name":  "재생",
         "Class":  "TextBlock",
-        "Left":  217,
-        "Top":  362,
+        "Left":  321,
+        "Top":  371,
         "Width":  26,
         "Height":  17
     },
     {
         "Name":  "▶",
         "Class":  "Button",
-        "Left":  274,
-        "Top":  356,
+        "Left":  378,
+        "Top":  365,
         "Width":  37,
         "Height":  29
     },
     {
         "Name":  "▶",
         "Class":  "TextBlock",
-        "Left":  286,
-        "Top":  362,
+        "Left":  390,
+        "Top":  371,
         "Width":  13,
         "Height":  17
     },
     {
         "Name":  "⏭",
         "Class":  "Button",
-        "Left":  315,
-        "Top":  356,
+        "Left":  419,
+        "Top":  365,
         "Width":  42,
         "Height":  29
     },
     {
         "Name":  "⏭",
         "Class":  "TextBlock",
-        "Left":  327,
-        "Top":  362,
+        "Left":  431,
+        "Top":  371,
         "Width":  18,
         "Height":  17
     },
     {
         "Name":  "00:00.00",
         "Class":  "TextBlock",
-        "Left":  275,
-        "Top":  360,
+        "Left":  379,
+        "Top":  369,
         "Width":  70,
         "Height":  21
     },
     {
         "Name":  " / ",
         "Class":  "TextBlock",
-        "Left":  350,
-        "Top":  360,
+        "Left":  454,
+        "Top":  369,
         "Width":  17,
         "Height":  21
     },
     {
-        "Name":  "04:10.00",
+        "Name":  "05:00.00",
         "Class":  "TextBlock",
-        "Left":  372,
-        "Top":  360,
+        "Left":  476,
+        "Top":  369,
         "Width":  71,
         "Height":  21
     },
     {
         "Name":  "렌더링:",
         "Class":  "TextBlock",
-        "Left":  359,
-        "Top":  363,
+        "Left":  463,
+        "Top":  372,
         "Width":  38,
         "Height":  16
     },
     {
         "Name":  "실시간",
         "Class":  "TextBlock",
-        "Left":  453,
-        "Top":  363,
+        "Left":  557,
+        "Top":  372,
         "Width":  33,
+        "Height":  15
+    },
+    {
+        "Name":  "이벤트 정지:",
+        "Class":  "TextBlock",
+        "Left":  634,
+        "Top":  372,
+        "Width":  67,
+        "Height":  16
+    },
+    {
+        "Name":  "ON",
+        "Class":  "TextBlock",
+        "Left":  757,
+        "Top":  372,
+        "Width":  17,
         "Height":  15
     },
     {
         "Name":  "재생 속도:",
         "Class":  "TextBlock",
-        "Left":  520,
-        "Top":  363,
+        "Left":  804,
+        "Top":  372,
         "Width":  55,
         "Height":  16
     },
     {
         "Name":  "이동 간격:",
         "Class":  "TextBlock",
-        "Left":  645,
-        "Top":  363,
+        "Left":  929,
+        "Top":  372,
         "Width":  55,
         "Height":  16
     },
     {
         "Name":  "시간 이동:",
         "Class":  "TextBlock",
-        "Left":  786,
-        "Top":  363,
+        "Left":  1070,
+        "Top":  372,
         "Width":  55,
         "Height":  16
     },
     {
         "Name":  "➜",
         "Class":  "Button",
-        "Left":  911,
-        "Top":  356,
+        "Left":  1195,
+        "Top":  365,
         "Width":  37,
         "Height":  29
     },
     {
         "Name":  "➜",
         "Class":  "TextBlock",
-        "Left":  923,
-        "Top":  362,
+        "Left":  1207,
+        "Top":  371,
         "Width":  13,
         "Height":  17
     }

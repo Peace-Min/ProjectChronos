@@ -32,6 +32,26 @@ namespace ProjectChronos.Views
             set { SetValue(ThumbWidthProperty, value); }
         }
 
+        public static readonly DependencyProperty IsLabelPanelProperty =
+            DependencyProperty.Register("IsLabelPanel", typeof(bool), typeof(EventMarkerPanel),
+                new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsArrange));
+
+        public bool IsLabelPanel
+        {
+            get { return (bool)GetValue(IsLabelPanelProperty); }
+            set { SetValue(IsLabelPanelProperty, value); }
+        }
+
+        public static readonly DependencyProperty LevelSpacingProperty =
+            DependencyProperty.Register("LevelSpacing", typeof(double), typeof(EventMarkerPanel),
+                new FrameworkPropertyMetadata(25.0, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsArrange));
+
+        public double LevelSpacing
+        {
+            get { return (double)GetValue(LevelSpacingProperty); }
+            set { SetValue(LevelSpacingProperty, value); }
+        }
+
         // 마커나 레이블에서 시간값을 가져오기 위한 첨부 속성 (Attached Property)
         public static readonly DependencyProperty TimestampProperty =
             DependencyProperty.RegisterAttached("Timestamp", typeof(double), typeof(EventMarkerPanel),
@@ -81,6 +101,7 @@ namespace ProjectChronos.Views
             if (double.IsInfinity(width)) width = SystemParameters.PrimaryScreenWidth;
 
             double maxLevelHeight = 0;
+            int maxLevel = 0;
 
             var items = new List<ChildItem>();
 
@@ -152,10 +173,20 @@ namespace ProjectChronos.Views
                 }
 
                 maxLevelHeight = Math.Max(maxLevelHeight, item.Element.DesiredSize.Height);
+                maxLevel = Math.Max(maxLevel, item.Level);
             }
 
             // 필요한 최소 높이 반환
-            return new Size(width, maxLevelHeight);
+            double requiredHeight = maxLevelHeight;
+            if (IsLabelPanel)
+            {
+                if (items.Count > 0)
+                    requiredHeight = (maxLevel + 1) * LevelSpacing + 5; // 약간의 여백 추가
+                else
+                    requiredHeight = 0;
+            }
+
+            return new Size(width, requiredHeight);
         }
 
         protected override Size ArrangeOverride(Size finalSize)
@@ -231,12 +262,60 @@ namespace ProjectChronos.Views
                 // Y: 패널 내에선 최하단에 정렬 (실제 수직 스태킹은 자식 템플릿의 Level 바인딩이 처리)
                 double finalY = finalSize.Height - item.Element.DesiredSize.Height;
 
+                if (IsLabelPanel)
+                {
+                    // 레벨 0이 가장 아래(타임라인에 가깝게), 레벨이 높아질수록 위로 올라감
+                    finalY = finalSize.Height - ((item.Level + 1) * LevelSpacing) + (LevelSpacing - item.Element.DesiredSize.Height) / 2;
+                }
+
                 item.Element.Arrange(new Rect(finalX, finalY, item.Element.DesiredSize.Width, item.Element.DesiredSize.Height));
 
                 SetLevel(item.Element, item.Level);
             }
 
             return finalSize;
+        }
+    }
+
+    public static class ScrollViewerBehavior
+    {
+        public static readonly DependencyProperty AutoScrollToBottomProperty =
+            DependencyProperty.RegisterAttached("AutoScrollToBottom", typeof(bool), typeof(ScrollViewerBehavior), new PropertyMetadata(false, AutoScrollToBottomChanged));
+
+        public static bool GetAutoScrollToBottom(DependencyObject obj)
+        {
+            return (bool)obj.GetValue(AutoScrollToBottomProperty);
+        }
+
+        public static void SetAutoScrollToBottom(DependencyObject obj, bool value)
+        {
+            obj.SetValue(AutoScrollToBottomProperty, value);
+        }
+
+        private static void AutoScrollToBottomChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is ScrollViewer scrollViewer)
+            {
+                if ((bool)e.NewValue)
+                {
+                    scrollViewer.ScrollChanged += ScrollViewer_ScrollChanged;
+                    // Initial scroll to bottom
+                    scrollViewer.ScrollToBottom();
+                }
+                else
+                {
+                    scrollViewer.ScrollChanged -= ScrollViewer_ScrollChanged;
+                }
+            }
+        }
+
+        private static void ScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
+            if (e.ExtentHeightChange != 0)
+            {
+                var scrollViewer = sender as ScrollViewer;
+                scrollViewer?.ScrollToBottom();
+            }
         }
     }
 }

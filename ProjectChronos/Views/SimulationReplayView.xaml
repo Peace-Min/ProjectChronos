@@ -169,272 +169,222 @@
             </Grid.RowDefinitions>
 
             <!-- 타임라인 영역 -->
-            <!-- 
-                 [구조 설명]
-                 ItemsControl (마커)과 Slider의 상호작용을 위해 Z-Index를 신중하게 설정해야 합니다.
-                 
-                 - 마커(Markers)는 시각적으로 트랙 위에 표시되어야 합니다.
-                 - 슬라이더(Slider)는 사용자가 드래그할 수 있어야 하므로 최상단에 위치해야 합니다.
-                 - 그러나 슬라이더의 배경(Track)이 마커를 가리면 안 되므로, 슬라이더 배경을 투명하게 처리합니다.
-            -->
-            <Grid Grid.Row="0" Margin="0,70,0,10">
-                <!-- 
-                    [Z-Index 계층 구조 (Layering)]
-                    1. Track Box (Z=1): 슬라이더의 시각적 배경 트랙입니다. (실제 Slider 트랙은 투명)
-                    2. Markers (Z=2): 이벤트 마커들이 트랙 위에 그려집니다.
-                    3. Slider (Z=3): 투명한 트랙과 조작 가능한 썸(Thumb)이 가장 위에 위치합니다.
-                                     Background="{x:Null}"로 설정하여 마우스가 빈 공간에서는 아래의 마커 툴팁에 닿을 수 있게 합니다.
-                -->
+            <Grid Grid.Row="0" Margin="0,5,0,10">
+                <!-- 하단의 타임라인(Track)과 상단의 설명란(Labels)을 동일선상에서 겹쳐그려 위로만 띄웁니다 -->
+                <!-- 이렇게 하면 Labels의 Height가 동적으로 변해도 타임라인 전체의 Height 레이아웃이나 슬라이더의 Y위치가 물리적으로 밀리지 않습니다 -->
 
-                <!-- 1. 배경 트랙 (Visual Only) -->
-                <!-- Slider의 Margin/Padding을 고려하여 수평 정렬. Slider가 꽉 차있으므로 Margin="9,0" (Thumb 반경 고려) -->
-                <Border Height="4" Background="#555555" CornerRadius="2" VerticalAlignment="Center" Panel.ZIndex="1" Margin="9,0"/>
-
-                <!-- (2) 마커 (Markers) -->
-                <ItemsControl ItemsSource="{Binding Events}" Panel.ZIndex="2"
-                               Height="30" ClipToBounds="False" VerticalAlignment="Center">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <local:EventMarkerPanel TotalDuration="{Binding DataContext.TotalDuration, RelativeSource={RelativeSource AncestorType=UserControl}}" 
-                                                    ThumbWidth="18"
-                                                    ClipToBounds="False"/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemContainerStyle>
-                        <Style TargetType="ContentPresenter">
-                            <Setter Property="local:EventMarkerPanel.Timestamp" Value="{Binding Timestamp}"/>
-                        </Style>
-                    </ItemsControl.ItemContainerStyle>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <!-- 
-                                핵심 구조:
-                                - Grid는 패널과 동일한 30px 높이로 고정 + ClipToBounds=False
-                                - 마커 틱은 VerticalAlignment=Center → 타임라인 트랙 선과 정확히 일치
-                                - 레이블/연결선은 음수 Top Margin을 통해 패널 상단 '위쪽'으로 노출
-                                - 따라서 Grid의 높이가 늘어나지 않아 부모 Row가 팽창하지 않음
-                            -->
-                            <Grid x:Name="MarkerRoot" Height="30" ClipToBounds="False">
-
-
-                                <!-- (1) 타임라인 위쪽으로 삐져나오는 연결선 (Level에 따라 높이 조절) -->
-                                <!-- 동일 시점 중복 선 제거: IsPrimaryMarker 이벤트만 선을 그려 시각적 노이즈 방지 -->
-                                <!--<Rectangle Width="1" Fill="#555555" VerticalAlignment="Top" HorizontalAlignment="Center"
-                                           Visibility="{Binding IsPrimaryMarker, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                           Height="{Binding (local:EventMarkerPanel.Level), RelativeSource={RelativeSource AncestorType=ContentPresenter}, Converter={StaticResource LevelToHeightConverter}, ConverterParameter='20,25'}"
-                                           Margin="{Binding (local:EventMarkerPanel.Level), RelativeSource={RelativeSource AncestorType=ContentPresenter}, Converter={StaticResource LevelToMarginConverter}, ConverterParameter='20,25'}"/>-->
-                                
-                                <!-- (2) 단일 이벤트 레이블: EventMarkerPanel이 이 요소의 너비를 실측하여 Level을 배정함 -->
-                                <Border x:Name="LabelControl"
-                                        BorderBrush="{Binding Priority, Converter={StaticResource PriorityToBrushConverter}}"
-                                        BorderThickness="0"
-                                        CornerRadius="4" Padding="6,4"
-                                        VerticalAlignment="Top" HorizontalAlignment="Center"
-                                        Margin="{Binding (local:EventMarkerPanel.Level), RelativeSource={RelativeSource AncestorType=ContentPresenter}, Converter={StaticResource LevelToMarginConverter}, ConverterParameter='20,25'}">
-                                    <Border.Style>
-                                        <Style TargetType="Border">
-                                            <Setter Property="Background" Value="#1a1a1b"/>
-                                            <Setter Property="BorderThickness" Value="3,0,0,0"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsHighlighted}" Value="True">
-                                                    <!-- 하이라이트 효과: 강조된 배경과 테두리 -->
-                                                    <Setter Property="Background" Value="#3A3A3A"/>
-                                                    <Setter Property="TextElement.FontWeight" Value="Bold"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Border.Style>
-                                    <Border.Effect>
-                                        <DropShadowEffect ShadowDepth="2" BlurRadius="6" Opacity="0.8"/>
-                                    </Border.Effect>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding Timestamp, StringFormat='{}{0:F1}s'}" 
-                                                   Foreground="{Binding Priority, Converter={StaticResource PriorityToBrushConverter}}" 
-                                                   Margin="0,0,6,0" FontSize="11"/>
-                                        <TextBlock Text="{Binding Title}" Foreground="#ffffff" FontSize="11"/>
-                                    </StackPanel>
-                                </Border>
-
-
-
-
-                                <!-- 마커 틱 (타임라인 선과 중앙 정렬) -->
-                                <!-- IsPrimaryMarker 인 경우에만 틱을 그리고, 색상은MarkerPriority(그룹 내 최고순위)에 따름 -->
-                                <ContentControl Tag="{Binding MarkerPriority, Converter={StaticResource PriorityToTagConverter}}"
-                                                Visibility="{Binding IsPrimaryMarker, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                                IsHitTestVisible="False" VerticalAlignment="Center" HorizontalAlignment="Center">
-                                    <ContentControl.Style>
-                                        <Style TargetType="ContentControl">
-                                            <Setter Property="Template">
-                                                <Setter.Value>
-                                                    <ControlTemplate>
-                                                        <Grid Margin="-2,0,0,0">
-                                                            <Rectangle Width="4" Height="16" Fill="#8be9fd" RadiusX="1" RadiusY="1">
-                                                                <Rectangle.Effect>
-                                                                    <DropShadowEffect ShadowDepth="1" BlurRadius="2" Opacity="0.5"/>
-                                                                </Rectangle.Effect>
-                                                            </Rectangle>
-                                                        </Grid>
-                                                    </ControlTemplate>
-                                                </Setter.Value>
-                                            </Setter>
-                                            <Style.Triggers>
-                                                <Trigger Property="Tag" Value="Critical">
-                                                    <Setter Property="Template">
-                                                        <Setter.Value>
-                                                            <ControlTemplate>
-                                                                <Grid Margin="-2,0,0,0">
-                                                                    <Rectangle Width="4" Height="16" Fill="#ff5555" RadiusX="1" RadiusY="1">
-                                                                        <Rectangle.Effect>
-                                                                            <DropShadowEffect ShadowDepth="1" BlurRadius="2" Opacity="0.5"/>
-                                                                        </Rectangle.Effect>
-                                                                    </Rectangle>
-                                                                </Grid>
-                                                            </ControlTemplate>
-                                                        </Setter.Value>
-                                                    </Setter>
-                                                </Trigger>
-                                                <Trigger Property="Tag" Value="Warning">
-                                                    <Setter Property="Template">
-                                                        <Setter.Value>
-                                                            <ControlTemplate>
-                                                                <Grid Margin="-2,0,0,0">
-                                                                    <Rectangle Width="4" Height="16" Fill="#ffb86c" RadiusX="1" RadiusY="1">
-                                                                        <Rectangle.Effect>
-                                                                            <DropShadowEffect ShadowDepth="1" BlurRadius="2" Opacity="0.5"/>
-                                                                        </Rectangle.Effect>
-                                                                    </Rectangle>
-                                                                </Grid>
-                                                            </ControlTemplate>
-                                                        </Setter.Value>
-                                                    </Setter>
-                                                </Trigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </ContentControl.Style>
-                                </ContentControl>
-
-                                <Border x:Name="HitArea" Width="20" Background="Transparent" Cursor="Hand" />
-
-                                 
-                                <!--=============================================================
-                                🚨 [선택 기능 롤백 안내: 이벤트 마커 호버 팝업] 🚨
-                                아래 주석 처리된 영역은 각 이벤트 마커(틱 혹은 레이블)에 마우스 오버 시
-                                팝업 형태의 상세 정보를 보여주던 기능입니다. 필요 시 주석을 해제하여 사용하세요.
-                                =============================================================--> 
-                                
-                                <Popup x:Name="EventPopup" 
-                                       PlacementTarget="{Binding ElementName=LabelControl}"
-                                       Placement="Top"
-                                       AllowsTransparency="True"
-                                       StaysOpen="True"
-                                       VerticalOffset="-4">
-                                    <Border IsHitTestVisible="False"
-                                            BorderBrush="#007acc" BorderThickness="2" 
-                                            CornerRadius="6" Padding="12,8" MinWidth="200" MaxWidth="340">
-                                        <Border.Background>
-                                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                                                <GradientStop Color="#2D2D30" Offset="0"/>
-                                                <GradientStop Color="#252526" Offset="1"/>
-                                            </LinearGradientBrush>
-                                        </Border.Background>
+                <!-- Labels Area with Vertical Scrolling -->
+                <!-- MaxHeight="90"을 설정하여 3단(약 89px)까지는 스크롤 없이 보여지고, 4단(117px)부터 스크롤바가 생깁니다. -->
+                <!-- VerticalAlignment="Bottom"과 Margin.Bottom="30"을 주어 슬라이더 그리드 위에 부유(Floating)하도록 겹칩니다 -->
+                <ScrollViewer VerticalAlignment="Bottom" Margin="0,0,0,30"
+                              VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                              Focusable="False" PanningMode="VerticalOnly"
+                              local:ScrollViewerBehavior.AutoScrollToBottom="True"
+                              MaxHeight="90">
+                    <ItemsControl ItemsSource="{Binding Events}" ClipToBounds="True" VerticalAlignment="Bottom">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <!-- IsLabelPanel 커스텀 프로퍼티를 통해 총 Height를 계산하고 세로 스택 정렬 -->
+                                <local:EventMarkerPanel TotalDuration="{Binding DataContext.TotalDuration, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                                        ThumbWidth="18"
+                                                        IsLabelPanel="True"
+                                                        LevelSpacing="28" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemContainerStyle>
+                            <Style TargetType="ContentPresenter">
+                                <Setter Property="local:EventMarkerPanel.Timestamp" Value="{Binding Timestamp}"/>
+                            </Style>
+                        </ItemsControl.ItemContainerStyle>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                 <Grid>
+                                    <Border x:Name="LabelControl"
+                                            BorderBrush="{Binding Priority, Converter={StaticResource PriorityToBrushConverter}}"
+                                            BorderThickness="0"
+                                            CornerRadius="4" Padding="6,4"
+                                            VerticalAlignment="Top" HorizontalAlignment="Center"
+                                            ToolTipService.InitialShowDelay="0"
+                                            ToolTipService.ShowDuration="60000"
+                                            ToolTipService.Placement="Top"
+                                            ToolTipService.VerticalOffset="-4"
+                                            Cursor="Hand">
+                                        <Border.InputBindings>
+                                            <MouseBinding MouseAction="LeftClick" 
+                                                          Command="{Binding DataContext.JumpToEventTimeCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                                          CommandParameter="{Binding}" />
+                                        </Border.InputBindings>
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="#1a1a1b"/>
+                                                <Setter Property="BorderThickness" Value="3,0,0,0"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsHighlighted}" Value="True">
+                                                        <Setter Property="Background" Value="#3A3A3A"/>
+                                                        <Setter Property="TextElement.FontWeight" Value="Bold"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
                                         <Border.Effect>
-                                            <DropShadowEffect ShadowDepth="0" BlurRadius="16" Opacity="0.7" Color="#007acc"/>
+                                            <DropShadowEffect ShadowDepth="2" BlurRadius="6" Opacity="0.8"/>
                                         </Border.Effect>
+                                        <Border.ToolTip>
+                                            <ToolTip Background="Transparent" BorderThickness="0" HasDropShadow="False" Padding="0">
+                                                <Border BorderBrush="#007acc" BorderThickness="2" 
+                                                        CornerRadius="6" Padding="12,8" MinWidth="200" MaxWidth="340">
+                                                    <Border.Background>
+                                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                                            <GradientStop Color="#2D2D30" Offset="0"/>
+                                                            <GradientStop Color="#252526" Offset="1"/>
+                                                        </LinearGradientBrush>
+                                                    </Border.Background>
+                                                    <Border.Effect>
+                                                        <DropShadowEffect ShadowDepth="0" BlurRadius="16" Opacity="0.7" Color="#007acc"/>
+                                                    </Border.Effect>
 
-                                        <StackPanel>
-                                            <TextBlock Text="{Binding Timestamp, StringFormat='Time: {0:F2}s'}" 
-                                                       FontFamily="Consolas" FontSize="11" Foreground="#808080" 
-                                                       HorizontalAlignment="Right" Margin="0,0,0,8"/>
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding Timestamp, StringFormat='Time: {0:F2}s'}" 
+                                                                   FontFamily="Consolas" FontSize="11" Foreground="#808080" 
+                                                                   HorizontalAlignment="Right" Margin="0,0,0,8"/>
 
-                                            <Rectangle Height="1" Fill="#3E3E42" Margin="0,0,0,8"/>
+                                                        <Rectangle Height="1" Fill="#3E3E42" Margin="0,0,0,8"/>
 
-                                            <Border Background="#333333" CornerRadius="4" Padding="8" BorderBrush="#444444" BorderThickness="1">
-                                                <StackPanel>
-                                                    <TextBlock Text="{Binding Title}" 
-                                                               Foreground="#FFFFFF" FontSize="13" FontWeight="Bold"
-                                                               TextWrapping="Wrap" Margin="0,0,0,2"/>
+                                                        <Border Background="#333333" CornerRadius="4" Padding="8" BorderBrush="#444444" BorderThickness="1">
+                                                            <StackPanel>
+                                                                <TextBlock Text="{Binding Title}" 
+                                                                           Foreground="#FFFFFF" FontSize="13" FontWeight="Bold"
+                                                                           TextWrapping="Wrap" Margin="0,0,0,2"/>
 
-                                                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                                                        <TextBlock Text="• " Foreground="White"/>
-                                                        <TextBlock>
-                                                            <Run Text="{Binding DescriptionLabel}" Foreground="White" FontWeight="Bold"/>     
-                                                            <Run Text=" : " Foreground="#AAAAAA"/>
-                                                            <Run Text="{Binding Description}" Foreground="White"/>
-                                                        </TextBlock>
+                                                                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                                                    <TextBlock Text="• " Foreground="White"/>
+                                                                    <TextBlock>
+                                                                        <Run Text="{Binding DescriptionLabel}" Foreground="White" FontWeight="Bold"/>     
+                                                                        <Run Text=" : " Foreground="#AAAAAA"/>
+                                                                        <Run Text="{Binding Description}" Foreground="White"/>
+                                                                    </TextBlock>
+                                                                </StackPanel>
+
+                                                                <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                                                    <TextBlock Text="• " Foreground="White"/>
+                                                                    <TextBlock>
+                                                                        <Run Text="{Binding RangeBTWLabel}" Foreground="White" FontWeight="Bold"/>
+                                                                        <Run Text=" : " Foreground="White"/>
+                                                                        <Run Text="{Binding RangeBTW}" Foreground="White"/>
+                                                                    </TextBlock>
+                                                                </StackPanel>
+                                                            </StackPanel>
+                                                        </Border>
                                                     </StackPanel>
-
-                                                    <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
-                                                        <TextBlock Text="• " Foreground="White"/>
-                                                        <TextBlock>
-                                                            <Run Text="{Binding RangeBTWLabel}" Foreground="White" FontWeight="Bold"/>
-                                                            <Run Text=" : " Foreground="White"/>
-                                                            <Run Text="{Binding RangeBTW}" Foreground="White"/>
-                                                        </TextBlock>
-                                                    </StackPanel>
-                                                </StackPanel>
-                                            </Border>
+                                                </Border>
+                                            </ToolTip>
+                                        </Border.ToolTip>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding Timestamp, StringFormat='{}{0:F2}s'}" 
+                                                       Foreground="{Binding Priority, Converter={StaticResource PriorityToBrushConverter}}" 
+                                                       Margin="0,0,6,0" FontSize="11"/>
+                                            <TextBlock Text="{Binding Title}" Foreground="#ffffff" FontSize="11"/>
                                         </StackPanel>
                                     </Border>
-                                </Popup>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
 
-                                <Grid.Triggers>
-                                    <!--<EventTrigger RoutedEvent="MouseEnter" SourceName="HitArea">
-                                        <BeginStoryboard>
-                                            <Storyboard>
-                                                <BooleanAnimationUsingKeyFrames Storyboard.TargetName="EventPopup" Storyboard.TargetProperty="IsOpen">
-                                                    <DiscreteBooleanKeyFrame KeyTime="0:0:0" Value="True"/>
-                                                </BooleanAnimationUsingKeyFrames>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </EventTrigger>
-                                    <EventTrigger RoutedEvent="MouseLeave" SourceName="HitArea">
-                                        <BeginStoryboard>
-                                            <Storyboard>
-                                                <BooleanAnimationUsingKeyFrames Storyboard.TargetName="EventPopup" Storyboard.TargetProperty="IsOpen">
-                                                    <DiscreteBooleanKeyFrame KeyTime="0:0:0" Value="False"/>
-                                                </BooleanAnimationUsingKeyFrames>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </EventTrigger>-->
-                                    <EventTrigger RoutedEvent="MouseEnter" SourceName="LabelControl">
-                                        <BeginStoryboard>
-                                            <Storyboard>
-                                                <BooleanAnimationUsingKeyFrames Storyboard.TargetName="EventPopup" Storyboard.TargetProperty="IsOpen">
-                                                    <DiscreteBooleanKeyFrame KeyTime="0:0:0" Value="True"/>
-                                                </BooleanAnimationUsingKeyFrames>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </EventTrigger>
-                                    <EventTrigger RoutedEvent="MouseLeave" SourceName="LabelControl">
-                                        <BeginStoryboard>
-                                            <Storyboard>
-                                                <BooleanAnimationUsingKeyFrames Storyboard.TargetName="EventPopup" Storyboard.TargetProperty="IsOpen">
-                                                    <DiscreteBooleanKeyFrame KeyTime="0:0:0" Value="False"/>
-                                                </BooleanAnimationUsingKeyFrames>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </EventTrigger>
-                                </Grid.Triggers>
-                                
-                            </Grid>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                <!-- Track & Ticks Area (겹치는 영역) -->
+                <!-- VerticalAlignment="Bottom"으로 설정하여 타임라인 영역의 가장 아랫부분에 고정시킵니다 -->
+                <Grid Height="30" VerticalAlignment="Bottom">
+                    <!-- 1. 배경 트랙 (Visual Only) -->
+                    <Border Height="4" Background="#555555" CornerRadius="2" VerticalAlignment="Center" Panel.ZIndex="1" Margin="9,0"/>
 
-                <!-- 3. 슬라이더 (Z=3, Transparent Track) -->
-                <!-- 
-                     Background="{x:Null}": 슬라이더의 빈 영역(트랙 주변)이 마우스 이벤트를 통과시키도록 합니다 (HitTestVisible=False 효과와 유사).
-                     이로써 밑에 있는 마커(Z=2)의 돌출된 부분에 마우스 호버(툴팁) 이벤트가 도달할 수 있습니다.
-                     단, Thumb와 실제 컨트롤 영역은 여전히 상호작용 가능합니다.
-                -->
-                <Slider Style="{StaticResource ModernSliderStyle}"
-                        Minimum="0" Maximum="{Binding TotalDuration}" 
-                        Value="{Binding CurrentTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                        TickFrequency="0.01" IsSnapToTickEnabled="True"
-                        VerticalAlignment="Center"
-                        Panel.ZIndex="3"
-                        Background="{x:Null}"/>
+                    <!-- 2. 마커 틱 (Markers Ticks) -->
+                    <ItemsControl ItemsSource="{Binding Events}" Panel.ZIndex="2"
+                                  Height="30" ClipToBounds="False" VerticalAlignment="Center">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <local:EventMarkerPanel TotalDuration="{Binding DataContext.TotalDuration, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                                        ThumbWidth="18"
+                                                        IsLabelPanel="False"
+                                                        ClipToBounds="False"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemContainerStyle>
+                            <Style TargetType="ContentPresenter">
+                                <Setter Property="local:EventMarkerPanel.Timestamp" Value="{Binding Timestamp}"/>
+                            </Style>
+                        </ItemsControl.ItemContainerStyle>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Height="30" ClipToBounds="False">
+                                    <ContentControl Tag="{Binding MarkerPriority, Converter={StaticResource PriorityToTagConverter}}"
+                                                    Visibility="{Binding IsPrimaryMarker, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                                    IsHitTestVisible="False" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <ContentControl.Style>
+                                            <Style TargetType="ContentControl">
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate>
+                                                            <Grid Margin="-2,0,0,0">
+                                                                <Rectangle Width="4" Height="16" Fill="#8be9fd" RadiusX="1" RadiusY="1">
+                                                                    <Rectangle.Effect>
+                                                                        <DropShadowEffect ShadowDepth="1" BlurRadius="2" Opacity="0.5"/>
+                                                                    </Rectangle.Effect>
+                                                                </Rectangle>
+                                                            </Grid>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Style.Triggers>
+                                                    <Trigger Property="Tag" Value="Critical">
+                                                        <Setter Property="Template">
+                                                            <Setter.Value>
+                                                                <ControlTemplate>
+                                                                    <Grid Margin="-2,0,0,0">
+                                                                        <Rectangle Width="4" Height="16" Fill="#ff5555" RadiusX="1" RadiusY="1">
+                                                                            <Rectangle.Effect>
+                                                                                <DropShadowEffect ShadowDepth="1" BlurRadius="2" Opacity="0.5"/>
+                                                                            </Rectangle.Effect>
+                                                                        </Rectangle>
+                                                                    </Grid>
+                                                                </ControlTemplate>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </Trigger>
+                                                    <Trigger Property="Tag" Value="Warning">
+                                                        <Setter Property="Template">
+                                                            <Setter.Value>
+                                                                <ControlTemplate>
+                                                                    <Grid Margin="-2,0,0,0">
+                                                                        <Rectangle Width="4" Height="16" Fill="#ffb86c" RadiusX="1" RadiusY="1">
+                                                                            <Rectangle.Effect>
+                                                                                <DropShadowEffect ShadowDepth="1" BlurRadius="2" Opacity="0.5"/>
+                                                                            </Rectangle.Effect>
+                                                                        </Rectangle>
+                                                                    </Grid>
+                                                                </ControlTemplate>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ContentControl.Style>
+                                    </ContentControl>
+                                    <!-- 마우스가 레이블 틱에 오버되었을 때 레이블을 클릭/호버할 수는 없지만 틱도 공간을 차지함 -->
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!-- 3. 슬라이더 (Z=3, Transparent Track) -->
+                    <Slider Style="{StaticResource ModernSliderStyle}"
+                            Minimum="0" Maximum="{Binding TotalDuration}" 
+                            Value="{Binding CurrentTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            TickFrequency="0.01" IsSnapToTickEnabled="True"
+                            VerticalAlignment="Center"
+                            Panel.ZIndex="3"
+                            Background="{x:Null}"/>
+                </Grid>
             </Grid>
 
 

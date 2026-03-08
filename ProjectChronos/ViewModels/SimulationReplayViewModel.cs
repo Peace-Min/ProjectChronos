@@ -73,6 +73,7 @@ namespace ProjectChronos.ViewModels
             StepCommand = new RelayCommand(param => Step(param));
             StepEventCommand = new RelayCommand(param => StepEvent(param));
             JumpToTimeCommand = new RelayCommand(param => JumpToTime(param));
+            JumpToEventTimeCommand = new RelayCommand(param => JumpToEventTime(param));
         }
 
         /// <summary>
@@ -379,6 +380,7 @@ namespace ProjectChronos.ViewModels
         public ICommand StepCommand { get; }
         public ICommand StepEventCommand { get; }
         public ICommand JumpToTimeCommand { get; }
+        public ICommand JumpToEventTimeCommand { get; }
 
         #endregion
 
@@ -593,6 +595,23 @@ namespace ProjectChronos.ViewModels
             {
                 IsPlaying = false; // 이동 시 일시 정지
                 SetCurrentTimeInternal(targetTime, forceNotify: true);
+            }
+        }
+
+        /// <summary>
+        /// 특정 이벤트의 시간으로 즉시 이동합니다.
+        /// </summary>
+        private void JumpToEventTime(object param)
+        {
+            if (param is SimulationEventMarker marker)
+            {
+                IsPlaying = false;
+                SetCurrentTimeInternal(marker.Timestamp, forceNotify: true);
+            }
+            else if (param is double timestamp)
+            {
+                IsPlaying = false;
+                SetCurrentTimeInternal(timestamp, forceNotify: true);
             }
         }
 
