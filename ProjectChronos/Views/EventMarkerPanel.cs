@@ -133,8 +133,10 @@ namespace ProjectChronos.Views
 
             foreach (var item in items)
             {
-                double myStart = item.X - (item.Width / 2) - LabelPadding;
-                double myEnd = item.X + (item.Width / 2) + LabelPadding;
+                // [엣지 앵커] 실제 배치 X를 기반으로 충돌 범위를 계산해야 ArrangeOverride와 일치함
+                double anchoredLeft = ResolveAnchoredLeft(item.X, item.Width, width);
+                double myStart = anchoredLeft - LabelPadding;
+                double myEnd   = anchoredLeft + item.Width + LabelPadding;
 
                 int targetLevel = 0;
                 while (true)
@@ -151,8 +153,9 @@ namespace ProjectChronos.Views
                     bool conflict = false;
                     foreach (var existing in levels[targetLevel])
                     {
-                        double exStart = existing.X - (existing.Width / 2) - LabelPadding;
-                        double exEnd = existing.X + (existing.Width / 2) + LabelPadding;
+                        double exAnchoredLeft = ResolveAnchoredLeft(existing.X, existing.Width, width);
+                        double exStart = exAnchoredLeft - LabelPadding;
+                        double exEnd   = exAnchoredLeft + existing.Width + LabelPadding;
 
                         // 범위가 겹치면 충돌
                         if (!(myEnd < exStart || myStart > exEnd))
@@ -219,8 +222,10 @@ namespace ProjectChronos.Views
 
             foreach (var item in items)
             {
-                double myStart = item.X - (item.Width / 2) - LabelPadding;
-                double myEnd = item.X + (item.Width / 2) + LabelPadding;
+                // [엣지 앵커] 실제 배치 X 계산 (충돌 감지와 동일한 기준)
+                double anchoredLeft = ResolveAnchoredLeft(item.X, item.Width, width);
+                double myStart = anchoredLeft - LabelPadding;
+                double myEnd   = anchoredLeft + item.Width + LabelPadding;
 
                 int targetLevel = 0;
                 while (true)
@@ -236,8 +241,9 @@ namespace ProjectChronos.Views
                     bool conflict = false;
                     foreach (var existing in levels[targetLevel])
                     {
-                        double exStart = existing.X - (existing.Width / 2) - LabelPadding;
-                        double exEnd = existing.X + (existing.Width / 2) + LabelPadding;
+                        double exAnchoredLeft = ResolveAnchoredLeft(existing.X, existing.Width, width);
+                        double exStart = exAnchoredLeft - LabelPadding;
+                        double exEnd   = exAnchoredLeft + existing.Width + LabelPadding;
 
                         // 겹침 여부 (교집합)
                         if (Math.Max(myStart, exStart) < Math.Min(myEnd, exEnd))
@@ -256,8 +262,8 @@ namespace ProjectChronos.Views
                     targetLevel++;
                 }
 
-                // 좌표 결정
-                double finalX = item.X - (item.Element.DesiredSize.Width / 2);
+                // [엣지 앵커] 최종 X 좌표 결정
+                double finalX = ResolveAnchoredLeft(item.X, item.Element.DesiredSize.Width, width);
 
                 // Y: 패널 내에선 최하단에 정렬 (실제 수직 스태킹은 자식 템플릿의 Level 바인딩이 처리)
                 double finalY = finalSize.Height - item.Element.DesiredSize.Height;
@@ -274,6 +280,32 @@ namespace ProjectChronos.Views
             }
 
             return finalSize;
+        }
+
+        /// <summary>
+        /// 레이블의 최종 배치 좌측(X) 좌표를 엣지 앵커 방식으로 결정합니다.
+        /// <para>
+        /// - 시작점 앵커: 레이블이 패널 좌측을 침범할 경우, Timestamp Tick의 우측으로 전개</para>
+        /// <para>
+        /// - 끝점 앵커: 레이블이 패널 우측을 침범할 경우, Timestamp Tick의 좌측으로 전개</para>
+        /// <para>
+        /// - 중간 구간: 기존 중앙 정렬 유지</para>
+        /// </summary>
+        /// <param name="tickX">Timestamp에 해당하는 픽셀 X (Tick 중심점)</param>
+        /// <param name="labelWidth">레이블의 실측 너비</param>
+        /// <param name="panelWidth">패널 전체 너비</param>
+        /// <returns>레이블 좌측 모서리의 최종 배치 X 좌표</returns>
+        private static double ResolveAnchoredLeft(double tickX, double labelWidth, double panelWidth)
+        {
+            double halfW   = labelWidth / 2.0;
+            double rawLeft = tickX - halfW; // 중앙 정렬 기준 좌측 X
+
+            // [Clamp 방식] 레이블을 패널 경계 안으로 밀어넣기만 함
+            // → tick(=tickX)은 항상 레이블 범위[anchoredLeft, anchoredLeft+labelWidth] 안에 유지
+            //   시작점: rawLeft<0 → anchoredLeft=0,    tick=tickX(9px) → 레이블 내부에 포함됨
+            //   끝점:   rawLeft+W>panelW → anchoredLeft=panelW-W, tick도 레이블 우측 내부에 포함됨
+            //   중간:   rawLeft 그대로 → 기존 중앙 정렬과 동일
+            return Math.Max(0, Math.Min(rawLeft, panelWidth - labelWidth));
         }
     }
 
