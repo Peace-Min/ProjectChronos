@@ -553,6 +553,12 @@
                         </TextBox.InputBindings>
                     </TextBox>
                     <Button Style="{StaticResource ModernButtonStyle}" Command="{Binding JumpToTimeCommand}" Content="➜" Margin="5,0,10,0" ToolTip="입력한 시간으로 이동 (Enter)"/>
+                    <Rectangle Width="1" Height="16" Fill="#555555" Margin="5,0,10,0"/>
+                    <Button Style="{StaticResource ModernButtonStyle}"
+                            Command="{Binding GenerateAnalysisReportCommand}"
+                            Content="분석보고서"
+                            MinWidth="110"
+                            ToolTip="현재 시나리오 기준 보고서 이미지와 분석보고서 파일을 생성합니다."/>
                 </StackPanel>
             </Grid>
         </Grid>

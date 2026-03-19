@@ -1,10 +1,15 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Windows.Input;
+using System.Windows;
 using System.Windows.Threading;
 using ProjectChronos.Core;
 using ProjectChronos.Models;
+using ProjectChronos.Services;
 
 namespace ProjectChronos.ViewModels
 {
@@ -74,6 +79,7 @@ namespace ProjectChronos.ViewModels
             StepEventCommand = new RelayCommand(param => StepEvent(param));
             JumpToTimeCommand = new RelayCommand(param => JumpToTime(param));
             JumpToEventTimeCommand = new RelayCommand(param => JumpToEventTime(param));
+            GenerateAnalysisReportCommand = new RelayCommand(_ => GenerateAnalysisReport());
         }
 
         /// <summary>
@@ -381,6 +387,7 @@ namespace ProjectChronos.ViewModels
         public ICommand StepEventCommand { get; }
         public ICommand JumpToTimeCommand { get; }
         public ICommand JumpToEventTimeCommand { get; }
+        public ICommand GenerateAnalysisReportCommand { get; }
 
         #endregion
 
@@ -613,6 +620,83 @@ namespace ProjectChronos.ViewModels
                 IsPlaying = false;
                 SetCurrentTimeInternal(timestamp, forceNotify: true);
             }
+        }
+
+        private void GenerateAnalysisReport()
+        {
+            try
+            {
+                var eventSnapshot = CreateReportEventsSnapshot();
+                if (eventSnapshot.Count == 0)
+                {
+                    MessageBox.Show(
+                        "생성할 이벤트 데이터가 없습니다.",
+                        "분석보고서 생성",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                    return;
+                }
+
+                string imagePath = MainWindowViewModel.GetDefaultPrototypeExportPath();
+                string reportPath = MainWindowViewModel.GetDefaultAnalysisReportPath();
+                var exportInput = MainWindowViewModel.CreateReportExportInput(eventSnapshot, imagePath);
+
+                var imageService = new TimelineReportExportService();
+                imageService.Export(exportInput);
+
+                var reportService = new TimelineAnalysisReportService();
+                reportService.Export(new TimelineAnalysisReportInput(
+                    exportInput.Title,
+                    imagePath,
+                    reportPath,
+                    eventSnapshot));
+
+                var dialogResult = MessageBox.Show(
+                    "성공하였습니다.\n저장된 폴더를 여시겠습니까?",
+                    "분석보고서 생성",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Information);
+
+                if (dialogResult == MessageBoxResult.Yes)
+                {
+                    string outputDirectory = Path.GetDirectoryName(reportPath);
+                    if (!string.IsNullOrWhiteSpace(outputDirectory) && Directory.Exists(outputDirectory))
+                    {
+                        Process.Start(new ProcessStartInfo
+                        {
+                            FileName = "explorer.exe",
+                            Arguments = "\"" + outputDirectory + "\"",
+                            UseShellExecute = true
+                        });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    ex.Message,
+                    "분석보고서 생성 실패",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
+        private IReadOnlyList<SimulationEventMarker> CreateReportEventsSnapshot()
+        {
+            return Events
+                .Select(item => new SimulationEventMarker
+                {
+                    Timestamp = item.Timestamp,
+                    Priority = item.Priority,
+                    Title = item.Title,
+                    DescriptionLabel = item.DescriptionLabel,
+                    Description = item.Description,
+                    RangeBTWLabel = item.RangeBTWLabel,
+                    RangeBTW = item.RangeBTW,
+                    IsPrimaryMarker = item.IsPrimaryMarker,
+                    MarkerPriority = item.MarkerPriority
+                })
+                .ToList();
         }
 
         #endregion
