@@ -256,21 +256,30 @@
                                                                            Foreground="#FFFFFF" FontSize="13" FontWeight="Bold"
                                                                            TextWrapping="Wrap" Margin="0,0,0,2"/>
 
-                                                                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                                                <StackPanel Orientation="Horizontal" Margin="0,10,0,0" Visibility="{Binding HasDescription, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                                     <TextBlock Text="• " Foreground="White"/>
-                                                                    <TextBlock>
+                                                                    <TextBlock TextWrapping="Wrap">
                                                                         <Run Text="{Binding DescriptionLabel}" Foreground="White" FontWeight="Bold"/>     
                                                                         <Run Text=" : " Foreground="#AAAAAA"/>
                                                                         <Run Text="{Binding Description}" Foreground="White"/>
                                                                     </TextBlock>
                                                                 </StackPanel>
 
-                                                                <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                                                <StackPanel Orientation="Horizontal" Margin="0,2,0,0" Visibility="{Binding HasRange, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                                     <TextBlock Text="• " Foreground="White"/>
-                                                                    <TextBlock>
+                                                                    <TextBlock TextWrapping="Wrap">
                                                                         <Run Text="{Binding RangeBTWLabel}" Foreground="White" FontWeight="Bold"/>
                                                                         <Run Text=" : " Foreground="White"/>
                                                                         <Run Text="{Binding RangeBTW}" Foreground="White"/>
+                                                                    </TextBlock>
+                                                                </StackPanel>
+
+                                                                <StackPanel Orientation="Horizontal" Margin="0,2,0,0" Visibility="{Binding HasSourceTarget, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                                    <TextBlock Text="• " Foreground="White"/>
+                                                                    <TextBlock TextWrapping="Wrap">
+                                                                        <Run Text="{Binding SourceTargetLabel}" Foreground="White" FontWeight="Bold"/>
+                                                                        <Run Text=" : " Foreground="White"/>
+                                                                        <Run Text="{Binding SourceTarget}" Foreground="White"/>
                                                                     </TextBlock>
                                                                 </StackPanel>
                                                             </StackPanel>
@@ -555,10 +564,10 @@
                     <Button Style="{StaticResource ModernButtonStyle}" Command="{Binding JumpToTimeCommand}" Content="➜" Margin="5,0,10,0" ToolTip="입력한 시간으로 이동 (Enter)"/>
                     <Rectangle Width="1" Height="16" Fill="#555555" Margin="5,0,10,0"/>
                     <Button Style="{StaticResource ModernButtonStyle}"
-                            Command="{Binding GenerateAnalysisReportCommand}"
-                            Content="분석보고서"
+                            Command="{Binding ExportReportImageCommand}"
+                            Content="보고서 이미지"
                             MinWidth="110"
-                            ToolTip="현재 시나리오 기준 보고서 이미지와 분석보고서 파일을 생성합니다."/>
+                            ToolTip="현재 시나리오 기준 보고서 이미지를 생성합니다."/>
                 </StackPanel>
             </Grid>
         </Grid>

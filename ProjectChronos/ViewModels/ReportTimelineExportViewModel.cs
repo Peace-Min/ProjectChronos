@@ -400,6 +400,8 @@ namespace ProjectChronos.ViewModels
                         !string.IsNullOrWhiteSpace(simulationEvent.Description);
                     bool hasRange = !string.IsNullOrWhiteSpace(simulationEvent.RangeBTWLabel) &&
                         !string.IsNullOrWhiteSpace(simulationEvent.RangeBTW);
+                    bool hasSourceTarget = !string.IsNullOrWhiteSpace(simulationEvent.SourceTargetLabel) &&
+                        !string.IsNullOrWhiteSpace(simulationEvent.SourceTarget);
                     string descriptionText = hasDescription
                         ? string.Format(
                             CultureInfo.CurrentCulture,
@@ -414,6 +416,13 @@ namespace ProjectChronos.ViewModels
                             simulationEvent.RangeBTWLabel.Trim(),
                             simulationEvent.RangeBTW.Trim())
                         : string.Empty;
+                    string sourceTargetText = hasSourceTarget
+                        ? string.Format(
+                            CultureInfo.CurrentCulture,
+                            "{0} : {1}",
+                            simulationEvent.SourceTargetLabel.Trim(),
+                            simulationEvent.SourceTarget.Trim())
+                        : string.Empty;
 
                     Size timestampSize = MeasureText(timestampText, MonoTypeface, timestampFontSize, textWidth);
                     double headerTitleWidth = Math.Max(72.0, textWidth - timestampSize.Width - (12.0 * layoutScale));
@@ -423,6 +432,9 @@ namespace ProjectChronos.ViewModels
                         : new Size(0.0, 0.0);
                     Size rangeSize = hasRange
                         ? MeasureText(rangeText, UiTypeface, bodyFontSize, bodyTextWidth)
+                        : new Size(0.0, 0.0);
+                    Size sourceTargetSize = hasSourceTarget
+                        ? MeasureText(sourceTargetText, UiTypeface, bodyFontSize, bodyTextWidth)
                         : new Size(0.0, 0.0);
 
                     double height = CardTopPadding;
@@ -443,6 +455,12 @@ namespace ProjectChronos.ViewModels
                         height += rangeSize.Height;
                     }
 
+                    if (hasSourceTarget)
+                    {
+                        height += (hasDescription || hasRange) ? CardRangeGap : CardDescriptionGap;
+                        height += sourceTargetSize.Height;
+                    }
+
                     height += CardBottomPadding;
 
                     DetailCardItems.Add(new ReportTimelineDetailCardItem
@@ -454,11 +472,14 @@ namespace ProjectChronos.ViewModels
                         DescriptionValue = hasDescription ? simulationEvent.Description.Trim() : string.Empty,
                         HasDescription = hasDescription,
                         HasRange = hasRange,
+                        HasSourceTarget = hasSourceTarget,
                         Height = height,
                         HeaderTitleWidth = headerTitleWidth,
                         Left = left,
                         RangeLabel = hasRange ? simulationEvent.RangeBTWLabel.Trim() : string.Empty,
                         RangeValue = hasRange ? simulationEvent.RangeBTW.Trim() : string.Empty,
+                        SourceTargetLabel = hasSourceTarget ? simulationEvent.SourceTargetLabel.Trim() : string.Empty,
+                        SourceTargetValue = hasSourceTarget ? simulationEvent.SourceTarget.Trim() : string.Empty,
                         TextContentWidth = textWidth,
                         TimestampFontSize = timestampFontSize,
                         TimestampText = timestampText,
@@ -900,11 +921,14 @@ namespace ProjectChronos.ViewModels
         public string DescriptionValue { get; set; }
         public bool HasDescription { get; set; }
         public bool HasRange { get; set; }
+        public bool HasSourceTarget { get; set; }
         public double Height { get; set; }
         public double HeaderTitleWidth { get; set; }
         public double Left { get; set; }
         public string RangeLabel { get; set; }
         public string RangeValue { get; set; }
+        public string SourceTargetLabel { get; set; }
+        public string SourceTargetValue { get; set; }
         public double TextContentWidth { get; set; }
         public double TimestampFontSize { get; set; }
         public string TimestampText { get; set; }

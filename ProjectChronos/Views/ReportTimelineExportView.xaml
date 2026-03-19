@@ -12,13 +12,13 @@
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <SolidColorBrush x:Key="PrimaryTextBrush" Color="#111111"/>
         <SolidColorBrush x:Key="SecondaryTextBrush" Color="#111111"/>
-        <SolidColorBrush x:Key="DividerBrush" Color="#D9E4F0"/>
+        <SolidColorBrush x:Key="DividerBrush" Color="#CCD7E2"/>
         <SolidColorBrush x:Key="BaselineBrush" Color="#0072BD"/>
-        <SolidColorBrush x:Key="CardBackgroundBrush" Color="#FFFFFF"/>
-        <SolidColorBrush x:Key="CardBorderBrush" Color="#D5E3F1"/>
-        <SolidColorBrush x:Key="CardDividerBrush" Color="#E5EEF6"/>
-        <SolidColorBrush x:Key="FooterFillBrush" Color="#FFFFFF"/>
-        <SolidColorBrush x:Key="FooterBorderBrush" Color="#D5E3F1"/>
+        <SolidColorBrush x:Key="CardBackgroundBrush" Color="#F8FAFC"/>
+        <SolidColorBrush x:Key="CardBorderBrush" Color="#9FB0C2"/>
+        <SolidColorBrush x:Key="CardDividerBrush" Color="#CAD6E2"/>
+        <SolidColorBrush x:Key="FooterFillBrush" Color="#F8FAFC"/>
+        <SolidColorBrush x:Key="FooterBorderBrush" Color="#9FB0C2"/>
     </UserControl.Resources>
 
     <Border Background="White"
@@ -219,7 +219,7 @@
                                         Background="{StaticResource CardBackgroundBrush}"
                                         BorderBrush="{StaticResource CardBorderBrush}"
                                         BorderThickness="1"
-                                        CornerRadius="2">
+                                        CornerRadius="0">
                                     <Grid>
                                         <StackPanel Margin="18,16,18,16">
                                             <Grid>
@@ -292,6 +292,28 @@
                                                     <Run Text="{Binding RangeValue}"/>
                                                 </TextBlock>
                                             </Grid>
+
+                                            <Grid Margin="0,8,0,0"
+                                                  Visibility="{Binding HasSourceTarget, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="18"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="&#8226;"
+                                                           FontSize="{Binding BodyFontSize}"
+                                                           Foreground="{StaticResource PrimaryTextBrush}"/>
+                                                <TextBlock Grid.Column="1"
+                                                           Width="{Binding BodyTextWidth}"
+                                                           FontFamily="Malgun Gothic"
+                                                           FontSize="{Binding BodyFontSize}"
+                                                           Foreground="{StaticResource PrimaryTextBrush}"
+                                                           TextWrapping="Wrap">
+                                                    <Run Text="{Binding SourceTargetLabel}"
+                                                         FontWeight="Bold"/>
+                                                    <Run Text=" : "/>
+                                                    <Run Text="{Binding SourceTargetValue}"/>
+                                                </TextBlock>
+                                            </Grid>
                                         </StackPanel>
                                     </Grid>
                                 </Border>
@@ -311,7 +333,7 @@
                     Background="{StaticResource FooterFillBrush}"
                     BorderBrush="{StaticResource FooterBorderBrush}"
                     BorderThickness="1"
-                    CornerRadius="2">
+                    CornerRadius="0">
                 <ItemsControl ItemsSource="{Binding FooterNotes}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>

@@ -1,7 +1,6 @@
 using System;
 using System.Windows;
 using ProjectChronos.Services;
-using ProjectChronos.ViewModels;
 
 namespace ProjectChronos
 {
@@ -32,13 +31,14 @@ namespace ProjectChronos
                 return false;
             }
 
+            var definitionService = new TimelineReportDefinitionService();
             string outputPath = e.Args.Length > 1
                 ? e.Args[1]
-                : MainWindowViewModel.GetDefaultPrototypeExportPath();
+                : definitionService.GetDefaultPrototypeExportPath();
 
             try
             {
-                var input = MainWindowViewModel.CreatePrototypeReportExportInput(outputPath);
+                var input = definitionService.CreatePrototypeReportExportInput(outputPath);
                 var service = new TimelineReportExportService();
                 service.Export(input);
                 Shutdown(0);

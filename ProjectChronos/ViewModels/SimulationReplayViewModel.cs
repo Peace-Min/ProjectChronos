@@ -43,6 +43,8 @@ namespace ProjectChronos.ViewModels
 
         // --- 렌더링 모드 ---
         private bool _isRealtimeRenderingEnabled = true;
+        private readonly TimelineReportDefinitionService _timelineReportDefinitionService =
+            new TimelineReportDefinitionService();
 
         // -----------------------------------------------------------
         // [상수 (Constants)]
@@ -79,7 +81,7 @@ namespace ProjectChronos.ViewModels
             StepEventCommand = new RelayCommand(param => StepEvent(param));
             JumpToTimeCommand = new RelayCommand(param => JumpToTime(param));
             JumpToEventTimeCommand = new RelayCommand(param => JumpToEventTime(param));
-            GenerateAnalysisReportCommand = new RelayCommand(_ => GenerateAnalysisReport());
+            ExportReportImageCommand = new RelayCommand(_ => ExportReportImage());
         }
 
         /// <summary>
@@ -387,7 +389,7 @@ namespace ProjectChronos.ViewModels
         public ICommand StepEventCommand { get; }
         public ICommand JumpToTimeCommand { get; }
         public ICommand JumpToEventTimeCommand { get; }
-        public ICommand GenerateAnalysisReportCommand { get; }
+        public ICommand ExportReportImageCommand { get; }
 
         #endregion
 
@@ -622,7 +624,7 @@ namespace ProjectChronos.ViewModels
             }
         }
 
-        private void GenerateAnalysisReport()
+        private void ExportReportImage()
         {
             try
             {
@@ -631,35 +633,27 @@ namespace ProjectChronos.ViewModels
                 {
                     MessageBox.Show(
                         "생성할 이벤트 데이터가 없습니다.",
-                        "분석보고서 생성",
+                        "보고서 이미지 생성",
                         MessageBoxButton.OK,
                         MessageBoxImage.Information);
                     return;
                 }
 
-                string imagePath = MainWindowViewModel.GetDefaultPrototypeExportPath();
-                string reportPath = MainWindowViewModel.GetDefaultAnalysisReportPath();
-                var exportInput = MainWindowViewModel.CreateReportExportInput(eventSnapshot, imagePath);
+                string imagePath = _timelineReportDefinitionService.GetDefaultPrototypeExportPath();
+                var exportInput = _timelineReportDefinitionService.CreateReportExportInput(eventSnapshot, imagePath);
 
                 var imageService = new TimelineReportExportService();
                 imageService.Export(exportInput);
 
-                var reportService = new TimelineAnalysisReportService();
-                reportService.Export(new TimelineAnalysisReportInput(
-                    exportInput.Title,
-                    imagePath,
-                    reportPath,
-                    eventSnapshot));
-
                 var dialogResult = MessageBox.Show(
-                    "성공하였습니다.\n저장된 폴더를 여시겠습니까?",
-                    "분석보고서 생성",
+                    "이미지가 저장되었습니다.\n저장된 폴더를 여시겠습니까?",
+                    "보고서 이미지 생성",
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Information);
 
                 if (dialogResult == MessageBoxResult.Yes)
                 {
-                    string outputDirectory = Path.GetDirectoryName(reportPath);
+                    string outputDirectory = Path.GetDirectoryName(imagePath);
                     if (!string.IsNullOrWhiteSpace(outputDirectory) && Directory.Exists(outputDirectory))
                     {
                         Process.Start(new ProcessStartInfo
@@ -675,7 +669,7 @@ namespace ProjectChronos.ViewModels
             {
                 MessageBox.Show(
                     ex.Message,
-                    "분석보고서 생성 실패",
+                    "보고서 이미지 생성 실패",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -693,6 +687,8 @@ namespace ProjectChronos.ViewModels
                     Description = item.Description,
                     RangeBTWLabel = item.RangeBTWLabel,
                     RangeBTW = item.RangeBTW,
+                    SourceTargetLabel = item.SourceTargetLabel,
+                    SourceTarget = item.SourceTarget,
                     IsPrimaryMarker = item.IsPrimaryMarker,
                     MarkerPriority = item.MarkerPriority
                 })

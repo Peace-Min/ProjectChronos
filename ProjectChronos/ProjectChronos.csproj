@@ -61,7 +61,7 @@
     <Compile Include="Core\RelayCommand.cs" />
     <Compile Include="Core\ViewModelBase.cs" />
     <Compile Include="Models\SimulationModels.cs" />
-    <Compile Include="Services\TimelineAnalysisReportService.cs" />
+    <Compile Include="Services\TimelineReportDefinitionService.cs" />
     <Compile Include="Services\TimelineReportExportService.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="ViewModels\ReportTimelineExportViewModel.cs" />
