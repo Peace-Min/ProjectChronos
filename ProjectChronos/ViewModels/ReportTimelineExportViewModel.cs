@@ -53,11 +53,11 @@ namespace ProjectChronos.ViewModels
         private const double BaselineYPosition = 224.0;
         private const double MinimumTimelineWidth = 900.0;
         private const double BaseSlotStemHeight = 104.0;
-        private const double BaseSlotTitleGap = 18.0;
+        private const double BaseSlotTitleGap = 12.0;
         private const double BaseSlotTitleWidthMin = 160.0;
         private const double BaseSlotTitleWidthMax = 240.0;
-        private const double BaseSlotTitleFontSize = 24.0;
-        private const double BaseSlotTimeFontSize = 16.0;
+        private const double BaseSlotTitleFontSize = 16.0;
+        private const double BaseSlotTimeFontSize = 14.0;
         private const double BaseSlotLabelLineGap = 4.0;
         private const double BaseSlotItemGap = 6.0;
         private const double BaseOverviewBottomPadding = 20.0;
@@ -80,18 +80,19 @@ namespace ProjectChronos.ViewModels
         private const double DetailBandTopMargin = 8.0;
         private const double BaseCardWidthMin = 250.0;
         private const double BaseCardWidthMax = 430.0;
-        private const double BaseCardTimestampFontSize = 16.0;
-        private const double BaseCardTitleFontSize = 24.0;
+        private const double BaseCardTitleFontSize = 18.0;
+        private const double BaseCardLabelFontSize = 15.0;
         private const double BaseCardBodyFontSize = 18.0;
-        private const double CardLeftPadding = 18.0;
-        private const double CardRightPadding = 18.0;
+        private const double CardLeftPadding = 10.0;
+        private const double CardRightPadding = 10.0;
         private const double CardTopPadding = 16.0;
         private const double CardBottomPadding = 16.0;
-        private const double CardBulletWidth = 18.0;
         private const double CardDividerGapBefore = 8.0;
         private const double CardDividerGapAfter = 12.0;
         private const double CardDescriptionGap = 12.0;
         private const double CardRangeGap = 8.0;
+        private const double CardFieldLabelValueGap = 4.0;
+        private const double CardFieldValueIndent = 12.0;
         private const double FooterWidthInset = 260.0;
         private const double FooterTopMargin = 34.0;
         private const double FooterHorizontalPadding = 34.0;
@@ -219,8 +220,8 @@ namespace ProjectChronos.ViewModels
                     SimulationEventMarker simulationEvent = group.Events[eventIndex];
                     string title = FormatSlotTitle(simulationEvent);
                     string time = FormatSlotTime(simulationEvent);
-                    Size titleSize = MeasureText(title, UiBoldTypeface, slotTitleFontSize, slotTitleWidth);
-                    Size timeSize = MeasureText(time, MonoTypeface, slotTimeFontSize, slotTitleWidth);
+                    Size titleSize = MeasureSingleLineText(title, UiBoldTypeface, slotTitleFontSize);
+                    Size timeSize = MeasureSingleLineText(time, MonoTypeface, slotTimeFontSize);
                     double itemHeight = titleSize.Height + lineGap + timeSize.Height;
                     double bottomGap = eventIndex < group.Events.Count - 1 ? itemGap : 0.0;
 
@@ -301,7 +302,7 @@ namespace ProjectChronos.ViewModels
                 double fontSize = laneKind == SlotIntervalLaneKind.Micro ? microFontSize : standardFontSize;
                 double anchorGap = Clamp(BaseIntervalAnchorGap * layoutScale, 3.0, 5.0);
                 string label = FormatDuration(duration);
-                Size labelSize = MeasureText(label, UiBoldTypeface, fontSize, double.PositiveInfinity);
+                Size labelSize = MeasureSingleLineText(label, UiBoldTypeface, fontSize);
                 double actualStart = current.CenterX;
                 double actualEnd = next.CenterX;
                 double actualSpan = Math.Abs(actualEnd - actualStart);
@@ -371,8 +372,8 @@ namespace ProjectChronos.ViewModels
             double cardWidth = groups.Count == 1
                 ? preferredCardWidth
                 : Math.Min(preferredCardWidth, maximumCardWidthToFit);
-            double timestampFontSize = BaseCardTimestampFontSize * layoutScale;
             double titleFontSize = BaseCardTitleFontSize * layoutScale;
+            double labelFontSize = BaseCardLabelFontSize * layoutScale;
             double bodyFontSize = BaseCardBodyFontSize * layoutScale;
             double columnBottom = 0.0;
             List<double> columnLefts = BuildDetailColumnLefts(groups, cardWidth, minimumColumnGap);
@@ -383,7 +384,7 @@ namespace ProjectChronos.ViewModels
                 double columnTop = DetailTopPadding;
                 double left = columnLefts[groupIndex];
                 double textWidth = Math.Max(120.0, cardWidth - CardLeftPadding - CardRightPadding);
-                double bodyTextWidth = Math.Max(100.0, textWidth - CardBulletWidth);
+                double bodyTextWidth = textWidth;
                 double sameTimestampGap = SameTimestampDetailCardGap * layoutScale;
                 double lastGap = 0.0;
 
@@ -392,75 +393,20 @@ namespace ProjectChronos.ViewModels
                     string title = string.IsNullOrWhiteSpace(simulationEvent.Title)
                         ? "Event"
                         : simulationEvent.Title.Trim();
-                    string timestampText = string.Format(
-                        CultureInfo.InvariantCulture,
-                        "Time: {0:F2}s",
-                        simulationEvent.Timestamp);
-                    bool hasDescription = !string.IsNullOrWhiteSpace(simulationEvent.DescriptionLabel) &&
-                        !string.IsNullOrWhiteSpace(simulationEvent.Description);
-                    bool hasRange = !string.IsNullOrWhiteSpace(simulationEvent.RangeBTWLabel) &&
-                        !string.IsNullOrWhiteSpace(simulationEvent.RangeBTW);
-                    bool hasSourceTarget = !string.IsNullOrWhiteSpace(simulationEvent.SourceTargetLabel) &&
-                        !string.IsNullOrWhiteSpace(simulationEvent.SourceTarget);
-                    string descriptionText = hasDescription
-                        ? string.Format(
-                            CultureInfo.CurrentCulture,
-                            "{0} : {1}",
-                            simulationEvent.DescriptionLabel.Trim(),
-                            simulationEvent.Description.Trim())
-                        : string.Empty;
-                    string rangeText = hasRange
-                        ? string.Format(
-                            CultureInfo.CurrentCulture,
-                            "{0} : {1}",
-                            simulationEvent.RangeBTWLabel.Trim(),
-                            simulationEvent.RangeBTW.Trim())
-                        : string.Empty;
-                    string sourceTargetText = hasSourceTarget
-                        ? string.Format(
-                            CultureInfo.CurrentCulture,
-                            "{0} : {1}",
-                            simulationEvent.SourceTargetLabel.Trim(),
-                            simulationEvent.SourceTarget.Trim())
-                        : string.Empty;
-
-                    Size timestampSize = MeasureText(timestampText, MonoTypeface, timestampFontSize, textWidth);
-                    double headerTitleWidth = Math.Max(72.0, textWidth - timestampSize.Width - (12.0 * layoutScale));
-                    Size titleSize = MeasureText(title, UiBoldTypeface, titleFontSize, headerTitleWidth);
-                    Size descriptionSize = hasDescription
-                        ? MeasureText(descriptionText, UiTypeface, bodyFontSize, bodyTextWidth)
-                        : new Size(0.0, 0.0);
-                    Size rangeSize = hasRange
-                        ? MeasureText(rangeText, UiTypeface, bodyFontSize, bodyTextWidth)
-                        : new Size(0.0, 0.0);
-                    Size sourceTargetSize = hasSourceTarget
-                        ? MeasureText(sourceTargetText, UiTypeface, bodyFontSize, bodyTextWidth)
-                        : new Size(0.0, 0.0);
+                    Size titleSize = MeasureSingleLineText(title, UiBoldTypeface, titleFontSize);
+                    ObservableCollection<ReportTimelineDetailFieldItem> fields = BuildDetailFields(
+                        simulationEvent,
+                        bodyTextWidth,
+                        labelFontSize,
+                        bodyFontSize,
+                        out double fieldsHeight);
 
                     double height = CardTopPadding;
-                    height += Math.Max(timestampSize.Height, titleSize.Height);
+                    height += titleSize.Height;
                     height += CardDividerGapBefore;
                     height += 1.0;
                     height += CardDividerGapAfter;
-
-                    if (hasDescription)
-                    {
-                        height += CardDescriptionGap;
-                        height += descriptionSize.Height;
-                    }
-
-                    if (hasRange)
-                    {
-                        height += hasDescription ? CardRangeGap : CardDescriptionGap;
-                        height += rangeSize.Height;
-                    }
-
-                    if (hasSourceTarget)
-                    {
-                        height += (hasDescription || hasRange) ? CardRangeGap : CardDescriptionGap;
-                        height += sourceTargetSize.Height;
-                    }
-
+                    height += fieldsHeight;
                     height += CardBottomPadding;
 
                     DetailCardItems.Add(new ReportTimelineDetailCardItem
@@ -468,21 +414,12 @@ namespace ProjectChronos.ViewModels
                         AccentBrush = GetPriorityBrush(simulationEvent.Priority),
                         BodyFontSize = bodyFontSize,
                         BodyTextWidth = bodyTextWidth,
-                        DescriptionLabel = hasDescription ? simulationEvent.DescriptionLabel.Trim() : string.Empty,
-                        DescriptionValue = hasDescription ? simulationEvent.Description.Trim() : string.Empty,
-                        HasDescription = hasDescription,
-                        HasRange = hasRange,
-                        HasSourceTarget = hasSourceTarget,
+                        ContentPadding = new Thickness(CardLeftPadding, CardTopPadding, CardRightPadding, CardBottomPadding),
+                        DividerMargin = new Thickness(0.0, CardDividerGapBefore, 0.0, CardDividerGapAfter),
+                        Fields = fields,
                         Height = height,
-                        HeaderTitleWidth = headerTitleWidth,
                         Left = left,
-                        RangeLabel = hasRange ? simulationEvent.RangeBTWLabel.Trim() : string.Empty,
-                        RangeValue = hasRange ? simulationEvent.RangeBTW.Trim() : string.Empty,
-                        SourceTargetLabel = hasSourceTarget ? simulationEvent.SourceTargetLabel.Trim() : string.Empty,
-                        SourceTargetValue = hasSourceTarget ? simulationEvent.SourceTarget.Trim() : string.Empty,
                         TextContentWidth = textWidth,
-                        TimestampFontSize = timestampFontSize,
-                        TimestampText = timestampText,
                         Title = title,
                         TitleFontSize = titleFontSize,
                         Top = columnTop,
@@ -499,6 +436,87 @@ namespace ProjectChronos.ViewModels
             DetailBandHeight = columnBottom <= 0.0
                 ? 0.0
                 : columnBottom + DetailBottomPadding;
+        }
+
+        private ObservableCollection<ReportTimelineDetailFieldItem> BuildDetailFields(
+            SimulationEventMarker simulationEvent,
+            double fieldWidth,
+            double labelFontSize,
+            double valueFontSize,
+            out double totalHeight)
+        {
+            var fields = new ObservableCollection<ReportTimelineDetailFieldItem>();
+            totalHeight = 0.0;
+
+            AppendDetailField(
+                fields,
+                "Time",
+                FormatSlotTime(simulationEvent),
+                fieldWidth,
+                labelFontSize,
+                valueFontSize,
+                ref totalHeight);
+            AppendDetailField(
+                fields,
+                simulationEvent.DescriptionLabel,
+                simulationEvent.Description,
+                fieldWidth,
+                labelFontSize,
+                valueFontSize,
+                ref totalHeight);
+            AppendDetailField(
+                fields,
+                simulationEvent.RangeBTWLabel,
+                simulationEvent.RangeBTW,
+                fieldWidth,
+                labelFontSize,
+                valueFontSize,
+                ref totalHeight);
+            AppendDetailField(
+                fields,
+                simulationEvent.SourceTargetLabel,
+                simulationEvent.SourceTarget,
+                fieldWidth,
+                labelFontSize,
+                valueFontSize,
+                ref totalHeight);
+
+            return fields;
+        }
+
+        private void AppendDetailField(
+            ObservableCollection<ReportTimelineDetailFieldItem> fields,
+            string label,
+            string value,
+            double fieldWidth,
+            double labelFontSize,
+            double valueFontSize,
+            ref double totalHeight)
+        {
+            if (string.IsNullOrWhiteSpace(label) || string.IsNullOrWhiteSpace(value))
+            {
+                return;
+            }
+
+            string normalizedLabel = label.Trim();
+            string normalizedValue = value.Trim();
+            double topMargin = fields.Count == 0 ? CardDescriptionGap : CardRangeGap;
+            Size labelSize = MeasureSingleLineText(normalizedLabel, UiTypeface, labelFontSize);
+            Size valueSize = MeasureSingleLineText(normalizedValue, MonoTypeface, valueFontSize);
+
+            fields.Add(new ReportTimelineDetailFieldItem
+            {
+                Label = normalizedLabel,
+                LabelFontSize = labelFontSize,
+                Margin = new Thickness(0.0, topMargin, 0.0, 0.0),
+                Value = normalizedValue,
+                ValueFontSize = valueFontSize,
+                ValueMargin = new Thickness(CardFieldValueIndent, CardFieldLabelValueGap, 0.0, 0.0),
+                ValueWidth = Math.Max(1.0, fieldWidth - CardFieldValueIndent),
+                Width = fieldWidth
+            });
+
+            totalHeight += topMargin + labelSize.Height + CardFieldLabelValueGap + valueSize.Height;
         }
 
         private List<double> BuildDetailColumnLefts(IReadOnlyList<SlotGroup> groups, double cardWidth, double minimumColumnGap)
@@ -675,7 +693,7 @@ namespace ProjectChronos.ViewModels
 
             for (int index = 0; index < FooterNotes.Count; index++)
             {
-                Size noteSize = MeasureText(FooterNotes[index], UiTypeface, FooterFontSize, textWidth);
+                Size noteSize = MeasureWrappedText(FooterNotes[index], UiTypeface, FooterFontSize, textWidth);
                 contentHeight += noteSize.Height;
 
                 if (index < FooterNotes.Count - 1)
@@ -742,9 +760,26 @@ namespace ProjectChronos.ViewModels
             return string.Format(CultureInfo.InvariantCulture, "{0:0.##}\uCD08", seconds);
         }
 
-        private static Size MeasureText(string text, Typeface typeface, double fontSize, double maxWidth)
+        private static Size MeasureSingleLineText(string text, Typeface typeface, double fontSize)
         {
-            var formattedText = new FormattedText(
+            var formattedText = CreateFormattedText(text, typeface, fontSize);
+            return new Size(Math.Ceiling(formattedText.Width), Math.Ceiling(formattedText.Height));
+        }
+
+        private static Size MeasureWrappedText(string text, Typeface typeface, double fontSize, double maxWidth)
+        {
+            var formattedText = CreateFormattedText(text, typeface, fontSize);
+            if (!double.IsInfinity(maxWidth))
+            {
+                formattedText.MaxTextWidth = maxWidth;
+            }
+
+            return new Size(Math.Ceiling(formattedText.Width), Math.Ceiling(formattedText.Height));
+        }
+
+        private static FormattedText CreateFormattedText(string text, Typeface typeface, double fontSize)
+        {
+            return new FormattedText(
                 text ?? string.Empty,
                 CultureInfo.CurrentCulture,
                 FlowDirection.LeftToRight,
@@ -752,13 +787,6 @@ namespace ProjectChronos.ViewModels
                 fontSize,
                 Brushes.Black,
                 PixelsPerDip);
-
-            if (!double.IsInfinity(maxWidth))
-            {
-                formattedText.MaxTextWidth = maxWidth;
-            }
-
-            return new Size(Math.Ceiling(formattedText.Width), Math.Ceiling(formattedText.Height));
         }
 
         private static Geometry BuildIntervalFrameGeometry(
@@ -917,24 +945,27 @@ namespace ProjectChronos.ViewModels
         public Brush AccentBrush { get; set; }
         public double BodyFontSize { get; set; }
         public double BodyTextWidth { get; set; }
-        public string DescriptionLabel { get; set; }
-        public string DescriptionValue { get; set; }
-        public bool HasDescription { get; set; }
-        public bool HasRange { get; set; }
-        public bool HasSourceTarget { get; set; }
+        public Thickness ContentPadding { get; set; }
+        public Thickness DividerMargin { get; set; }
+        public ObservableCollection<ReportTimelineDetailFieldItem> Fields { get; set; }
         public double Height { get; set; }
-        public double HeaderTitleWidth { get; set; }
         public double Left { get; set; }
-        public string RangeLabel { get; set; }
-        public string RangeValue { get; set; }
-        public string SourceTargetLabel { get; set; }
-        public string SourceTargetValue { get; set; }
         public double TextContentWidth { get; set; }
-        public double TimestampFontSize { get; set; }
-        public string TimestampText { get; set; }
         public string Title { get; set; }
         public double TitleFontSize { get; set; }
         public double Top { get; set; }
+        public double Width { get; set; }
+    }
+
+    public class ReportTimelineDetailFieldItem
+    {
+        public string Label { get; set; }
+        public double LabelFontSize { get; set; }
+        public Thickness Margin { get; set; }
+        public string Value { get; set; }
+        public double ValueFontSize { get; set; }
+        public Thickness ValueMargin { get; set; }
+        public double ValueWidth { get; set; }
         public double Width { get; set; }
     }
 }

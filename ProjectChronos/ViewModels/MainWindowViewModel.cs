@@ -13,7 +13,7 @@ namespace ProjectChronos.ViewModels
         {
             SimulationReplayViewModel.Initialize(
                 TimelineReportDefinitionService.DefaultScenarioDurationSeconds,
-                _timelineReportDefinitionService.CreateScenarioEvents());
+                _timelineReportDefinitionService.CreateRealDataVisibilityEvents());
         }
 
         public SimulationReplayViewModel SimulationReplayViewModel { get; } = new SimulationReplayViewModel();

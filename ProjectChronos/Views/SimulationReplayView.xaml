@@ -256,31 +256,49 @@
                                                                            Foreground="#FFFFFF" FontSize="13" FontWeight="Bold"
                                                                            TextWrapping="Wrap" Margin="0,0,0,2"/>
 
-                                                                <StackPanel Orientation="Horizontal" Margin="0,10,0,0" Visibility="{Binding HasDescription, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                                                    <TextBlock Text="• " Foreground="White"/>
-                                                                    <TextBlock TextWrapping="Wrap">
-                                                                        <Run Text="{Binding DescriptionLabel}" Foreground="White" FontWeight="Bold"/>     
-                                                                        <Run Text=" : " Foreground="#AAAAAA"/>
-                                                                        <Run Text="{Binding Description}" Foreground="White"/>
-                                                                    </TextBlock>
+                                                                <StackPanel Margin="0,10,0,0" Visibility="{Binding HasDescription, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                                    <TextBlock Text="{Binding DescriptionLabel}"
+                                                                               Foreground="{StaticResource TextSecondary}"
+                                                                               FontSize="11"
+                                                                               TextWrapping="NoWrap"
+                                                                               TextTrimming="CharacterEllipsis"/>
+                                                                    <TextBlock Text="{Binding Description}"
+                                                                               Margin="12,2,0,0"
+                                                                               Foreground="{StaticResource TextPrimary}"
+                                                                               FontFamily="Consolas"
+                                                                               FontSize="12"
+                                                                               TextWrapping="NoWrap"
+                                                                               TextTrimming="CharacterEllipsis"/>
                                                                 </StackPanel>
 
-                                                                <StackPanel Orientation="Horizontal" Margin="0,2,0,0" Visibility="{Binding HasRange, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                                                    <TextBlock Text="• " Foreground="White"/>
-                                                                    <TextBlock TextWrapping="Wrap">
-                                                                        <Run Text="{Binding RangeBTWLabel}" Foreground="White" FontWeight="Bold"/>
-                                                                        <Run Text=" : " Foreground="White"/>
-                                                                        <Run Text="{Binding RangeBTW}" Foreground="White"/>
-                                                                    </TextBlock>
+                                                                <StackPanel Margin="0,8,0,0" Visibility="{Binding HasRange, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                                    <TextBlock Text="{Binding RangeBTWLabel}"
+                                                                               Foreground="{StaticResource TextSecondary}"
+                                                                               FontSize="11"
+                                                                               TextWrapping="NoWrap"
+                                                                               TextTrimming="CharacterEllipsis"/>
+                                                                    <TextBlock Text="{Binding RangeBTW}"
+                                                                               Margin="12,2,0,0"
+                                                                               Foreground="{StaticResource TextPrimary}"
+                                                                               FontFamily="Consolas"
+                                                                               FontSize="12"
+                                                                               TextWrapping="NoWrap"
+                                                                               TextTrimming="CharacterEllipsis"/>
                                                                 </StackPanel>
 
-                                                                <StackPanel Orientation="Horizontal" Margin="0,2,0,0" Visibility="{Binding HasSourceTarget, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                                                    <TextBlock Text="• " Foreground="White"/>
-                                                                    <TextBlock TextWrapping="Wrap">
-                                                                        <Run Text="{Binding SourceTargetLabel}" Foreground="White" FontWeight="Bold"/>
-                                                                        <Run Text=" : " Foreground="White"/>
-                                                                        <Run Text="{Binding SourceTarget}" Foreground="White"/>
-                                                                    </TextBlock>
+                                                                <StackPanel Margin="0,8,0,0" Visibility="{Binding HasSourceTarget, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                                    <TextBlock Text="{Binding SourceTargetLabel}"
+                                                                               Foreground="{StaticResource TextSecondary}"
+                                                                               FontSize="11"
+                                                                               TextWrapping="NoWrap"
+                                                                               TextTrimming="CharacterEllipsis"/>
+                                                                    <TextBlock Text="{Binding SourceTarget}"
+                                                                               Margin="12,2,0,0"
+                                                                               Foreground="{StaticResource TextPrimary}"
+                                                                               FontFamily="Consolas"
+                                                                               FontSize="12"
+                                                                               TextWrapping="NoWrap"
+                                                                               TextTrimming="CharacterEllipsis"/>
                                                                 </StackPanel>
                                                             </StackPanel>
                                                         </Border>

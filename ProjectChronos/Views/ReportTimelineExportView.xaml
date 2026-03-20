@@ -17,6 +17,7 @@
         <SolidColorBrush x:Key="CardBackgroundBrush" Color="#F8FAFC"/>
         <SolidColorBrush x:Key="CardBorderBrush" Color="#9FB0C2"/>
         <SolidColorBrush x:Key="CardDividerBrush" Color="#CAD6E2"/>
+        <SolidColorBrush x:Key="CardLabelBrush" Color="#5E748C"/>
         <SolidColorBrush x:Key="FooterFillBrush" Color="#F8FAFC"/>
         <SolidColorBrush x:Key="FooterBorderBrush" Color="#9FB0C2"/>
     </UserControl.Resources>
@@ -172,7 +173,8 @@
                                                                    FontWeight="Bold"
                                                                    Foreground="{Binding TitleForeground}"
                                                                    TextAlignment="Center"
-                                                                   TextWrapping="Wrap"/>
+                                                                   TextWrapping="NoWrap"
+                                                                   TextTrimming="CharacterEllipsis"/>
                                                         <TextBlock Text="{Binding TimeText}"
                                                                    Width="{Binding Width}"
                                                                    Margin="0,2,0,0"
@@ -216,106 +218,48 @@
                             <DataTemplate>
                                 <Border Width="{Binding Width}"
                                         Height="{Binding Height}"
+                                        Padding="{Binding ContentPadding}"
                                         Background="{StaticResource CardBackgroundBrush}"
                                         BorderBrush="{StaticResource CardBorderBrush}"
                                         BorderThickness="1"
                                         CornerRadius="0">
-                                    <Grid>
-                                        <StackPanel Margin="18,16,18,16">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                </Grid.ColumnDefinitions>
-                                                <TextBlock Text="{Binding Title}"
-                                                           Width="{Binding HeaderTitleWidth}"
-                                                           FontFamily="Malgun Gothic"
-                                                           FontSize="{Binding TitleFontSize}"
-                                                           FontWeight="Bold"
-                                                           Foreground="{StaticResource PrimaryTextBrush}"
-                                                           TextWrapping="Wrap"/>
-                                                <TextBlock Grid.Column="1"
-                                                           Margin="12,0,0,0"
-                                                           Text="{Binding TimestampText}"
-                                                           FontFamily="Consolas"
-                                                           FontSize="{Binding TimestampFontSize}"
-                                                           Foreground="{StaticResource SecondaryTextBrush}"
-                                                           HorizontalAlignment="Right"
-                                                           TextAlignment="Right"
-                                                           VerticalAlignment="Top"/>
-                                            </Grid>
-
+                                    <StackPanel>
+                                            <TextBlock Text="{Binding Title}"
+                                                       Width="{Binding TextContentWidth}"
+                                                       FontFamily="Malgun Gothic"
+                                                       FontSize="{Binding TitleFontSize}"
+                                                       FontWeight="Bold"
+                                                       Foreground="{StaticResource PrimaryTextBrush}"
+                                                       TextWrapping="NoWrap"
+                                                       TextTrimming="CharacterEllipsis"/>
                                             <Rectangle Height="1"
-                                                       Margin="0,8,0,12"
+                                                       Margin="{Binding DividerMargin}"
                                                        Fill="{StaticResource CardDividerBrush}"/>
-
-                                            <Grid Margin="0,12,0,0"
-                                                  Visibility="{Binding HasDescription, Converter={StaticResource BoolToVisibilityConverter}}">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="18"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                </Grid.ColumnDefinitions>
-                                                <TextBlock Text="&#8226;"
-                                                           FontSize="{Binding BodyFontSize}"
-                                                           Foreground="{StaticResource PrimaryTextBrush}"/>
-                                                <TextBlock Grid.Column="1"
-                                                           Width="{Binding BodyTextWidth}"
-                                                           FontFamily="Malgun Gothic"
-                                                           FontSize="{Binding BodyFontSize}"
-                                                           Foreground="{StaticResource PrimaryTextBrush}"
-                                                           TextWrapping="Wrap">
-                                                    <Run Text="{Binding DescriptionLabel}"
-                                                         FontWeight="Bold"/>
-                                                    <Run Text=" : "/>
-                                                    <Run Text="{Binding DescriptionValue}"/>
-                                                </TextBlock>
-                                            </Grid>
-
-                                            <Grid Margin="0,8,0,0"
-                                                  Visibility="{Binding HasRange, Converter={StaticResource BoolToVisibilityConverter}}">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="18"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                </Grid.ColumnDefinitions>
-                                                <TextBlock Text="&#8226;"
-                                                           FontSize="{Binding BodyFontSize}"
-                                                           Foreground="{StaticResource PrimaryTextBrush}"/>
-                                                <TextBlock Grid.Column="1"
-                                                           Width="{Binding BodyTextWidth}"
-                                                           FontFamily="Malgun Gothic"
-                                                           FontSize="{Binding BodyFontSize}"
-                                                           Foreground="{StaticResource PrimaryTextBrush}"
-                                                           TextWrapping="Wrap">
-                                                    <Run Text="{Binding RangeLabel}"
-                                                         FontWeight="Bold"/>
-                                                    <Run Text=" : "/>
-                                                    <Run Text="{Binding RangeValue}"/>
-                                                </TextBlock>
-                                            </Grid>
-
-                                            <Grid Margin="0,8,0,0"
-                                                  Visibility="{Binding HasSourceTarget, Converter={StaticResource BoolToVisibilityConverter}}">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="18"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                </Grid.ColumnDefinitions>
-                                                <TextBlock Text="&#8226;"
-                                                           FontSize="{Binding BodyFontSize}"
-                                                           Foreground="{StaticResource PrimaryTextBrush}"/>
-                                                <TextBlock Grid.Column="1"
-                                                           Width="{Binding BodyTextWidth}"
-                                                           FontFamily="Malgun Gothic"
-                                                           FontSize="{Binding BodyFontSize}"
-                                                           Foreground="{StaticResource PrimaryTextBrush}"
-                                                           TextWrapping="Wrap">
-                                                    <Run Text="{Binding SourceTargetLabel}"
-                                                         FontWeight="Bold"/>
-                                                    <Run Text=" : "/>
-                                                    <Run Text="{Binding SourceTargetValue}"/>
-                                                </TextBlock>
-                                            </Grid>
-                                        </StackPanel>
-                                    </Grid>
+                                            <ItemsControl ItemsSource="{Binding Fields}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <StackPanel Width="{Binding Width}"
+                                                                    Margin="{Binding Margin}">
+                                                            <TextBlock Text="{Binding Label}"
+                                                                       Width="{Binding Width}"
+                                                                       FontFamily="Malgun Gothic"
+                                                                       FontSize="{Binding LabelFontSize}"
+                                                                       Foreground="{StaticResource CardLabelBrush}"
+                                                                       TextWrapping="NoWrap"
+                                                                       TextTrimming="CharacterEllipsis"/>
+                                                            <TextBlock Text="{Binding Value}"
+                                                                       Width="{Binding ValueWidth}"
+                                                                       Margin="{Binding ValueMargin}"
+                                                                       FontFamily="Consolas"
+                                                                       FontSize="{Binding ValueFontSize}"
+                                                                       Foreground="{StaticResource PrimaryTextBrush}"
+                                                                       TextWrapping="NoWrap"
+                                                                       TextTrimming="CharacterEllipsis"/>
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                    </StackPanel>
                                 </Border>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
