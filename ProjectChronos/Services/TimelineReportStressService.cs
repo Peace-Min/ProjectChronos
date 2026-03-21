@@ -372,19 +372,19 @@ namespace ProjectChronos.Services
             var view = new ReportTimelineExportView
             {
                 DataContext = viewModel,
-                Width = viewModel.CanvasWidth,
+                Width = viewModel.RenderedCanvasWidth,
                 Height = viewModel.RenderedCanvasHeight
             };
 
-            view.Measure(new Size(viewModel.CanvasWidth, viewModel.RenderedCanvasHeight));
-            view.Arrange(new Rect(0.0, 0.0, viewModel.CanvasWidth, viewModel.RenderedCanvasHeight));
+            view.Measure(new Size(viewModel.RenderedCanvasWidth, viewModel.RenderedCanvasHeight));
+            view.Arrange(new Rect(0.0, 0.0, viewModel.RenderedCanvasWidth, viewModel.RenderedCanvasHeight));
             view.UpdateLayout();
         }
 
         private void ValidateGeometry(ReportTimelineExportViewModel viewModel, TimelineReportStressCaseResult result)
         {
-            double availableContentWidth = Math.Max(0.0, viewModel.CanvasWidth - (RootHorizontalMargin * 2.0));
-            double rootContentWidth = Math.Max(viewModel.TimelineWidth, viewModel.FooterWidth);
+            double availableContentWidth = Math.Max(0.0, viewModel.RenderedCanvasWidth - (RootHorizontalMargin * 2.0));
+            double rootContentWidth = viewModel.RootContentWidth;
 
             if (rootContentWidth > availableContentWidth + 0.5)
             {
@@ -395,22 +395,22 @@ namespace ProjectChronos.Services
                     availableContentWidth));
             }
 
-            if (viewModel.CanvasWidth < viewModel.TimelineWidth + 32.0)
+            if (viewModel.RenderedCanvasWidth < rootContentWidth + (RootHorizontalMargin * 2.0))
             {
                 result.WarningReasons.Add(string.Format(
                     CultureInfo.InvariantCulture,
-                    "timeline_width_margin_shortage: canvas width {0:0.##} is smaller than timeline width + 32 ({1:0.##}).",
-                    viewModel.CanvasWidth,
-                    viewModel.TimelineWidth + 32.0));
+                    "timeline_width_margin_shortage: rendered width {0:0.##} is smaller than root content width + 32 ({1:0.##}).",
+                    viewModel.RenderedCanvasWidth,
+                    rootContentWidth + (RootHorizontalMargin * 2.0)));
             }
 
-            if (viewModel.RenderedCanvasHeight > (viewModel.CanvasWidth * WarningHeightRatio))
+            if (viewModel.RenderedCanvasHeight > (viewModel.RenderedCanvasWidth * WarningHeightRatio))
             {
                 result.WarningReasons.Add(string.Format(
                     CultureInfo.InvariantCulture,
                     "rendered_height_ratio_exceeded: height {0:0.##} exceeds width x 1.8 ({1:0.##}).",
                     viewModel.RenderedCanvasHeight,
-                    viewModel.CanvasWidth * WarningHeightRatio));
+                    viewModel.RenderedCanvasWidth * WarningHeightRatio));
             }
 
             ValidateBaseline(viewModel, result);

@@ -52,14 +52,17 @@ namespace ProjectChronos.ViewModels
         private const double BaselineInset = 88.0;
         private const double BaselineYPosition = 224.0;
         private const double MinimumTimelineWidth = 900.0;
-        private const double BaseSlotStemHeight = 104.0;
-        private const double BaseSlotTitleGap = 12.0;
+        private const double BaseSlotNodeDiameter = 14.0;
+        private const double BaseSlotTimeGap = 6.0;
+        private const double BaseSlotTimeToTitleGap = 12.0;
+        private const double BaseSlotStemEndGap = 8.0;
         private const double BaseSlotTitleWidthMin = 160.0;
         private const double BaseSlotTitleWidthMax = 240.0;
-        private const double BaseSlotTitleFontSize = 16.0;
-        private const double BaseSlotTimeFontSize = 14.0;
-        private const double BaseSlotLabelLineGap = 4.0;
+        private const double BaseSlotTitleFontSize = 15.0;
+        private const double BaseSlotTimeFontSize = 12.0;
         private const double BaseSlotItemGap = 6.0;
+        private const double BaseAxisLabelFontSize = 12.0;
+        private const double BaseAxisLabelGap = 20.0;
         private const double BaseOverviewBottomPadding = 20.0;
         private const double BaseIntervalOffset = 92.0;
         private const double BaseMinimumStandardVisualSpan = 240.0;
@@ -68,31 +71,39 @@ namespace ProjectChronos.ViewModels
         private const double BaseIntervalAnchorGap = 4.0;
         private const double BaseIntervalChevronThreshold = 20.0;
         private const double BaseIntervalMinimumArrowSpan = 60.0;
-        private const double BaseStandardIntervalFontSize = 30.0;
-        private const double BaseMicroIntervalFontSize = 30.0;
+        private const double BaseIntervalDashLength = 4.0;
+        private const double BaseIntervalDashGap = 8.0;
+        private const double BaseIntervalAnchorCutout = 2.0;
+        private const double BaseStandardIntervalFontSize = 18.0;
+        private const double BaseMicroIntervalFontSize = 18.0;
         private const double DetailTopPadding = 8.0;
         private const double DetailBottomPadding = 8.0;
         private const double DetailCardGap = 24.0;
         private const double SameTimestampDetailCardGap = 10.0;
         private const double BaseDetailColumnGap = 28.0;
         private const double OverviewOuterMargin = 16.0;
+        private const double RootHorizontalMargin = 16.0;
         private const double RootBottomMargin = 16.0;
         private const double DetailBandTopMargin = 8.0;
-        private const double BaseCardWidthMin = 250.0;
-        private const double BaseCardWidthMax = 430.0;
-        private const double BaseCardTitleFontSize = 18.0;
-        private const double BaseCardLabelFontSize = 15.0;
-        private const double BaseCardBodyFontSize = 18.0;
+        private const double BaseCardWidthMin = 280.0;
+        private const double BaseCardWidthMax = 360.0;
+        private const double BaseCardTitleFontSize = 15.0;
+        private const double BaseCardLabelFontSize = 12.0;
+        private const double BaseCardBodyFontSize = 14.0;
+        private const double DetailOuterMargin = 20.0;
         private const double CardLeftPadding = 10.0;
         private const double CardRightPadding = 10.0;
-        private const double CardTopPadding = 16.0;
-        private const double CardBottomPadding = 16.0;
-        private const double CardDividerGapBefore = 8.0;
-        private const double CardDividerGapAfter = 12.0;
-        private const double CardDescriptionGap = 12.0;
-        private const double CardRangeGap = 8.0;
+        private const double CardTopPadding = 0.0;
+        private const double CardBottomPadding = 6.0;
+        private const double CardHeaderTopPadding = 8.0;
+        private const double CardHeaderBottomPadding = 8.0;
+        private const double CardDividerGapBefore = 0.0;
+        private const double CardDividerGapAfter = 4.0;
+        private const double CardDescriptionGap = 0.0;
+        private const double CardRangeGap = 4.0;
         private const double CardFieldLabelValueGap = 4.0;
         private const double CardFieldValueIndent = 12.0;
+        private const double CardWidthBuffer = 12.0;
         private const double FooterWidthInset = 260.0;
         private const double FooterTopMargin = 34.0;
         private const double FooterHorizontalPadding = 34.0;
@@ -102,10 +113,10 @@ namespace ProjectChronos.ViewModels
         private const double PixelsPerDip = 1.0;
 
         private static readonly Typeface UiTypeface =
-            new Typeface(new FontFamily("Malgun Gothic"), FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
+            new Typeface(new FontFamily("Segoe UI"), FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
 
         private static readonly Typeface UiBoldTypeface =
-            new Typeface(new FontFamily("Malgun Gothic"), FontStyles.Normal, FontWeights.Bold, FontStretches.Normal);
+            new Typeface(new FontFamily("Segoe UI"), FontStyles.Normal, FontWeights.SemiBold, FontStretches.Normal);
 
         private static readonly Typeface MonoTypeface =
             new Typeface(new FontFamily("Consolas"), FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
@@ -131,6 +142,8 @@ namespace ProjectChronos.ViewModels
             OverviewHeight = BaselineY + 220.0;
 
             BuildLayout(input.Events ?? Array.Empty<SimulationEventMarker>());
+            RootContentWidth = CalculateRootContentWidth();
+            RenderedCanvasWidth = CalculateRenderedCanvasWidth();
             RenderedCanvasHeight = CalculateRenderedCanvasHeight();
         }
 
@@ -138,20 +151,29 @@ namespace ProjectChronos.ViewModels
         public string SectionLabel { get; }
         public double CanvasWidth { get; }
         public double CanvasHeight { get; }
+        public double RenderedCanvasWidth { get; }
         public double TimelineWidth { get; private set; }
         public double OverviewHeight { get; private set; }
         public double DetailBandHeight { get; private set; }
         public double FooterWidth { get; private set; }
+        public double RootContentWidth { get; private set; }
         public double RenderedCanvasHeight { get; }
         public double BaselineStartX { get; private set; }
         public double BaselineEndX { get; private set; }
         public double BaselineY { get; private set; }
+        public string AxisLabelText => "t [s]";
+        public double AxisLabelFontSize { get; private set; }
+        public double AxisLabelLeft { get; private set; }
+        public double AxisLabelTop { get; private set; }
         public bool HasFooterNotes => FooterNotes.Count > 0;
         public ObservableCollection<string> FooterNotes { get; }
         public ObservableCollection<ReportTimelineSlotGroupItem> SlotItems { get; }
         public ObservableCollection<ReportTimelineIntervalAnchorItem> IntervalAnchorItems { get; }
         public ObservableCollection<ReportTimelineSlotIntervalItem> IntervalItems { get; }
         public ObservableCollection<ReportTimelineDetailCardItem> DetailCardItems { get; }
+
+        private double AxisLabelWidth { get; set; }
+        private double AxisLabelHeight { get; set; }
 
         private void BuildLayout(IReadOnlyList<SimulationEventMarker> sourceEvents)
         {
@@ -193,7 +215,8 @@ namespace ProjectChronos.ViewModels
 
             BuildSlotItems(groups, slotPitch, layoutScale);
             BuildIntervalItems(groups, layoutScale);
-            NormalizeOverviewMargins();
+            ConfigureAxisLabel(layoutScale);
+            NormalizeOverviewMargins(groups);
             BuildDetailCards(groups, slotPitch, layoutScale);
         }
 
@@ -204,9 +227,10 @@ namespace ProjectChronos.ViewModels
                 : Clamp(slotPitch - (70.0 * layoutScale), BaseSlotTitleWidthMin * layoutScale, BaseSlotTitleWidthMax);
             double slotTitleFontSize = BaseSlotTitleFontSize * layoutScale;
             double slotTimeFontSize = BaseSlotTimeFontSize * layoutScale;
-            double slotStemHeight = BaseSlotStemHeight * layoutScale;
-            double slotTitleGap = BaseSlotTitleGap * layoutScale;
-            double lineGap = BaseSlotLabelLineGap * layoutScale;
+            double slotNodeDiameter = BaseSlotNodeDiameter * layoutScale;
+            double slotTimeGap = BaseSlotTimeGap * layoutScale;
+            double slotTimeToTitleGap = BaseSlotTimeToTitleGap * layoutScale;
+            double slotStemEndGap = BaseSlotStemEndGap * layoutScale;
             double itemGap = BaseSlotItemGap * layoutScale;
             double maxBottom = BaselineY;
 
@@ -214,23 +238,24 @@ namespace ProjectChronos.ViewModels
             {
                 var titles = new ObservableCollection<ReportTimelineSlotTitleItem>();
                 double titlesHeight = 0.0;
+                string time = FormatTimestamp(group.Timestamp);
+                Size timeSize = MeasureSingleLineText(time, MonoTypeface, slotTimeFontSize);
 
                 for (int eventIndex = 0; eventIndex < group.Events.Count; eventIndex++)
                 {
                     SimulationEventMarker simulationEvent = group.Events[eventIndex];
-                    string title = FormatSlotTitle(simulationEvent);
-                    string time = FormatSlotTime(simulationEvent);
+                    string title = TrimTextToWidth(
+                        FormatSlotTitle(simulationEvent),
+                        UiBoldTypeface,
+                        slotTitleFontSize,
+                        slotTitleWidth);
                     Size titleSize = MeasureSingleLineText(title, UiBoldTypeface, slotTitleFontSize);
-                    Size timeSize = MeasureSingleLineText(time, MonoTypeface, slotTimeFontSize);
-                    double itemHeight = titleSize.Height + lineGap + timeSize.Height;
+                    double itemHeight = titleSize.Height;
                     double bottomGap = eventIndex < group.Events.Count - 1 ? itemGap : 0.0;
 
                     titles.Add(new ReportTimelineSlotTitleItem
                     {
                         Margin = new Thickness(0.0, 0.0, 0.0, bottomGap),
-                        TimeFontSize = slotTimeFontSize,
-                        TimeForeground = GetSlotTimeBrush(),
-                        TimeText = time,
                         TitleFontSize = slotTitleFontSize,
                         TitleForeground = GetPriorityBrush(simulationEvent.Priority),
                         TitleText = title,
@@ -240,26 +265,40 @@ namespace ProjectChronos.ViewModels
                     titlesHeight += itemHeight + bottomGap;
                 }
 
-                double width = slotTitleWidth + (24.0 * layoutScale);
-                double left = Clamp(group.CenterX - (width / 2.0), 0.0, TimelineWidth - width);
-                double lineX = group.CenterX - left;
-                double height = slotStemHeight + slotTitleGap + titlesHeight;
+                double width = Math.Max(slotTitleWidth, timeSize.Width + (18.0 * layoutScale)) + (24.0 * layoutScale);
+                double left = group.CenterX - (width / 2.0);
+                double lineX = width / 2.0;
+                double top = BaselineY - (slotNodeDiameter / 2.0);
+                double timeTop = slotNodeDiameter + slotTimeGap;
+                double titleTop = timeTop + timeSize.Height + slotTimeToTitleGap;
+                double stemTop = slotNodeDiameter;
+                double stemBottom = Math.Max(stemTop, titleTop - slotStemEndGap);
+                double height = titleTop + titlesHeight;
 
                 SlotItems.Add(new ReportTimelineSlotGroupItem
                 {
                     Height = height,
                     Left = left,
                     LineX = lineX,
-                    StemHeight = slotStemHeight,
+                    NodeDiameter = slotNodeDiameter,
+                    NodeLeft = lineX - (slotNodeDiameter / 2.0),
+                    NodeTop = 0.0,
+                    StemBottom = stemBottom,
+                    StemTop = stemTop,
+                    TimeFontSize = slotTimeFontSize,
+                    TimeForeground = GetSlotTimeBrush(),
+                    TimeLeft = (width - timeSize.Width) / 2.0,
+                    TimeText = time,
+                    TimeTop = timeTop,
                     TitleLeft = (width - slotTitleWidth) / 2.0,
-                    TitleTop = slotStemHeight + slotTitleGap,
+                    TitleTop = titleTop,
                     TitleWidth = slotTitleWidth,
-                    Top = BaselineY,
+                    Top = top,
                     Width = width,
                     Titles = titles
                 });
 
-                maxBottom = Math.Max(maxBottom, BaselineY + height);
+                maxBottom = Math.Max(maxBottom, top + height);
             }
 
             OverviewHeight = Math.Max(BaselineY + 180.0, maxBottom + BaseOverviewBottomPadding);
@@ -278,6 +317,8 @@ namespace ProjectChronos.ViewModels
             double standardFontSize = BaseStandardIntervalFontSize * layoutScale;
             double microFontSize = BaseMicroIntervalFontSize * layoutScale;
             double absoluteLineY = BaselineY - intervalOffset;
+            double anchorCutout = Clamp(BaseIntervalAnchorCutout * layoutScale, 1.5, 2.5);
+            double anchorTopAbsolute = absoluteLineY + anchorCutout;
             double anchorBottomAbsolute = BaselineY - (6.0 * layoutScale);
 
             IntervalAnchorItems.Clear();
@@ -286,9 +327,9 @@ namespace ProjectChronos.ViewModels
             {
                 IntervalAnchorItems.Add(new ReportTimelineIntervalAnchorItem
                 {
-                    Height = Math.Max(1.0, anchorBottomAbsolute - absoluteLineY),
+                    Height = Math.Max(1.0, anchorBottomAbsolute - anchorTopAbsolute),
                     Stroke = GetIntervalBrush(0),
-                    Top = absoluteLineY,
+                    Top = anchorTopAbsolute,
                     X = group.CenterX
                 });
             }
@@ -362,21 +403,22 @@ namespace ProjectChronos.ViewModels
 
         private void BuildDetailCards(IReadOnlyList<SlotGroup> groups, double slotPitch, double layoutScale)
         {
-            double preferredCardWidth = groups.Count == 1
-                ? BaseCardWidthMax
-                : Clamp(slotPitch - (42.0 * layoutScale), BaseCardWidthMin * layoutScale, BaseCardWidthMax);
-            double minimumColumnGap = BaseDetailColumnGap * layoutScale;
-            double maximumCardWidthToFit = groups.Count <= 1
-                ? preferredCardWidth
-                : Math.Max(1.0, (TimelineWidth - (minimumColumnGap * (groups.Count - 1))) / groups.Count);
-            double cardWidth = groups.Count == 1
-                ? preferredCardWidth
-                : Math.Min(preferredCardWidth, maximumCardWidthToFit);
             double titleFontSize = BaseCardTitleFontSize * layoutScale;
             double labelFontSize = BaseCardLabelFontSize * layoutScale;
             double bodyFontSize = BaseCardBodyFontSize * layoutScale;
+            double preferredCardWidth = MeasurePreferredCardWidth(groups, titleFontSize, labelFontSize, bodyFontSize);
+            double minimumColumnGap = BaseDetailColumnGap * layoutScale;
+            double availableCardBandWidth = Math.Max(1.0, TimelineWidth - (DetailOuterMargin * 2.0));
+            double maximumCardWidthToFit = groups.Count <= 1
+                ? Math.Max(BaseCardWidthMax, preferredCardWidth)
+                : Math.Max(1.0, (availableCardBandWidth - (minimumColumnGap * (groups.Count - 1))) / groups.Count);
+            double maximumCardWidth = groups.Count <= 1
+                ? Math.Max(BaseCardWidthMax, preferredCardWidth)
+                : Math.Min(BaseCardWidthMax, maximumCardWidthToFit);
+            double minimumCardWidth = Math.Min(BaseCardWidthMin, maximumCardWidth);
+            double cardWidth = Clamp(preferredCardWidth, minimumCardWidth, maximumCardWidth);
             double columnBottom = 0.0;
-            List<double> columnLefts = BuildDetailColumnLefts(groups, cardWidth, minimumColumnGap);
+            List<double> columnLefts = BuildDetailColumnLefts(groups, cardWidth, minimumColumnGap, DetailOuterMargin);
 
             for (int groupIndex = 0; groupIndex < groups.Count; groupIndex++)
             {
@@ -390,9 +432,13 @@ namespace ProjectChronos.ViewModels
 
                 foreach (var simulationEvent in group.Events)
                 {
-                    string title = string.IsNullOrWhiteSpace(simulationEvent.Title)
-                        ? "Event"
-                        : simulationEvent.Title.Trim();
+                    string title = TrimTextToWidth(
+                        string.IsNullOrWhiteSpace(simulationEvent.Title)
+                            ? "Event"
+                            : simulationEvent.Title.Trim(),
+                        UiBoldTypeface,
+                        titleFontSize,
+                        textWidth);
                     Size titleSize = MeasureSingleLineText(title, UiBoldTypeface, titleFontSize);
                     ObservableCollection<ReportTimelineDetailFieldItem> fields = BuildDetailFields(
                         simulationEvent,
@@ -402,7 +448,9 @@ namespace ProjectChronos.ViewModels
                         out double fieldsHeight);
 
                     double height = CardTopPadding;
+                    height += CardHeaderTopPadding;
                     height += titleSize.Height;
+                    height += CardHeaderBottomPadding;
                     height += CardDividerGapBefore;
                     height += 1.0;
                     height += CardDividerGapAfter;
@@ -420,6 +468,7 @@ namespace ProjectChronos.ViewModels
                         Height = height,
                         Left = left,
                         TextContentWidth = textWidth,
+                        TitleMargin = new Thickness(0.0, CardHeaderTopPadding, 0.0, CardHeaderBottomPadding),
                         Title = title,
                         TitleFontSize = titleFontSize,
                         Top = columnTop,
@@ -438,6 +487,84 @@ namespace ProjectChronos.ViewModels
                 : columnBottom + DetailBottomPadding;
         }
 
+        private double MeasurePreferredCardWidth(
+            IReadOnlyList<SlotGroup> groups,
+            double titleFontSize,
+            double labelFontSize,
+            double valueFontSize)
+        {
+            double requiredContentWidth = 0.0;
+
+            foreach (var group in groups)
+            {
+                foreach (var simulationEvent in group.Events)
+                {
+                    requiredContentWidth = Math.Max(
+                        requiredContentWidth,
+                        MeasureRequiredCardContentWidth(
+                            simulationEvent,
+                            titleFontSize,
+                            labelFontSize,
+                            valueFontSize));
+                }
+            }
+
+            double paddedWidth = requiredContentWidth + CardLeftPadding + CardRightPadding + CardWidthBuffer;
+            return Math.Ceiling(Math.Max(BaseCardWidthMin, paddedWidth));
+        }
+
+        private double MeasureRequiredCardContentWidth(
+            SimulationEventMarker simulationEvent,
+            double titleFontSize,
+            double labelFontSize,
+            double valueFontSize)
+        {
+            string title = string.IsNullOrWhiteSpace(simulationEvent.Title)
+                ? "Event"
+                : simulationEvent.Title.Trim();
+            double requiredWidth = MeasureSingleLineText(title, UiBoldTypeface, titleFontSize).Width;
+
+            requiredWidth = Math.Max(
+                requiredWidth,
+                MeasureRequiredDetailFieldWidth(
+                    simulationEvent.DescriptionLabel,
+                    simulationEvent.Description,
+                    labelFontSize,
+                    valueFontSize));
+            requiredWidth = Math.Max(
+                requiredWidth,
+                MeasureRequiredDetailFieldWidth(
+                    simulationEvent.RangeBTWLabel,
+                    simulationEvent.RangeBTW,
+                    labelFontSize,
+                    valueFontSize));
+            requiredWidth = Math.Max(
+                requiredWidth,
+                MeasureRequiredDetailFieldWidth(
+                    simulationEvent.SourceTargetLabel,
+                    simulationEvent.SourceTarget,
+                    labelFontSize,
+                    valueFontSize));
+
+            return requiredWidth;
+        }
+
+        private double MeasureRequiredDetailFieldWidth(
+            string label,
+            string value,
+            double labelFontSize,
+            double valueFontSize)
+        {
+            if (string.IsNullOrWhiteSpace(label) || string.IsNullOrWhiteSpace(value))
+            {
+                return 0.0;
+            }
+
+            double labelWidth = MeasureSingleLineText(label.Trim(), UiTypeface, labelFontSize).Width;
+            double valueWidth = MeasureSingleLineText(value.Trim(), MonoTypeface, valueFontSize).Width + CardFieldValueIndent;
+            return Math.Max(labelWidth, valueWidth);
+        }
+
         private ObservableCollection<ReportTimelineDetailFieldItem> BuildDetailFields(
             SimulationEventMarker simulationEvent,
             double fieldWidth,
@@ -448,14 +575,6 @@ namespace ProjectChronos.ViewModels
             var fields = new ObservableCollection<ReportTimelineDetailFieldItem>();
             totalHeight = 0.0;
 
-            AppendDetailField(
-                fields,
-                "Time",
-                FormatSlotTime(simulationEvent),
-                fieldWidth,
-                labelFontSize,
-                valueFontSize,
-                ref totalHeight);
             AppendDetailField(
                 fields,
                 simulationEvent.DescriptionLabel,
@@ -519,13 +638,19 @@ namespace ProjectChronos.ViewModels
             totalHeight += topMargin + labelSize.Height + CardFieldLabelValueGap + valueSize.Height;
         }
 
-        private List<double> BuildDetailColumnLefts(IReadOnlyList<SlotGroup> groups, double cardWidth, double minimumColumnGap)
+        private List<double> BuildDetailColumnLefts(
+            IReadOnlyList<SlotGroup> groups,
+            double cardWidth,
+            double minimumColumnGap,
+            double outerMargin)
         {
             var lefts = new List<double>(groups.Count);
+            double minimumLeft = outerMargin;
+            double maximumLeft = Math.Max(minimumLeft, TimelineWidth - cardWidth - outerMargin);
 
             for (int index = 0; index < groups.Count; index++)
             {
-                double idealLeft = Clamp(groups[index].CenterX - (cardWidth / 2.0), 0.0, TimelineWidth - cardWidth);
+                double idealLeft = Clamp(groups[index].CenterX - (cardWidth / 2.0), minimumLeft, maximumLeft);
 
                 if (index > 0)
                 {
@@ -540,7 +665,7 @@ namespace ProjectChronos.ViewModels
                 return lefts;
             }
 
-            double overflow = (lefts[lefts.Count - 1] + cardWidth) - TimelineWidth;
+            double overflow = (lefts[lefts.Count - 1] + cardWidth + outerMargin) - TimelineWidth;
             if (overflow <= 0.0)
             {
                 return lefts;
@@ -554,12 +679,12 @@ namespace ProjectChronos.ViewModels
                 lefts[index] = Math.Min(lefts[index], maximumAllowedLeft);
             }
 
-            if (lefts[0] >= 0.0)
+            if (lefts[0] >= minimumLeft)
             {
                 return lefts;
             }
 
-            double shiftRight = -lefts[0];
+            double shiftRight = minimumLeft - lefts[0];
             for (int index = 0; index < lefts.Count; index++)
             {
                 lefts[index] += shiftRight;
@@ -603,7 +728,7 @@ namespace ProjectChronos.ViewModels
             return 0.78;
         }
 
-        private void NormalizeOverviewMargins()
+        private void NormalizeOverviewMargins(IReadOnlyList<SlotGroup> groups)
         {
             double minTop = double.PositiveInfinity;
             double maxBottom = double.NegativeInfinity;
@@ -634,6 +759,11 @@ namespace ProjectChronos.ViewModels
                 maxRight = Math.Max(maxRight, slotItem.Left + slotItem.Width);
             }
 
+            minTop = Math.Min(minTop, AxisLabelTop);
+            maxBottom = Math.Max(maxBottom, AxisLabelTop + AxisLabelHeight);
+            minLeft = Math.Min(minLeft, AxisLabelLeft);
+            maxRight = Math.Max(maxRight, AxisLabelLeft + AxisLabelWidth);
+
             if (double.IsInfinity(minTop) || double.IsInfinity(maxBottom))
             {
                 return;
@@ -663,9 +793,22 @@ namespace ProjectChronos.ViewModels
                 slotItem.Left += shiftX;
             }
 
+            foreach (var group in groups)
+            {
+                group.CenterX += shiftX;
+            }
+
+            AxisLabelTop += shiftY;
+            AxisLabelLeft += shiftX;
+
             TimelineWidth = Math.Ceiling(maxRight + shiftX + OverviewOuterMargin);
             FooterWidth = Math.Max(680.0, TimelineWidth - FooterWidthInset);
             OverviewHeight = Math.Ceiling(maxBottom + shiftY + OverviewOuterMargin);
+        }
+
+        private double CalculateRenderedCanvasWidth()
+        {
+            return Math.Ceiling(Math.Max(CanvasWidth, RootContentWidth + (RootHorizontalMargin * 2.0)));
         }
 
         private double CalculateRenderedCanvasHeight()
@@ -684,6 +827,54 @@ namespace ProjectChronos.ViewModels
 
             totalHeight += RootBottomMargin;
             return Math.Ceiling(totalHeight);
+        }
+
+        private double CalculateRootContentWidth()
+        {
+            double overviewWidth = CalculateOverviewContentWidth();
+            double detailWidth = CalculateDetailContentWidth();
+            return Math.Ceiling(Math.Max(Math.Max(overviewWidth, detailWidth), FooterWidth));
+        }
+
+        private double CalculateOverviewContentWidth()
+        {
+            double minLeft = Math.Min(BaselineStartX, BaselineEndX);
+            double maxRight = Math.Max(BaselineStartX, BaselineEndX);
+
+            foreach (var slotItem in SlotItems)
+            {
+                minLeft = Math.Min(minLeft, slotItem.Left);
+                maxRight = Math.Max(maxRight, slotItem.Left + slotItem.Width);
+            }
+
+            foreach (var intervalItem in IntervalItems)
+            {
+                minLeft = Math.Min(minLeft, intervalItem.Left);
+                maxRight = Math.Max(maxRight, intervalItem.Left + intervalItem.Width);
+            }
+
+            foreach (var anchorItem in IntervalAnchorItems)
+            {
+                minLeft = Math.Min(minLeft, anchorItem.X);
+                maxRight = Math.Max(maxRight, anchorItem.X);
+            }
+
+            minLeft = Math.Min(minLeft, AxisLabelLeft);
+            maxRight = Math.Max(maxRight, AxisLabelLeft + AxisLabelWidth);
+
+            return Math.Max(0.0, maxRight - minLeft);
+        }
+
+        private double CalculateDetailContentWidth()
+        {
+            if (DetailCardItems.Count == 0)
+            {
+                return 0.0;
+            }
+
+            double minLeft = DetailCardItems.Min(card => card.Left);
+            double maxRight = DetailCardItems.Max(card => card.Left + card.Width);
+            return Math.Max(0.0, maxRight - minLeft);
         }
 
         private double CalculateFooterContentHeight()
@@ -712,7 +903,7 @@ namespace ProjectChronos.ViewModels
 
         private static Brush GetSlotTimeBrush()
         {
-            return CreateBrush(0x5E, 0x74, 0x8C);
+            return CreateBrush(0x33, 0x3A, 0x42);
         }
 
         private static Brush GetIntervalBrush(int index)
@@ -754,16 +945,57 @@ namespace ProjectChronos.ViewModels
         {
             if (Math.Abs(seconds - Math.Round(seconds)) < 0.005)
             {
-                return string.Format(CultureInfo.InvariantCulture, "{0:0}\uCD08", seconds);
+                return string.Format(CultureInfo.InvariantCulture, "{0:0}", seconds);
             }
 
-            return string.Format(CultureInfo.InvariantCulture, "{0:0.##}\uCD08", seconds);
+            return string.Format(CultureInfo.InvariantCulture, "{0:0.##}", seconds);
         }
 
         private static Size MeasureSingleLineText(string text, Typeface typeface, double fontSize)
         {
             var formattedText = CreateFormattedText(text, typeface, fontSize);
             return new Size(Math.Ceiling(formattedText.Width), Math.Ceiling(formattedText.Height));
+        }
+
+        private static string TrimTextToWidth(string text, Typeface typeface, double fontSize, double availableWidth)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                return text;
+            }
+
+            string normalizedText = text.Trim();
+            if (availableWidth <= 0.0 || MeasureSingleLineText(normalizedText, typeface, fontSize).Width <= availableWidth)
+            {
+                return normalizedText;
+            }
+
+            const string ellipsis = "...";
+            double ellipsisWidth = MeasureSingleLineText(ellipsis, typeface, fontSize).Width;
+            if (ellipsisWidth >= availableWidth)
+            {
+                return ellipsis;
+            }
+
+            int low = 0;
+            int high = normalizedText.Length;
+
+            while (low < high)
+            {
+                int mid = (low + high + 1) / 2;
+                string candidate = normalizedText.Substring(0, mid) + ellipsis;
+                double candidateWidth = MeasureSingleLineText(candidate, typeface, fontSize).Width;
+                if (candidateWidth <= availableWidth)
+                {
+                    low = mid;
+                }
+                else
+                {
+                    high = mid - 1;
+                }
+            }
+
+            return normalizedText.Substring(0, low) + ellipsis;
         }
 
         private static Size MeasureWrappedText(string text, Typeface typeface, double fontSize, double maxWidth)
@@ -794,13 +1026,51 @@ namespace ProjectChronos.ViewModels
             double endX,
             double lineY)
         {
-            string path = string.Format(
-                CultureInfo.InvariantCulture,
-                "M {0:0.##},{2:0.##} L {1:0.##},{2:0.##}",
-                startX,
-                endX,
-                lineY);
-            return Geometry.Parse(path);
+            double span = Math.Max(0.0, endX - startX);
+            if (span <= 0.0)
+            {
+                return Geometry.Empty;
+            }
+
+            double dashLength = Math.Min(BaseIntervalDashLength, span);
+            double gapLength = BaseIntervalDashGap;
+            int dashCount = Math.Max(1, (int)Math.Floor((span + gapLength) / (dashLength + gapLength)));
+
+            while (dashCount > 1)
+            {
+                double occupiedLength = (dashCount * dashLength) + ((dashCount - 1) * gapLength);
+                if (occupiedLength <= span)
+                {
+                    break;
+                }
+
+                dashCount--;
+            }
+
+            double totalDashLength = (dashCount * dashLength) + ((dashCount - 1) * gapLength);
+            double edgeGap = Math.Max(0.0, (span - totalDashLength) / 2.0);
+            var builder = new StringBuilder();
+            double dashStart = startX + edgeGap;
+
+            for (int index = 0; index < dashCount; index++)
+            {
+                double dashEnd = Math.Min(endX, dashStart + dashLength);
+                if (dashEnd > dashStart)
+                {
+                    builder.AppendFormat(
+                        CultureInfo.InvariantCulture,
+                        "M {0:0.##},{2:0.##} L {1:0.##},{2:0.##} ",
+                        dashStart,
+                        dashEnd,
+                        lineY);
+                }
+
+                dashStart += dashLength + gapLength;
+            }
+
+            return builder.Length == 0
+                ? Geometry.Empty
+                : Geometry.Parse(builder.ToString().TrimEnd());
         }
 
         private static Geometry BuildArrowGeometry(
@@ -809,8 +1079,8 @@ namespace ProjectChronos.ViewModels
             double y)
         {
             double availableSpan = Math.Max(0.0, endX - startX);
-            double armLength = Clamp(availableSpan * 0.14, 4.2, 7.2);
-            double headHeight = Clamp(armLength * 0.52, 1.8, 3.2);
+            double armLength = Clamp(availableSpan * 0.16, 5.0, 8.4);
+            double headHeight = Clamp(armLength * 0.34, 1.4, 2.4);
             string path = string.Format(
                 CultureInfo.InvariantCulture,
                 "M {0:0.##},{4:0.##} L {1:0.##},{5:0.##} L {0:0.##},{6:0.##} " +
@@ -847,9 +1117,19 @@ namespace ProjectChronos.ViewModels
                 : simulationEvent.Title.Trim();
         }
 
-        private static string FormatSlotTime(SimulationEventMarker simulationEvent)
+        private void ConfigureAxisLabel(double layoutScale)
         {
-            return string.Format(CultureInfo.InvariantCulture, "{0:F2}s", simulationEvent.Timestamp);
+            AxisLabelFontSize = BaseAxisLabelFontSize * layoutScale;
+            Size axisLabelSize = MeasureSingleLineText(AxisLabelText, UiBoldTypeface, AxisLabelFontSize);
+            AxisLabelWidth = axisLabelSize.Width;
+            AxisLabelHeight = axisLabelSize.Height;
+            AxisLabelLeft = BaselineEndX + (BaseAxisLabelGap * layoutScale);
+            AxisLabelTop = BaselineY - (axisLabelSize.Height / 2.0);
+        }
+
+        private static string FormatTimestamp(double timestamp)
+        {
+            return string.Format(CultureInfo.InvariantCulture, "{0:F2}", timestamp);
         }
 
         private sealed class SlotGroup
@@ -896,7 +1176,16 @@ namespace ProjectChronos.ViewModels
         public double Height { get; set; }
         public double Left { get; set; }
         public double LineX { get; set; }
-        public double StemHeight { get; set; }
+        public double NodeDiameter { get; set; }
+        public double NodeLeft { get; set; }
+        public double NodeTop { get; set; }
+        public double StemBottom { get; set; }
+        public double StemTop { get; set; }
+        public double TimeFontSize { get; set; }
+        public Brush TimeForeground { get; set; }
+        public double TimeLeft { get; set; }
+        public string TimeText { get; set; }
+        public double TimeTop { get; set; }
         public ObservableCollection<ReportTimelineSlotTitleItem> Titles { get; set; }
         public double TitleLeft { get; set; }
         public double TitleTop { get; set; }
@@ -908,9 +1197,6 @@ namespace ProjectChronos.ViewModels
     public class ReportTimelineSlotTitleItem
     {
         public Thickness Margin { get; set; }
-        public double TimeFontSize { get; set; }
-        public Brush TimeForeground { get; set; }
-        public string TimeText { get; set; }
         public double TitleFontSize { get; set; }
         public Brush TitleForeground { get; set; }
         public string TitleText { get; set; }
@@ -951,6 +1237,7 @@ namespace ProjectChronos.ViewModels
         public double Height { get; set; }
         public double Left { get; set; }
         public double TextContentWidth { get; set; }
+        public Thickness TitleMargin { get; set; }
         public string Title { get; set; }
         public double TitleFontSize { get; set; }
         public double Top { get; set; }

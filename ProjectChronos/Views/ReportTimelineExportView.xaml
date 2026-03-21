@@ -16,14 +16,14 @@
         <SolidColorBrush x:Key="BaselineBrush" Color="#0072BD"/>
         <SolidColorBrush x:Key="CardBackgroundBrush" Color="#F8FAFC"/>
         <SolidColorBrush x:Key="CardBorderBrush" Color="#9FB0C2"/>
-        <SolidColorBrush x:Key="CardDividerBrush" Color="#CAD6E2"/>
-        <SolidColorBrush x:Key="CardLabelBrush" Color="#5E748C"/>
+        <SolidColorBrush x:Key="CardDividerBrush" Color="#B5C1CD"/>
+        <SolidColorBrush x:Key="CardLabelBrush" Color="#4B5F74"/>
         <SolidColorBrush x:Key="FooterFillBrush" Color="#F8FAFC"/>
         <SolidColorBrush x:Key="FooterBorderBrush" Color="#9FB0C2"/>
     </UserControl.Resources>
 
     <Border Background="White"
-            Width="{Binding CanvasWidth}"
+            Width="{Binding RenderedCanvasWidth}"
             Height="{Binding RenderedCanvasHeight}">
         <Grid Margin="16,0,16,16">
             <Grid.RowDefinitions>
@@ -45,6 +45,13 @@
                           StrokeThickness="4.5"
                           StrokeStartLineCap="Round"
                           StrokeEndLineCap="Round"/>
+                    <TextBlock Canvas.Left="{Binding AxisLabelLeft}"
+                               Canvas.Top="{Binding AxisLabelTop}"
+                               Text="{Binding AxisLabelText}"
+                               FontFamily="Segoe UI"
+                               FontSize="{Binding AxisLabelFontSize}"
+                               FontWeight="Regular"
+                               Foreground="{StaticResource PrimaryTextBrush}"/>
 
                     <ItemsControl ItemsSource="{Binding IntervalAnchorItems}">
                         <ItemsControl.ItemsPanel>
@@ -65,10 +72,10 @@
                                       Y1="0"
                                       Y2="{Binding Height}"
                                       Stroke="{Binding Stroke}"
-                                      StrokeThickness="2"
+                                      StrokeThickness="1.5"
                                       StrokeDashArray="2,4"
-                                      StrokeStartLineCap="Round"
-                                      StrokeEndLineCap="Round"/>
+                                      StrokeStartLineCap="Flat"
+                                      StrokeEndLineCap="Flat"/>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
@@ -91,13 +98,12 @@
                                         Height="{Binding Height}">
                                     <Path Data="{Binding FrameGeometry}"
                                           Stroke="{Binding Stroke}"
-                                          StrokeThickness="2"
-                                          StrokeDashArray="2,4"
+                                          StrokeThickness="1.5"
                                           StrokeStartLineCap="Round"
                                           StrokeEndLineCap="Round"/>
                                     <Path Data="{Binding ArrowGeometry}"
                                           Stroke="{Binding Stroke}"
-                                          StrokeThickness="2"
+                                          StrokeThickness="1.5"
                                           StrokeLineJoin="Miter"
                                           StrokeStartLineCap="Flat"
                                           StrokeEndLineCap="Flat">
@@ -118,7 +124,7 @@
                                     <TextBlock Text="{Binding Label}"
                                                Canvas.Left="{Binding LabelLeft}"
                                                Canvas.Top="0"
-                                               FontFamily="Malgun Gothic"
+                                               FontFamily="Segoe UI"
                                                FontSize="{Binding FontSize}"
                                                FontWeight="Bold"
                                                Foreground="{Binding Stroke}"/>
@@ -143,14 +149,24 @@
                             <DataTemplate>
                                 <Canvas Width="{Binding Width}"
                                         Height="{Binding Height}">
-                                    <Line X1="{Binding LineX}"
-                                          X2="{Binding LineX}"
-                                          Y1="0"
-                                          Y2="{Binding StemHeight}"
-                                          Stroke="{StaticResource BaselineBrush}"
-                                          StrokeThickness="1.6"
-                                          StrokeStartLineCap="Round"
-                                          StrokeEndLineCap="Round"/>
+                                    <Ellipse Canvas.Left="{Binding NodeLeft}"
+                                             Canvas.Top="{Binding NodeTop}"
+                                             Width="{Binding NodeDiameter}"
+                                             Height="{Binding NodeDiameter}"
+                                             Fill="White"
+                                             Stroke="{StaticResource BaselineBrush}"
+                                             StrokeThickness="2.2"/>
+                                    <Border Canvas.Left="{Binding TimeLeft}"
+                                            Canvas.Top="{Binding TimeTop}"
+                                            Background="White">
+                                        <TextBlock Text="{Binding TimeText}"
+                                                   FontFamily="Consolas"
+                                                   FontSize="{Binding TimeFontSize}"
+                                                   FontWeight="Regular"
+                                                   Foreground="{Binding TimeForeground}"
+                                                   TextAlignment="Center"
+                                                   TextWrapping="NoWrap"/>
+                                    </Border>
 
                                     <Border Canvas.Left="{Binding TitleLeft}"
                                             Canvas.Top="{Binding TitleTop}"
@@ -168,21 +184,13 @@
                                                                 Margin="{Binding Margin}">
                                                         <TextBlock Text="{Binding TitleText}"
                                                                    Width="{Binding Width}"
-                                                                   FontFamily="Malgun Gothic"
+                                                                   FontFamily="Segoe UI"
                                                                    FontSize="{Binding TitleFontSize}"
-                                                                   FontWeight="Bold"
+                                                                   FontWeight="SemiBold"
                                                                    Foreground="{Binding TitleForeground}"
                                                                    TextAlignment="Center"
                                                                    TextWrapping="NoWrap"
                                                                    TextTrimming="CharacterEllipsis"/>
-                                                        <TextBlock Text="{Binding TimeText}"
-                                                                   Width="{Binding Width}"
-                                                                   Margin="0,2,0,0"
-                                                                   FontFamily="Consolas"
-                                                                   FontSize="{Binding TimeFontSize}"
-                                                                   Foreground="{Binding TimeForeground}"
-                                                                   TextAlignment="Center"
-                                                                   TextWrapping="NoWrap"/>
                                                     </StackPanel>
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>
@@ -226,9 +234,10 @@
                                     <StackPanel>
                                             <TextBlock Text="{Binding Title}"
                                                        Width="{Binding TextContentWidth}"
-                                                       FontFamily="Malgun Gothic"
+                                                       Margin="{Binding TitleMargin}"
+                                                       FontFamily="Segoe UI"
                                                        FontSize="{Binding TitleFontSize}"
-                                                       FontWeight="Bold"
+                                                       FontWeight="SemiBold"
                                                        Foreground="{StaticResource PrimaryTextBrush}"
                                                        TextWrapping="NoWrap"
                                                        TextTrimming="CharacterEllipsis"/>
@@ -242,7 +251,7 @@
                                                                     Margin="{Binding Margin}">
                                                             <TextBlock Text="{Binding Label}"
                                                                        Width="{Binding Width}"
-                                                                       FontFamily="Malgun Gothic"
+                                                                       FontFamily="Segoe UI"
                                                                        FontSize="{Binding LabelFontSize}"
                                                                        Foreground="{StaticResource CardLabelBrush}"
                                                                        TextWrapping="NoWrap"
@@ -283,7 +292,7 @@
                         <DataTemplate>
                             <TextBlock Text="{Binding}"
                                        Margin="0,0,0,8"
-                                       FontFamily="Malgun Gothic"
+                                       FontFamily="Segoe UI"
                                        FontSize="28"
                                        Foreground="{StaticResource PrimaryTextBrush}"
                                        TextWrapping="Wrap"/>

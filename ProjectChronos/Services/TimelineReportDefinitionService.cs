@@ -46,7 +46,7 @@ namespace ProjectChronos.Services
                 "\uADF8\uB798\uD504 \uC608\uC2DC 3",
                 "Time-Event",
                 Array.Empty<string>(),
-                1400,
+                1200,
                 0,
                 events ?? Array.Empty<SimulationEventMarker>(),
                 outputPath);
@@ -62,7 +62,7 @@ namespace ProjectChronos.Services
                     "mEventSearchRD",
                     "strEventDescription",
                     "EventSearchRD",
-                    "dRangeBtwPlatformAndTarget",
+                    "dRangeBtwPlatformAndTargetAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
                     "10396.433261655855",
                     "strSource",
                     "HG001"),

@@ -27,17 +27,17 @@ namespace ProjectChronos.Services
             var view = new ReportTimelineExportView
             {
                 DataContext = viewModel,
-                Width = viewModel.CanvasWidth,
+                Width = viewModel.RenderedCanvasWidth,
                 Height = viewModel.RenderedCanvasHeight
             };
 
             double renderedHeight = viewModel.RenderedCanvasHeight;
-            view.Measure(new Size(viewModel.CanvasWidth, renderedHeight));
-            view.Arrange(new Rect(0, 0, viewModel.CanvasWidth, renderedHeight));
+            view.Measure(new Size(viewModel.RenderedCanvasWidth, renderedHeight));
+            view.Arrange(new Rect(0, 0, viewModel.RenderedCanvasWidth, renderedHeight));
             view.UpdateLayout();
 
             var bitmap = new RenderTargetBitmap(
-                (int)Math.Round(viewModel.CanvasWidth),
+                (int)Math.Round(viewModel.RenderedCanvasWidth),
                 (int)Math.Round(renderedHeight),
                 96,
                 96,
