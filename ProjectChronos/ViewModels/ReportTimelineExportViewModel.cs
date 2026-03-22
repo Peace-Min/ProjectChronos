@@ -541,8 +541,8 @@ namespace ProjectChronos.ViewModels
             requiredWidth = Math.Max(
                 requiredWidth,
                 MeasureRequiredDetailFieldWidth(
-                    simulationEvent.SourceTargetLabel,
-                    simulationEvent.SourceTarget,
+                    simulationEvent.SourceLabel,
+                    simulationEvent.Source,
                     labelFontSize,
                     valueFontSize));
 
@@ -593,8 +593,8 @@ namespace ProjectChronos.ViewModels
                 ref totalHeight);
             AppendDetailField(
                 fields,
-                simulationEvent.SourceTargetLabel,
-                simulationEvent.SourceTarget,
+                simulationEvent.SourceLabel,
+                simulationEvent.Source,
                 fieldWidth,
                 labelFontSize,
                 valueFontSize,

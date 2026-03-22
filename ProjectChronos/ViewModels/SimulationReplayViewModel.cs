@@ -687,8 +687,8 @@ namespace ProjectChronos.ViewModels
                     Description = item.Description,
                     RangeBTWLabel = item.RangeBTWLabel,
                     RangeBTW = item.RangeBTW,
-                    SourceTargetLabel = item.SourceTargetLabel,
-                    SourceTarget = item.SourceTarget,
+                    SourceLabel = item.SourceLabel,
+                    Source = item.Source,
                     IsPrimaryMarker = item.IsPrimaryMarker,
                     MarkerPriority = item.MarkerPriority
                 })

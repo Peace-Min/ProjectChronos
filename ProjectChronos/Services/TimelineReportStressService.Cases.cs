@@ -290,8 +290,8 @@ namespace ProjectChronos.Services
                 Description = BuildDescription(profile.Token, groupIndex, stackIndex, isLong, uniqueGroupCount),
                 RangeBTWLabel = "타깃간 거리",
                 RangeBTW = string.Format(CultureInfo.InvariantCulture, "{0:0.0} km", Math.Max(0.6, 180.0 - (groupIndex * 5.3) - (stackIndex * 1.2))),
-                SourceTargetLabel = "소스 타깃",
-                SourceTarget = BuildSourceTarget(profile.Token, groupIndex, stackIndex, isLong)
+                SourceLabel = "소스 타깃",
+                Source = BuildSourceTarget(profile.Token, groupIndex, stackIndex, isLong)
             };
         }
 
@@ -327,8 +327,8 @@ namespace ProjectChronos.Services
                 Description = includeDescription ? BuildRandomDescription(profile.Token, groupIndex, stackIndex, forceLong, random) : null,
                 RangeBTWLabel = includeRange ? "타깃간 거리" : null,
                 RangeBTW = includeRange ? string.Format(CultureInfo.InvariantCulture, "{0:0.0} km", 0.5 + (random.NextDouble() * 180.0)) : null,
-                SourceTargetLabel = includeSourceTarget ? "소스 타깃" : null,
-                SourceTarget = includeSourceTarget ? BuildRandomSourceTarget(profile.Token, groupIndex, stackIndex, forceLong, random) : null
+                SourceLabel = includeSourceTarget ? "소스 타깃" : null,
+                Source = includeSourceTarget ? BuildRandomSourceTarget(profile.Token, groupIndex, stackIndex, forceLong, random) : null
             };
         }
 

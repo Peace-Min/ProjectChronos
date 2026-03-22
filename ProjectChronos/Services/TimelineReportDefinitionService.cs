@@ -247,8 +247,8 @@ namespace ProjectChronos.Services
             string description,
             string rangeLabel,
             string rangeValue,
-            string sourceTargetLabel,
-            string sourceTarget)
+            string sourceLabel,
+            string source)
         {
             return new SimulationEventMarker
             {
@@ -259,8 +259,8 @@ namespace ProjectChronos.Services
                 Description = description,
                 RangeBTWLabel = rangeLabel,
                 RangeBTW = rangeValue,
-                SourceTargetLabel = sourceTargetLabel,
-                SourceTarget = sourceTarget
+                SourceLabel = sourceLabel,
+                Source = source
             };
         }
 
@@ -271,7 +271,7 @@ namespace ProjectChronos.Services
             string descriptionLabel,
             string description,
             string rangeBetween,
-            string sourceTarget)
+            string source)
         {
             return new SimulationEventMarker
             {
@@ -282,8 +282,8 @@ namespace ProjectChronos.Services
                 Description = description,
                 RangeBTWLabel = "타겟간 거리",
                 RangeBTW = rangeBetween,
-                SourceTargetLabel = "소스 타겟",
-                SourceTarget = sourceTarget
+                SourceLabel = "소스 타겟",
+                Source = source
             };
         }
     }

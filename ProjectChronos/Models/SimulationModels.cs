@@ -56,12 +56,12 @@ namespace ProjectChronos.Models
         /// <summary>
         /// 소스 타겟 라벨명.
         /// </summary>
-        public string SourceTargetLabel { get; set; }
+        public string SourceLabel { get; set; }
 
         /// <summary>
         /// 소스 타겟.
         /// </summary>
-        public string SourceTarget { get; set; }
+        public string Source { get; set; }
 
         public bool HasDescription =>
             !string.IsNullOrWhiteSpace(DescriptionLabel) &&
@@ -71,9 +71,9 @@ namespace ProjectChronos.Models
             !string.IsNullOrWhiteSpace(RangeBTWLabel) &&
             !string.IsNullOrWhiteSpace(RangeBTW);
 
-        public bool HasSourceTarget =>
-            !string.IsNullOrWhiteSpace(SourceTargetLabel) &&
-            !string.IsNullOrWhiteSpace(SourceTarget);
+        public bool HasSource =>
+            !string.IsNullOrWhiteSpace(SourceLabel) &&
+            !string.IsNullOrWhiteSpace(Source);
 
         /// <summary>
         /// 동일 시간에 여러 이벤트가 있을 때, 대표 마커(Tick)를 그릴지 여부
