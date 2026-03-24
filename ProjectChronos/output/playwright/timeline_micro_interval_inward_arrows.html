@@ -214,27 +214,33 @@
 
         const microY = 334;
         const microMid = (xs[1] + xs[2]) / 2;
-        const inwardArm = 16;
+        const inwardArm = 20; // Slightly longer to make the arms visible
+        
+        // Left line pushing right into the gap
         add("line", {
             x1: xs[1] - inwardArm,
             y1: microY,
-            x2: xs[1] + 1.5,
-            y2: microY,
-            stroke: "#d95319",
-            "stroke-width": 2,
-            "marker-start": "url(#arrow-start)"
-        });
-        add("line", {
-            x1: xs[2] + inwardArm,
-            y1: microY,
-            x2: xs[2] - 1.5,
+            x2: xs[1] - 1.5,
             y2: microY,
             stroke: "#d95319",
             "stroke-width": 2,
             "marker-end": "url(#arrow-end)"
         });
-        add("text", { x: xs[2] + 26, y: microY + 7, class: "micro-label" }, "(0.01)");
-        add("text", { x: microMid, y: 364, class: "helper" }, "short interval notation: -> <- (n.xx)");
+        
+        // Right line pushing left into the gap
+        add("line", {
+            x1: xs[2] + inwardArm,
+            y1: microY,
+            x2: xs[2] + 1.5,
+            y2: microY,
+            stroke: "#d95319",
+            "stroke-width": 2,
+            "marker-end": "url(#arrow-end)"
+        });
+        
+        // Displaying text as "> < (0.01)" per user request
+        add("text", { x: xs[2] + 26, y: microY + 7, class: "micro-label" }, "> < (0.01)");
+        add("text", { x: microMid, y: 364, class: "helper" }, "short interval notation: > < (n.xx)");
 
         [xs[0], xs[3]].forEach((px, index) => {
             add("line", {

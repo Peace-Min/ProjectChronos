@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>카드 Label/Value 공간 부족 해결 — 실제 데이터 기반 v5</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
+
+        :root {
+            --matlab-blue: #0072BD;
+            --border-color: #9FB0C2;
+            --border-light: #CAD6E2;
+            --card-bg: #F8FAFC;
+            --text-primary: #111111;
+            --text-secondary: #5E748C;
+            --label-color: #5E748C;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: #e8e8e8;
+            font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+            padding: 30px;
+        }
+
+        .canvas {
+            background: white;
+            max-width: 1500px;
+            margin: 0 auto 30px;
+            padding: 28px 36px 36px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--matlab-blue);
+            padding-bottom: 6px;
+            margin-bottom: 20px;
+        }
+
+        .section-label {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .s-bad { background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; }
+        .s-ok  { background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }
+        .s-good { background: #DCFCE7; color: #166534; border: 1px solid #BBF7D0; }
+
+        .section-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+
+        /* 카드 그리드 */
+        .card-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            flex: 1;
+            min-width: 0;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+        }
+
+        .card-inner { padding: 12px 14px; }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 6px;
+        }
+
+        .card-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* BEFORE: 타이틀 wrap 허용 */
+        .card-title.wrapping {
+            word-break: break-all;
+        }
+
+        /* AFTER: 타이틀 NoWrap */
+        .card-title.nowrap {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card-time {
+            font-family: 'Consolas', monospace;
+            font-size: 11px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .card-divider {
+            height: 1px;
+            background: var(--border-light);
+            margin: 7px 0 9px;
+        }
+
+        /* ===== BEFORE: 인라인 필드 ===== */
+        .field-inline {
+            font-size: 13px;
+            color: var(--text-primary);
+            line-height: 1.5;
+            margin-bottom: 4px;
+            word-break: break-all;
+        }
+        .field-inline .fl { font-weight: 700; }
+
+        .wrap-mark {
+            background: #FEF3C7;
+            border: 1px solid #F59E0B;
+            border-radius: 2px;
+            padding: 0 2px;
+        }
+
+        /* ===== SOLUTION A: Label/Value 분리 (라벨도 긴 경우) ===== */
+        .field-split-a {
+            margin-bottom: 7px;
+        }
+
+        .field-split-a .f-label {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--label-color);
+            margin-bottom: 1px;
+            /* 라벨도 NoWrap + 말줄임 */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .field-split-a .f-value {
+            font-family: 'Consolas', monospace;
+            font-size: 13px;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .field-split-a .f-value.kr { font-family: 'Noto Sans KR', sans-serif; }
+
+        /* ===== SOLUTION B: 2열 Grid (라벨 고정폭) ===== */
+        .field-grid {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 2px 8px;
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+
+        .field-grid .fg-label {
+            font-weight: 700;
+            color: var(--label-color);
+            white-space: nowrap;
+            font-size: 11px;
+        }
+
+        .field-grid .fg-value {
+            font-family: 'Consolas', monospace;
+            font-size: 12px;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .field-grid .fg-value.kr {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+
+        /* ===== SOLUTION C: 축약 키 + 풀 값 ===== */
+        .field-compact {
+            margin-bottom: 5px;
+        }
+
+        .field-compact .fc-label {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 700;
+            color: white;
+            background: var(--matlab-blue);
+            border-radius: 2px;
+            padding: 1px 6px;
+            margin-right: 6px;
+            vertical-align: middle;
+            letter-spacing: 0.3px;
+        }
+
+        .field-compact .fc-value {
+            font-family: 'Consolas', monospace;
+            font-size: 12px;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: inline;
+        }
+
+        /* 주석 */
+        .note {
+            padding: 14px 18px;
+            border-left: 4px solid var(--matlab-blue);
+            background: #F0F7FF;
+            font-size: 12px;
+            color: #1E3A5F;
+            line-height: 1.8;
+            margin-top: 16px;
+        }
+
+        .note strong { color: #0A2540; }
+
+        .verdict {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-left: 8px;
+        }
+        .v-pass { background: #DCFCE7; color: #166534; }
+        .v-partial { background: #FEF3C7; color: #92400E; }
+        .v-fail { background: #FEE2E2; color: #991B1B; }
+    </style>
+</head>
+<body>
+
+<!-- ╔═══════════════════════════════════════════════════╗
+     ║ 실제 데이터 기반 — 각 해법 비교                     ║
+     ╚═══════════════════════════════════════════════════╝ -->
+
+<div class="canvas">
+    <h2>실제 시스템 변수명 기반 — 카드 레이아웃 해법 비교</h2>
+
+    <!-- BEFORE (현재 상태) -->
+    <div>
+        <span class="section-label s-bad">✕ 현재 상태 — Label:Value 인라인, TextWrapping=Wrap</span>
+        <div class="section-desc">라벨(`dRangeBtwPlatformAndTarget`)과 값 모두 시스템 변수명이라 전부 wrap 발생</div>
+        <div class="card-row" id="beforeCards"></div>
+    </div>
+
+    <!-- 해법 A: Label/Value 분리 + 둘 다 NoWrap/Ellipsis -->
+    <div>
+        <span class="section-label s-ok">해법 A — Label/Value 2행 분리 + 둘 다 NoWrap</span>
+        <span class="verdict v-partial">부분 해결</span>
+        <div class="section-desc">라벨과 값을 각각 한 줄씩 차지. 둘 다 NoWrap + 말줄임(…). 라벨이 잘릴 수 있음</div>
+        <div class="card-row" id="solACards"></div>
+    </div>
+
+    <!-- 해법 B: 2열 Grid (라벨 고정폭 + 값 나머지) -->
+    <div>
+        <span class="section-label s-ok">해법 B — 2열 Grid (축약 라벨 | 값)</span>
+        <span class="verdict v-partial">부분 해결</span>
+        <div class="section-desc">라벨을 축약 키("desc", "range", "src")로 줄이고 Grid 좌측에 고정. 값이 우측 전체 사용</div>
+        <div class="card-row" id="solBCards"></div>
+    </div>
+
+    <!-- 해법 C: 뱃지 태그 키 + 풀 값 (★ 권장) -->
+    <div>
+        <span class="section-label s-good">★ 해법 C — 축약 뱃지 + 시스템명 전체 표시</span>
+        <span class="verdict v-pass">완전 해결</span>
+        <div class="section-desc">라벨을 초소형 뱃지 태그(DESC/RANGE/SRC)로 축소 → 전체 가로폭을 시스템 변수명/값에 할당</div>
+        <div class="card-row" id="solCCards"></div>
+    </div>
+
+    <div class="note">
+        <strong>핵심 차이 — 실제 데이터의 특수성:</strong><br>
+        이전 프로토타입의 시나리오 데이터는 라벨이 한국어 2~4글자("설명", "타겟간 거리")였으나,<br>
+        <strong>실제 데이터</strong>에서는 라벨 자체가 시스템 변수명 (<code>dRangeBtwPlatformAndTarget</code> = 26자, ~280px)입니다.<br><br>
+        <strong>해법별 판정:</strong><br>
+        • <strong>해법 A</strong>: 라벨이 잘리지만 값은 살릴 수 있음. 라벨의 정보 손실이 있을 수 있음<br>
+        • <strong>해법 B</strong>: 라벨을 축약어로 사전 매핑 필요. 매핑이 있으면 깔끔하지만, 새 필드 추가 시 매핑 관리 부담<br>
+        • <strong>해법 C (★ 권장)</strong>: 라벨을 최소 뱃지(DESC/RANGE/SRC)로 줄이고, <strong>시스템 변수명 자체를 '값'으로 표시</strong>. 가장 공간 효율적이며 <strong>어차피 연구자에게 중요한 것은 변수명 자체</strong>이므로 정보 손실 없음
+    </div>
+</div>
+
+<script>
+    // ===== 실제 시스템 데이터 (스크린샷 기반) =====
+    const realEvents = [
+        {
+            title: 'mEventSearchRD',
+            time: '200.64s',
+            descLabel: 'strEventDescription',
+            descValue: 'EventSearchRD',
+            rangeLabel: 'dRangeBtwPlatformAndTarget',
+            rangeValue: '10396.433261655855',
+            srcLabel: '',
+            srcValue: ''
+        },
+        {
+            title: 'mEventTrackingRD',
+            time: '213.13s',
+            descLabel: 'strEventDescription',
+            descValue: 'EventTrackingRD',
+            rangeLabel: 'dRangeBtwPlatformAndTarget',
+            rangeValue: '6969.830850560536',
+            srcLabel: '',
+            srcValue: ''
+        },
+        {
+            title: 'mEventLaunchAuthorization',
+            time: '213.14s',
+            descLabel: 'strEventDescription',
+            descValue: 'EventLaunchAuthorization',
+            rangeLabel: 'dRangeBtwPlatformAndTarget',
+            rangeValue: '6975.341694458692',
+            srcLabel: '',
+            srcValue: ''
+        },
+        {
+            title: 'mEventHit',
+            time: '221.71s',
+            descLabel: 'strEventDescription',
+            descValue: 'EventHit',
+            rangeLabel: 'dRangeBtwPlatformAndTarget',
+            rangeValue: '204.462761814770',
+            srcLabel: 'strSource',
+            srcValue: 'HG001'
+        },
+    ];
+
+    // ===== BEFORE =====
+    const beforeEl = document.getElementById('beforeCards');
+    realEvents.forEach(ev => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        let fields = '';
+        fields += `<div class="field-inline">• <span class="fl">${ev.descLabel}</span> : <span class="wrap-mark">${ev.descValue}</span></div>`;
+        if (ev.rangeValue) {
+            fields += `<div class="field-inline">• <span class="fl"><span class="wrap-mark">${ev.rangeLabel}</span></span> : ${ev.rangeValue}</div>`;
+        }
+        if (ev.srcValue) {
+            fields += `<div class="field-inline">• <span class="fl">${ev.srcLabel}</span> : ${ev.srcValue}</div>`;
+        }
+        card.innerHTML = `<div class="card-inner">
+            <div class="card-header">
+                <span class="card-title wrapping">${ev.title}</span>
+                <span class="card-time">Time: ${ev.time}</span>
+            </div>
+            <div class="card-divider"></div>
+            ${fields}
+        </div>`;
+        beforeEl.appendChild(card);
+    });
+
+    // ===== 해법 A: Label/Value 분리 + NoWrap =====
+    const solAEl = document.getElementById('solACards');
+    realEvents.forEach(ev => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        let fields = '';
+        fields += `<div class="field-split-a"><div class="f-label">${ev.descLabel}</div><div class="f-value">${ev.descValue}</div></div>`;
+        if (ev.rangeValue) {
+            fields += `<div class="field-split-a"><div class="f-label">${ev.rangeLabel}</div><div class="f-value">${ev.rangeValue}</div></div>`;
+        }
+        if (ev.srcValue) {
+            fields += `<div class="field-split-a"><div class="f-label">${ev.srcLabel}</div><div class="f-value">${ev.srcValue}</div></div>`;
+        }
+        card.innerHTML = `<div class="card-inner">
+            <div class="card-header">
+                <span class="card-title nowrap">${ev.title}</span>
+                <span class="card-time">${ev.time}</span>
+            </div>
+            <div class="card-divider"></div>
+            ${fields}
+        </div>`;
+        solAEl.appendChild(card);
+    });
+
+    // ===== 해법 B: 2열 Grid =====
+    const solBEl = document.getElementById('solBCards');
+    const labelAbbrev = { 'strEventDescription': 'desc', 'dRangeBtwPlatformAndTarget': 'range', 'strSource': 'src' };
+    realEvents.forEach(ev => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        let fields = '<div class="field-grid">';
+        fields += `<div class="fg-label">${labelAbbrev[ev.descLabel] || ev.descLabel}</div><div class="fg-value">${ev.descValue}</div>`;
+        if (ev.rangeValue) {
+            fields += `<div class="fg-label">${labelAbbrev[ev.rangeLabel] || ev.rangeLabel}</div><div class="fg-value">${ev.rangeValue}</div>`;
+        }
+        if (ev.srcValue) {
+            fields += `<div class="fg-label">${labelAbbrev[ev.srcLabel] || ev.srcLabel}</div><div class="fg-value">${ev.srcValue}</div>`;
+        }
+        fields += '</div>';
+        card.innerHTML = `<div class="card-inner">
+            <div class="card-header">
+                <span class="card-title nowrap">${ev.title}</span>
+                <span class="card-time">${ev.time}</span>
+            </div>
+            <div class="card-divider"></div>
+            ${fields}
+        </div>`;
+        solBEl.appendChild(card);
+    });
+
+    // ===== 해법 C: 뱃지 태그 + 풀 값 (★ 권장) =====
+    const solCEl = document.getElementById('solCCards');
+    const badgeMap = { 'strEventDescription': 'DESC', 'dRangeBtwPlatformAndTarget': 'RANGE', 'strSource': 'SRC' };
+    realEvents.forEach(ev => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        let fields = '';
+        fields += `<div class="field-compact"><span class="fc-label">${badgeMap[ev.descLabel] || 'DATA'}</span><span class="fc-value">${ev.descValue}</span></div>`;
+        if (ev.rangeValue) {
+            fields += `<div class="field-compact"><span class="fc-label">${badgeMap[ev.rangeLabel] || 'DATA'}</span><span class="fc-value">${ev.rangeValue}</span></div>`;
+        }
+        if (ev.srcValue) {
+            fields += `<div class="field-compact"><span class="fc-label">${badgeMap[ev.srcLabel] || 'DATA'}</span><span class="fc-value">${ev.srcValue}</span></div>`;
+        }
+        card.innerHTML = `<div class="card-inner">
+            <div class="card-header">
+                <span class="card-title nowrap">${ev.title}</span>
+                <span class="card-time">${ev.time}</span>
+            </div>
+            <div class="card-divider"></div>
+            ${fields}
+        </div>`;
+        solCEl.appendChild(card);
+    });
+</script>
+
+</body>
+</html>

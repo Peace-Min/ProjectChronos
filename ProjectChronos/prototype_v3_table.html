@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>분석보고서 테이블 레이아웃 프로토타입 v3</title>
+    <style>
+        /* ───────────────────────────────────────────
+           MATLAB 스타일 기술 보고서 디자인 시스템
+           대상: 국방 연구자 (MATLAB figure 친숙)
+           핵심: 정보 밀도 + 정렬 가독성 + NoWrap
+           ─────────────────────────────────────────── */
+
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
+
+        :root {
+            /* MATLAB 기본 색상 팔레트 */
+            --matlab-blue: #0072BD;
+            --matlab-orange: #D95319;
+            --matlab-yellow: #EDB120;
+            --matlab-purple: #7E2F8E;
+            --matlab-green: #77AC30;
+            --matlab-cyan: #4DBEEE;
+            --matlab-red: #A2142F;
+
+            /* 보고서 색상 */
+            --bg-white: #FFFFFF;
+            --header-bg: #E8ECF0;
+            --row-alt: #F5F7FA;
+            --border-color: #9FB0C2;
+            --border-light: #CAD6E2;
+            --text-primary: #111111;
+            --text-secondary: #5E748C;
+            --baseline-color: #0072BD;
+            --interval-color: #D95319;
+            --card-bg: #F8FAFC;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f0f0f0;
+            font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        /* ===== 보고서 캔버스 ===== */
+        .report-canvas {
+            background: var(--bg-white);
+            width: 1400px;
+            padding: 32px 40px 40px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+        }
+
+        /* ===== 타이틀 ===== */
+        .report-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 24px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--matlab-blue);
+        }
+
+        /* ===== 타임라인 오버뷰 섹션 ===== */
+        .timeline-overview {
+            position: relative;
+            height: 280px;
+            margin: 0 56px 32px;
+        }
+
+        /* 인터벌 표시 (상단) */
+        .intervals {
+            position: absolute;
+            top: 0;
+            left: 88px;
+            right: 88px;
+            height: 100px;
+        }
+
+        .interval-bracket {
+            position: absolute;
+            top: 20px;
+        }
+
+        .interval-bracket .label {
+            position: absolute;
+            top: -22px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--interval-color);
+            white-space: nowrap;
+        }
+
+        .interval-bracket .frame {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 40px;
+            border: 2px dashed var(--interval-color);
+            border-bottom: none;
+        }
+
+        .interval-bracket .arrow-left,
+        .interval-bracket .arrow-right {
+            position: absolute;
+            bottom: 16px;
+            width: 0;
+            height: 0;
+        }
+
+        .interval-bracket .arrow-left {
+            left: 2px;
+            border-right: 8px solid var(--interval-color);
+            border-top: 4px solid transparent;
+            border-bottom: 4px solid transparent;
+        }
+
+        .interval-bracket .arrow-right {
+            right: 2px;
+            border-left: 8px solid var(--interval-color);
+            border-top: 4px solid transparent;
+            border-bottom: 4px solid transparent;
+        }
+
+        /* 앵커 라인 (수직 점선) */
+        .anchor-lines {
+            position: absolute;
+            top: 40px;
+            left: 88px;
+            right: 88px;
+            height: 90px;
+        }
+
+        .anchor-line {
+            position: absolute;
+            top: 0;
+            width: 2px;
+            height: 90px;
+            border-left: 2px dashed var(--interval-color);
+        }
+
+        /* 베이스라인 */
+        .baseline {
+            position: absolute;
+            top: 130px;
+            left: 88px;
+            right: 88px;
+            height: 5px;
+            background: var(--baseline-color);
+            border-radius: 3px;
+        }
+
+        /* 슬롯 (마커 + 라벨) */
+        .slots {
+            position: absolute;
+            top: 130px;
+            left: 88px;
+            right: 88px;
+        }
+
+        .slot {
+            position: absolute;
+            text-align: center;
+        }
+
+        .slot .stem {
+            width: 2px;
+            height: 70px;
+            background: var(--baseline-color);
+            margin: 0 auto;
+            border-radius: 1px;
+        }
+
+        .slot .event-title {
+            margin-top: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--baseline-color);
+            white-space: nowrap;
+        }
+
+        .slot .event-time {
+            margin-top: 4px;
+            font-family: 'Consolas', monospace;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* ===== 비교 컨테이너 ===== */
+        .comparison {
+            display: flex;
+            gap: 32px;
+            margin-top: 16px;
+        }
+
+        .comparison-section {
+            flex: 1;
+        }
+
+        .section-badge {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .badge-before {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+
+        .badge-after {
+            background: #DCFCE7;
+            color: #166534;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+        }
+
+        /* ===== 기존 카드 레이아웃 (Before) ===== */
+        .card-layout {
+            display: flex;
+            gap: 8px;
+        }
+
+        .old-card {
+            flex: 1;
+            min-width: 0;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            padding: 12px;
+            font-size: 12px;
+        }
+
+        .old-card .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 6px;
+        }
+
+        .old-card .card-title {
+            font-weight: 700;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .old-card .card-time {
+            font-family: 'Consolas', monospace;
+            font-size: 11px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        .old-card hr {
+            border: none;
+            border-top: 1px solid var(--border-light);
+            margin: 6px 0 8px;
+        }
+
+        .old-card .card-field {
+            color: var(--text-primary);
+            font-size: 12px;
+            line-height: 1.5;
+            word-break: break-all; /* 현재의 문제점 재현 */
+            margin-bottom: 4px;
+        }
+
+        .old-card .card-field .fl {
+            font-weight: 700;
+        }
+
+        /* 줄바꿈 강조 표시 */
+        .wrap-highlight {
+            background: #FEF3C7;
+            border: 1px solid #F59E0B;
+            border-radius: 2px;
+            padding: 0 2px;
+        }
+
+        /* ===== 새 테이블 레이아웃 (After) ===== */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            border: 1px solid var(--border-color);
+        }
+
+        .data-table thead th {
+            background: var(--header-bg);
+            font-weight: 700;
+            color: var(--text-primary);
+            padding: 10px 16px;
+            text-align: left;
+            border: 1px solid var(--border-color);
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .data-table thead th.num {
+            text-align: right;
+        }
+
+        .data-table tbody td {
+            padding: 9px 16px;
+            border: 1px solid var(--border-light);
+            color: var(--text-primary);
+            white-space: nowrap; /* 핵심: 절대 줄바꿈 금지 */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 14px;
+        }
+
+        .data-table tbody tr:nth-child(even) td {
+            background: var(--row-alt);
+        }
+
+        .data-table tbody tr:hover td {
+            background: #EDF2F7;
+        }
+
+        .data-table .col-event {
+            font-weight: 700;
+            color: var(--baseline-color);
+            min-width: 100px;
+        }
+
+        .data-table .col-time {
+            font-family: 'Consolas', monospace;
+            text-align: right;
+            min-width: 80px;
+            color: var(--text-secondary);
+        }
+
+        .data-table .col-desc {
+            font-family: 'Consolas', monospace;
+            min-width: 200px;
+        }
+
+        .data-table .col-range {
+            font-family: 'Consolas', monospace;
+            text-align: right;
+            min-width: 140px;
+        }
+
+        .data-table .col-source {
+            min-width: 180px;
+        }
+
+        /* 번호 뱃지 */
+        .idx-badge {
+            display: inline-block;
+            width: 22px;
+            height: 22px;
+            line-height: 22px;
+            text-align: center;
+            border-radius: 50%;
+            background: var(--baseline-color);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            margin-right: 8px;
+        }
+
+        /* ===== 하단 주석 영역 ===== */
+        .footer-notes {
+            margin-top: 24px;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            padding: 20px 28px;
+        }
+
+        .footer-notes p {
+            color: var(--text-primary);
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        /* ===== 가이드 주석 ===== */
+        .design-note {
+            margin-top: 20px;
+            padding: 16px 20px;
+            background: #FFFBEB;
+            border-left: 4px solid #F59E0B;
+            font-size: 13px;
+            color: #78350F;
+            line-height: 1.7;
+        }
+
+        .design-note strong {
+            color: #92400E;
+        }
+    </style>
+</head>
+<body>
+
+<div class="report-canvas">
+
+    <!-- 보고서 제목 -->
+    <div class="report-title">그래프 예시 3 — Time-Event</div>
+
+    <!-- ===== 타임라인 오버뷰 ===== -->
+    <div class="timeline-overview">
+        <!-- 인터벌 브래킷 -->
+        <div class="intervals" id="intervals"></div>
+
+        <!-- 앵커 라인 -->
+        <div class="anchor-lines" id="anchorLines"></div>
+
+        <!-- 베이스라인 -->
+        <div class="baseline"></div>
+
+        <!-- 슬롯 (이벤트 마커) -->
+        <div class="slots" id="slots"></div>
+    </div>
+
+    <!-- ===== BEFORE / AFTER 비교 ===== -->
+    <div class="comparison">
+
+        <!-- BEFORE: 기존 카드 레이아웃 -->
+        <div class="comparison-section">
+            <span class="section-badge badge-before">BEFORE — 기존 카드 레이아웃</span>
+            <div class="section-title">카드 폭 부족으로 Wrap 과다 발생</div>
+            <div class="card-layout" id="oldCards"></div>
+        </div>
+    </div>
+
+    <!-- AFTER: 테이블 레이아웃 (전체 폭) -->
+    <div style="margin-top: 32px;">
+        <span class="section-badge badge-after">AFTER — MATLAB 테이블 스타일</span>
+        <div class="section-title">NoWrap + 고정폭 폰트 정렬 → 가독성 극대화</div>
+        <table class="data-table" id="dataTable">
+            <thead>
+                <tr>
+                    <th style="width: 40px;">#</th>
+                    <th>이벤트</th>
+                    <th class="num">Time (s)</th>
+                    <th>설명</th>
+                    <th class="num">Range</th>
+                    <th>소스 → 타겟</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+
+    <!-- 디자인 해설 -->
+    <div class="design-note">
+        <strong>UI/UX 설계 근거 (MATLAB 사용자 대상):</strong><br>
+        ① <strong>NoWrap 원칙</strong> — 변수명·숫자값은 절대 줄바꿈하지 않음. 초과 시 말줄임(…) 처리<br>
+        ② <strong>고정폭 폰트</strong> — 설명(변수명)과 Range(숫자) 열에 Consolas 적용. 자릿수 정렬 보장<br>
+        ③ <strong>가로 행 정렬</strong> — 동일 필드를 세로로 비교 가능. MATLAB table() 출력과 동일한 경험<br>
+        ④ <strong>교대 행 색상</strong> — 행 추적 용이성 (국방 보고서 표준 관행)<br>
+        ⑤ <strong>번호 매핑</strong> — 타임라인 마커와 테이블 행 간 1:1 대응 명확화
+    </div>
+
+</div>
+
+<script>
+    // ===== 시뮬레이션 이벤트 데이터 =====
+    const events = [
+        { idx: 1, title: '탐색레이더', time: 260.20, desc: 'EventSearchRD', range: '10782.308420443696', source: '탐색레이더 → 위협 표적' },
+        { idx: 2, title: '추적레이더', time: 270.71, desc: 'EventTrackingRD', range: '', source: '추적레이더 → 위협 표적' },
+        { idx: 3, title: '발사 승인',  time: 270.72, desc: 'EventLaunchAuthorization', range: '7936.31384441466526', source: '교전통제기 → 요격체 1번' },
+        { idx: 4, title: '발사',       time: 270.72, desc: 'EventMissileLaunch', range: '7936.31384397268360', source: '요격체 1번 → 위협 표적' },
+        { idx: 5, title: '요격',       time: 280.30, desc: 'EventHit', range: '188.57965332084396', source: '요격체 1번 → 위협 표적' },
+    ];
+
+    // ===== 타임라인 슬롯 생성 =====
+    const slotsEl = document.getElementById('slots');
+    const totalWidth = slotsEl ? slotsEl.offsetWidth || 1000 : 1000;
+    const timeMin = 258;
+    const timeMax = 282;
+
+    function toPct(t) {
+        return ((t - timeMin) / (timeMax - timeMin)) * 100;
+    }
+
+    events.forEach(ev => {
+        const slot = document.createElement('div');
+        slot.className = 'slot';
+        slot.style.left = toPct(ev.time) + '%';
+        slot.style.transform = 'translateX(-50%)';
+        slot.innerHTML = `
+            <div class="stem"></div>
+            <div class="event-title">${ev.title}</div>
+            <div class="event-time">${ev.time.toFixed(2)}s</div>
+        `;
+        slotsEl.appendChild(slot);
+    });
+
+    // ===== 인터벌 브래킷 생성 =====
+    const intervalData = [
+        { from: 260.20, to: 270.71, label: '10.51초' },
+        { from: 270.71, to: 270.72, label: '0.01초' },
+        { from: 270.72, to: 280.30, label: '9.58초' },
+    ];
+
+    const intervalsEl = document.getElementById('intervals');
+    intervalData.forEach(iv => {
+        const leftPct = toPct(iv.from);
+        const rightPct = toPct(iv.to);
+        const widthPct = rightPct - leftPct;
+
+        const bracket = document.createElement('div');
+        bracket.className = 'interval-bracket';
+        bracket.style.left = leftPct + '%';
+        bracket.style.width = Math.max(widthPct, 3) + '%';
+        bracket.innerHTML = `
+            <div class="label">${iv.label}</div>
+            <div class="frame"></div>
+            <div class="arrow-left"></div>
+            <div class="arrow-right"></div>
+        `;
+        intervalsEl.appendChild(bracket);
+    });
+
+    // ===== 앵커 라인 생성 =====
+    const anchorLinesEl = document.getElementById('anchorLines');
+    const anchorTimes = [260.20, 270.71, 270.72, 280.30];
+    anchorTimes.forEach(t => {
+        const line = document.createElement('div');
+        line.className = 'anchor-line';
+        line.style.left = toPct(t) + '%';
+        anchorLinesEl.appendChild(line);
+    });
+
+    // ===== BEFORE 카드 생성 =====
+    const oldCardsEl = document.getElementById('oldCards');
+    events.forEach(ev => {
+        const card = document.createElement('div');
+        card.className = 'old-card';
+        let fields = '';
+        fields += `<div class="card-field">• <span class="fl">설명</span> : <span class="wrap-highlight">${ev.desc}</span></div>`;
+        if (ev.range) {
+            fields += `<div class="card-field">• <span class="fl">Range</span> : <span class="wrap-highlight">${ev.range}</span></div>`;
+        }
+        card.innerHTML = `
+            <div class="card-header">
+                <span class="card-title">${ev.title}</span>
+                <span class="card-time">Time: ${ev.time.toFixed(2)}s</span>
+            </div>
+            <hr>
+            ${fields}
+        `;
+        oldCardsEl.appendChild(card);
+    });
+
+    // ===== AFTER 테이블 행 생성 =====
+    const tableBodyEl = document.getElementById('tableBody');
+    events.forEach(ev => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td style="text-align:center;"><span class="idx-badge">${ev.idx}</span></td>
+            <td class="col-event">${ev.title}</td>
+            <td class="col-time">${ev.time.toFixed(2)}</td>
+            <td class="col-desc">${ev.desc}</td>
+            <td class="col-range">${ev.range || '—'}</td>
+            <td class="col-source">${ev.source}</td>
+        `;
+        tableBodyEl.appendChild(tr);
+    });
+</script>
+
+</body>
+</html>

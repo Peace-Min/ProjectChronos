@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>High Fidelity Timeline</title>
+    <style>
+        :root {
+            --w: 1920px;
+            --h: 900px;
+            --blue: #0072bd;
+            --orange: #d95319;
+            --text-dark: #10161d;
+            --text-muted: #5d6672;
+            --card-border: #d1d8df;
+            --card-bg: #fcfdff;
+            --bg: #ffffff;
+        }
+        * { box-sizing: border-box; }
+        body {
+            width: var(--w);
+            height: var(--h);
+            margin: 0;
+            background: var(--bg);
+            font-family: "Segoe UI", sans-serif;
+            overflow: hidden;
+        }
+        svg { width: var(--w); height: var(--h); display: block; }
+        .gap-label { font-size: 18px; font-weight: 700; fill: var(--orange); text-anchor: middle; dominant-baseline: middle; }
+        .gap-label-micro { font-size: 16px; font-weight: 700; fill: var(--orange); text-anchor: start; letter-spacing: 0.05em; dominant-baseline: middle; }
+        .time-label { font-family: "Consolas", monospace; font-size: 20px; font-weight: bold; fill: var(--text-dark); text-anchor: middle; }
+        .event-label { font-size: 14px; font-weight: 700; fill: var(--blue); text-anchor: middle; }
+        .card-rect { fill: var(--card-bg); stroke: var(--card-border); stroke-width: 1.5; }
+        .card-title { font-size: 15px; font-weight: 700; fill: var(--text-dark); }
+        .card-prop { font-size: 12px; fill: var(--text-muted); }
+        .card-val { font-family: "Consolas", monospace; font-size: 13px; fill: var(--text-dark); }
+        .axis-label { font-size: 15px; font-weight: bold; font-family: "Consolas", monospace; fill: var(--text-dark); }
+    </style>
+</head>
+<body>
+    <svg id="svg" viewBox="0 0 1920 900" preserveAspectRatio="xMinYMin meet">
+        <defs>
+            <marker id="arrow-end" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto">
+                <path d="M 0 0 L 14 7 L 0 14" fill="none" stroke="#d95319" stroke-width="2"/>
+            </marker>
+            <marker id="arrow-start" markerWidth="14" markerHeight="14" refX="3" refY="7" orient="auto">
+                <path d="M 14 0 L 0 7 L 14 14" fill="none" stroke="#d95319" stroke-width="2"/>
+            </marker>
+        </defs>
+        <!-- Generated Content Will Be Appended Here -->
+    </svg>
+    <script>
+        const svg = document.getElementById("svg");
+        const ns = "http://www.w3.org/2000/svg";
+        
+        function add(name, attrs={}, text="") {
+            const el = document.createElementNS(ns, name);
+            Object.entries(attrs).forEach(([k,v]) => el.setAttribute(k,v));
+            if(text) el.textContent = text;
+            svg.appendChild(el);
+            return el;
+        }
+
+        const xs = [180, 1080, 1110, 1728];
+        const timelineY = 200;
+        const intervalY = 75;
+
+        const microY = 35; // 한칸 위 상위 레이아웃
+
+        // 1. Vertical interval anchors (0.01 간격인 xs[1], xs[2]는 더 높이 확장)
+        xs.forEach((x, i) => {
+            const startY = (i === 1 || i === 2) ? microY : intervalY;
+            add("line", { x1: x, y1: startY, x2: x, y2: timelineY - 14, stroke: "#d95319", "stroke-width": 1.5, "stroke-dasharray": "4 6" });
+        });
+
+        // 2. Interval horizontal links
+        // 12.49
+        add("line", { x1: xs[0], y1: intervalY, x2: xs[1], y2: intervalY, stroke: "#d95319", "stroke-width": 2, "stroke-dasharray": "4 4", "marker-start": "url(#arrow-start)", "marker-end": "url(#arrow-end)" });
+        add("rect", { x: (xs[0]+xs[1])/2 - 30, y: intervalY - 10, width: 60, height: 20, fill: "#ffffff" });
+        add("text", { x: (xs[0]+xs[1])/2, y: intervalY, class: "gap-label" }, "12.49");
+
+        // 0.01 (Micro Gap: 상단 레이아웃 확장 및 > < 화살표 + 우측 텍스트 전시)
+        // 왼쪽 화살표: 오른쪽을 향해 찌름 (>)
+        add("line", { x1: xs[1]-16, y1: microY, x2: xs[1]-2, y2: microY, stroke: "#d95319", "stroke-width": 2, "marker-end": "url(#arrow-end)" });
+        // 오른쪽 화살표: 왼쪽을 향해 찌름 (<)
+        add("line", { x1: xs[2]+16, y1: microY, x2: xs[2]+2, y2: microY, stroke: "#d95319", "stroke-width": 2, "marker-end": "url(#arrow-end)" });
+        
+        // 텍스트 우측 전시
+        // 명시하신 가이드를 완벽히 반영하여, 상단으로 올린 뒤 오른쪽 화살표의 우측에 텍스트 표기
+        add("text", { x: xs[2] + 24, y: microY, class: "gap-label-micro" }, "0.01");
+
+        // 8.57
+        add("line", { x1: xs[2], y1: intervalY, x2: xs[3], y2: intervalY, stroke: "#d95319", "stroke-width": 2, "stroke-dasharray": "4 4", "marker-start": "url(#arrow-start)", "marker-end": "url(#arrow-end)" });
+        add("rect", { x: (xs[2]+xs[3])/2 - 30, y: intervalY - 10, width: 60, height: 20, fill: "#ffffff" });
+        add("text", { x: (xs[2]+xs[3])/2, y: intervalY, class: "gap-label" }, "8.57");
+
+        // 3. Main Timeline Rail
+        add("line", { x1: xs[0], y1: timelineY, x2: xs[3], y2: timelineY, stroke: "#0072bd", "stroke-width": 5, "stroke-linecap": "round" });
+        add("text", { x: xs[3] + 15, y: timelineY + 4, class: "axis-label" }, "t [s]");
+
+        // 4. Nodes and Stacked Labels
+        // We adjust `dy` explicitly to avoid bounding box collisions now that font is 20px.
+        const labels = [
+            { t: "200.64", events: ["mEventSearchRD"], dy: 0 },
+            { t: "213.13", events: ["mEventTrackingRD"], dy: 0 },
+            { t: "213.14", events: ["mEventLaunchAuthorization", "mEventMissileLaunch"], dy: 54 }, // pushed further down past mEventTrackingRD
+            { t: "221.71", events: ["mEventHit"], dy: 0 }
+        ];
+
+        xs.forEach((x, i) => {
+            add("circle", { cx: x, cy: timelineY, r: 6, fill: "#ffffff", stroke: "#0072bd", "stroke-width": 3 });
+            
+            const lb = labels[i];
+            const tY = timelineY + 30 + lb.dy;
+            add("text", { x: x, y: tY, class: "time-label" }, lb.t);
+            
+            lb.events.forEach((ev, j) => {
+                const evY = tY + 24 + (j * 20);
+                add("text", { x: x, y: evY, class: "event-label" }, ev);
+            });
+        });
+
+        // 5. High Fidelity Detail Cards
+        // 서로 너비가 겹쳐서 세로로 스택(Stack)되는 카드들은
+        // 각자의 개별 x좌표(1080, 1110)를 그대로 쓰면 30px씩 톱니처럼 어긋나게 흩어집니다!
+        // 따라서 겹치는 그룹은 그룹 전체의 중앙값(1095)으로 X 센터를 통일하여 완벽한 일직선으로 정렬합니다.
+        const cardWidth = 330;
+        const stackCenterX = (xs[1] + xs[2]) / 2; // 1095
+        const cX = [ 
+            xs[0] - cardWidth/2,       // 200.64 (독립)
+            stackCenterX - cardWidth/2, // 213.13 (스택 그룹 중앙 정렬)
+            stackCenterX - cardWidth/2, // 213.14-1 (스택 그룹 중앙 정렬)
+            stackCenterX - cardWidth/2, // 213.14-2 (스택 그룹 중앙 정렬)
+            xs[3] - cardWidth/2        // 221.71 (독립)
+        ];
+
+        const cards = [
+            { x: cX[0], y: 350, title: "mEventSearchRD", desc: "EventSearchRD", val: "10396.433261655855" },
+            { x: cX[1], y: 350, title: "mEventTrackingRD", desc: "EventTrackingRD", val: "6969.8308505605364" },
+            { x: cX[2], y: 530, title: "mEventLaunchAuthorization", desc: "EventLaunchAuthorization", val: "6975.3416944586925" },
+            { x: cX[3], y: 710, title: "mEventMissileLaunch", desc: "EventMissileLaunch", val: "6975.3416944586925" },
+            { x: cX[4], y: 350, title: "mEventHit", desc: "EventHit", val: "204.46276181477023" }
+        ];
+
+        cards.forEach(c => {
+            const h = 120; // Description이 빠졌으므로 높이 축소
+            add("rect", { x: c.x, y: c.y, width: cardWidth, height: h, class: "card-rect" });
+            add("text", { x: c.x + 16, y: c.y + 24, class: "card-title" }, c.title);
+            add("line", { x1: c.x + 16, y1: c.y + 36, x2: c.x + cardWidth - 16, y2: c.y + 36, stroke: "#d1d8df", "stroke-width": 1 });
+            
+            // Description은 의도적으로 제외함
+            add("text", { x: c.x + 16, y: c.y + 54, class: "card-prop" }, "dRangeBtwPlatformAndTarget");
+            add("text", { x: c.x + 28, y: c.y + 72, class: "card-val" }, c.val);
+            
+            add("text", { x: c.x + 16, y: c.y + 94, class: "card-prop" }, "strSource");
+            add("text", { x: c.x + 28, y: c.y + 112, class: "card-val" }, "HG001");
+        });
+    </script>
+</body>
+</html>
