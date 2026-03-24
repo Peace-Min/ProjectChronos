@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actual Interval Report Prototype</title>
+    <style>
+        :root {
+            --report-width: 1205px;
+            --report-height: 561px;
+            --baseline-left: 146px;
+            --baseline-width: 912px;
+            --baseline-top: 125px;
+            --primary: #0072bd;
+            --interval: #d95319;
+            --paper: #ffffff;
+            --card-fill: #f8fafc;
+            --card-border: #9fb0c2;
+            --card-divider: #b5c1cd;
+            --label: #4b5f74;
+            --text: #111111;
+            --muted: #333a42;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: var(--report-width);
+            height: var(--report-height);
+            margin: 0;
+            overflow: hidden;
+            background: var(--paper);
+            font-family: "Segoe UI", "Malgun Gothic", sans-serif;
+        }
+
+        body {
+            position: relative;
+        }
+
+        .report {
+            position: relative;
+            width: var(--report-width);
+            height: var(--report-height);
+            background: var(--paper);
+        }
+
+        .baseline {
+            position: absolute;
+            left: var(--baseline-left);
+            top: var(--baseline-top);
+            width: var(--baseline-width);
+            height: 4px;
+            border-radius: 999px;
+            background: var(--primary);
+        }
+
+        .axis-label {
+            position: absolute;
+            top: 120px;
+            right: 112px;
+            color: var(--text);
+            font-family: "Bahnschrift", "Segoe UI", sans-serif;
+            font-size: 13px;
+            letter-spacing: 0.02em;
+        }
+
+        .segment {
+            position: absolute;
+            top: 50px;
+            height: 76px;
+        }
+
+        .segment::before,
+        .segment::after {
+            content: "";
+            position: absolute;
+            top: 18px;
+            width: 1px;
+            height: 58px;
+            background: linear-gradient(180deg, rgba(217, 83, 25, 0.95), rgba(217, 83, 25, 0));
+        }
+
+        .segment::before {
+            left: 0;
+        }
+
+        .segment::after {
+            right: 0;
+        }
+
+        .segment-line {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 18px;
+            border-top: 2px dashed var(--interval);
+        }
+
+        .segment-label {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
+            color: var(--interval);
+            font-family: "Bahnschrift", "Segoe UI", sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+            line-height: 1;
+            white-space: nowrap;
+        }
+
+        .node {
+            position: absolute;
+            top: 127px;
+            transform: translate(-50%, -50%);
+            width: 0;
+        }
+
+        .node-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 999px;
+            background: #ffffff;
+            border: 3px solid var(--primary);
+        }
+
+        .node-time {
+            position: absolute;
+            left: 50%;
+            top: 20px;
+            transform: translateX(-50%);
+            color: var(--muted);
+            font-family: "Consolas", monospace;
+            font-size: 11px;
+            line-height: 1;
+            white-space: nowrap;
+        }
+
+        .node-title {
+            position: absolute;
+            left: 50%;
+            top: 52px;
+            transform: translateX(-50%);
+            color: var(--primary);
+            font-size: 15px;
+            font-weight: 600;
+            line-height: 1.15;
+            white-space: nowrap;
+        }
+
+        .cards {
+            position: absolute;
+            left: 20px;
+            top: 233px;
+            width: 1165px;
+            display: grid;
+            grid-template-columns: 274px 274px 274px 274px;
+            gap: 23px;
+        }
+
+        .column.double {
+            display: grid;
+            gap: 11px;
+        }
+
+        .card {
+            height: 146px;
+            padding: 10px 10px 8px;
+            border: 1px solid var(--card-border);
+            background: var(--card-fill);
+        }
+
+        .card-title {
+            margin: 0;
+            color: var(--text);
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1.15;
+        }
+
+        .card-divider {
+            height: 1px;
+            margin: 10px 0 8px;
+            background: var(--card-divider);
+        }
+
+        .field + .field {
+            margin-top: 6px;
+        }
+
+        .field-label {
+            display: block;
+            color: var(--label);
+            font-size: 11px;
+            line-height: 1.15;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .field-value {
+            display: block;
+            margin-top: 4px;
+            margin-left: 12px;
+            color: var(--text);
+            font-family: "Consolas", monospace;
+            font-size: 12px;
+            line-height: 1.2;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
+</head>
+<body>
+    <div class="report">
+        <div class="baseline"></div>
+        <div class="axis-label">t [s]</div>
+        <div id="segments"></div>
+        <div id="nodes"></div>
+
+        <div class="cards">
+            <div class="column">
+                <div class="card">
+                    <h3 class="card-title">mEventSearchRD</h3>
+                    <div class="card-divider"></div>
+                    <div class="field">
+                        <span class="field-label">strEventDescription</span>
+                        <span class="field-value">EventSearchRD</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-label">dRangeBtwPlatformAndTargetAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</span>
+                        <span class="field-value">10396.433261655855</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-label">strSource</span>
+                        <span class="field-value">HG001</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="column">
+                <div class="card">
+                    <h3 class="card-title">mEventTrackingRD</h3>
+                    <div class="card-divider"></div>
+                    <div class="field">
+                        <span class="field-label">strEventDescription</span>
+                        <span class="field-value">EventTrackingRD</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-label">dRangeBtwPlatformAndTarget</span>
+                        <span class="field-value">6969.8308505605364</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-label">strSource</span>
+                        <span class="field-value">HG001</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="column double">
+                <div class="card">
+                    <h3 class="card-title">mEventLaunchAuthorization</h3>
+                    <div class="card-divider"></div>
+                    <div class="field">
+                        <span class="field-label">strEventDescription</span>
+                        <span class="field-value">EventLaunchAuthorization</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-label">dRangeBtwPlatformAndTarget</span>
+                        <span class="field-value">6975.3416944586925</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-label">strSource</span>
+                        <span class="field-value">HG001</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">mEventMissileLaunch</h3>
+                    <div class="card-divider"></div>
+                    <div class="field">
+                        <span class="field-label">strEventDescription</span>
+                        <span class="field-value">EventMissileLaunch</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-label">dRangeBtwPlatformAndTarget</span>
+                        <span class="field-value">6975.3416944586925</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-label">strSource</span>
+                        <span class="field-value">HG001</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="column">
+                <div class="card">
+                    <h3 class="card-title">mEventHit</h3>
+                    <div class="card-divider"></div>
+                    <div class="field">
+                        <span class="field-label">strEventDescription</span>
+                        <span class="field-value">EventHit</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-label">dRangeBtwPlatformAndTarget</span>
+                        <span class="field-value">204.46276181477023</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-label">strSource</span>
+                        <span class="field-value">HG001</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const groups = [
+            { time: 200.64, title: "mEventSearchRD" },
+            { time: 213.13, title: "mEventTrackingRD" },
+            { time: 213.14, title: "mEventLaunchAuthorization", title2: "mEventMissileLaunch" },
+            { time: 221.71, title: "mEventHit" }
+        ];
+
+        const baselineLeft = 146;
+        const baselineWidth = 912;
+        const baselineTop = 125;
+        const firstTime = groups[0].time;
+        const lastTime = groups[groups.length - 1].time;
+        const totalSpan = lastTime - firstTime;
+
+        function positionX(time) {
+            return baselineLeft + (((time - firstTime) / totalSpan) * baselineWidth);
+        }
+
+        function formatGap(value) {
+            return value.toFixed(2).replace(/0+$/, "").replace(/\.$/, "") + "s";
+        }
+
+        function renderSegments() {
+            const root = document.getElementById("segments");
+
+            groups.slice(0, -1).forEach((group, index) => {
+                const next = groups[index + 1];
+                const startX = positionX(group.time);
+                const endX = positionX(next.time);
+                const segment = document.createElement("div");
+                segment.className = "segment";
+                segment.style.left = startX + "px";
+                segment.style.width = Math.max(1, endX - startX) + "px";
+                segment.innerHTML = [
+                    "<div class=\"segment-label\">", formatGap(next.time - group.time), "</div>",
+                    "<div class=\"segment-line\"></div>"
+                ].join("");
+                root.appendChild(segment);
+            });
+        }
+
+        function renderNodes() {
+            const root = document.getElementById("nodes");
+
+            groups.forEach((group) => {
+                const x = positionX(group.time);
+                const node = document.createElement("div");
+                node.className = "node";
+                node.style.left = x + "px";
+
+                let titleHtml = "<div class=\"node-title\">" + group.title + "</div>";
+                if (group.title2) {
+                    titleHtml = [
+                        "<div class=\"node-title\">",
+                        "<div>", group.title, "</div>",
+                        "<div style=\"margin-top:8px;\">", group.title2, "</div>",
+                        "</div>"
+                    ].join("");
+                }
+
+                node.innerHTML = [
+                    "<div class=\"node-dot\"></div>",
+                    "<div class=\"node-time\">", group.time.toFixed(2), "</div>",
+                    titleHtml
+                ].join("");
+                root.appendChild(node);
+            });
+        }
+
+        renderSegments();
+        renderNodes();
+    </script>
+</body>
+</html>

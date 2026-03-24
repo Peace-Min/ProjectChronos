@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline Prototype B - Truthful with Micro Gap Callout</title>
+    <style>
+        :root {
+            --page-width: 1920px;
+            --page-height: 860px;
+            --axis-left: 120px;
+            --axis-top: 304px;
+            --axis-width: 1680px;
+            --axis-right: calc(var(--axis-left) + var(--axis-width));
+            --bg: #eef2f5;
+            --paper: #ffffff;
+            --text: #0f1720;
+            --muted: #5c6875;
+            --blue: #0072bd;
+            --orange: #d95319;
+            --chip: #f8fafc;
+            --chip-border: #a5b2be;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: var(--page-width);
+            height: var(--page-height);
+            margin: 0;
+            background: var(--bg);
+            font-family: "Segoe UI", "Malgun Gothic", sans-serif;
+        }
+
+        body {
+            overflow: hidden;
+        }
+
+        .sheet {
+            position: relative;
+            width: var(--page-width);
+            height: var(--page-height);
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.985), rgba(255, 255, 255, 0.985)),
+                linear-gradient(90deg, rgba(0, 114, 189, 0.03), rgba(217, 83, 25, 0.025));
+        }
+
+        .title {
+            position: absolute;
+            left: 84px;
+            top: 50px;
+            color: var(--text);
+            font-size: 34px;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+        }
+
+        .subtitle {
+            position: absolute;
+            left: 84px;
+            top: 98px;
+            color: var(--muted);
+            font-size: 18px;
+            line-height: 1.48;
+            width: 950px;
+        }
+
+        .note {
+            position: absolute;
+            right: 84px;
+            top: 56px;
+            width: 360px;
+            padding: 18px 20px;
+            border: 1px solid rgba(165, 178, 190, 0.9);
+            background: rgba(248, 250, 252, 0.94);
+            color: var(--text);
+            font-size: 16px;
+            line-height: 1.45;
+        }
+
+        .note strong {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 17px;
+        }
+
+        .foot {
+            position: absolute;
+            left: 84px;
+            bottom: 36px;
+            color: var(--muted);
+            font-size: 16px;
+            letter-spacing: 0.01em;
+        }
+
+        svg {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: var(--page-width);
+            height: var(--page-height);
+        }
+
+        .axis-label {
+            font-family: "Bahnschrift", "Segoe UI", sans-serif;
+            font-size: 16px;
+            fill: var(--text);
+            letter-spacing: 0.04em;
+        }
+
+        .interval-label {
+            font-family: "Bahnschrift", "Segoe UI", sans-serif;
+            font-size: 27px;
+            font-weight: 700;
+            fill: var(--orange);
+            text-anchor: middle;
+        }
+
+        .callout-label {
+            font-family: "Bahnschrift", "Segoe UI", sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            fill: var(--orange);
+            text-anchor: middle;
+        }
+
+        .callout-copy {
+            font-size: 15px;
+            fill: var(--muted);
+            text-anchor: middle;
+        }
+
+        .time-text {
+            font-family: "Consolas", monospace;
+            font-size: 16px;
+            fill: var(--muted);
+        }
+
+        .chip-time {
+            font-family: "Consolas", monospace;
+            font-size: 14px;
+            fill: var(--muted);
+        }
+
+        .chip-title {
+            font-size: 18px;
+            font-weight: 700;
+            fill: var(--text);
+        }
+
+        .chip-copy {
+            font-size: 15px;
+            fill: var(--muted);
+        }
+    </style>
+</head>
+<body>
+    <div class="sheet">
+        <div class="title">Prototype B / Truthful Axis + Micro Gap Readability Layer</div>
+        <div class="subtitle">
+            The main rail remains linear at a practical export width. The 0.01s interval is not widened on the rail itself;
+            instead a helper callout adds visible ticks, leader lines, and stacked labels so the micro span can be read without pretending the axis is physically wider.
+        </div>
+        <div class="note">
+            <strong>Practical Width Test</strong>
+            Main axis width: 1680px<br>
+            0.01s on axis: 0.80px<br>
+            Micro callout tick gap: 12px<br>
+            Bottom labels: stacked to avoid overlap
+        </div>
+        <div class="foot">Main axis positions remain truthful. The widened micro ticks above the axis are an explicit readability callout, not a rescaled rail.</div>
+        <svg id="chart" viewBox="0 0 1920 860" preserveAspectRatio="xMinYMin meet"></svg>
+    </div>
+    <script>
+        const ns = "http://www.w3.org/2000/svg";
+        const axisLeft = 120;
+        const axisTop = 304;
+        const axisWidth = 1680;
+        const axisRight = axisLeft + axisWidth;
+        const data = [
+            {
+                time: 200.64,
+                lines: ["mEventSearchRD"],
+                detail: "Search acquired"
+            },
+            {
+                time: 213.13,
+                lines: ["mEventTrackingRD"],
+                detail: "Tracking established"
+            },
+            {
+                time: 213.14,
+                lines: ["mEventLaunchAuthorization", "mEventMissileLaunch"],
+                detail: "Authorization and launch"
+            },
+            {
+                time: 221.71,
+                lines: ["mEventHit"],
+                detail: "Terminal hit"
+            }
+        ];
+
+        const span = data[data.length - 1].time - data[0].time;
+        const svg = document.getElementById("chart");
+
+        function el(name, attrs = {}, textContent = "") {
+            const node = document.createElementNS(ns, name);
+            Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, value));
+            if (textContent) {
+                node.textContent = textContent;
+            }
+            return node;
+        }
+
+        function xFor(time) {
+            return axisLeft + (((time - data[0].time) / span) * axisWidth);
+        }
+
+        function addChip(group, anchorX, boxX, boxY, boxWidth = 254) {
+            const boxHeight = group.lines.length > 1 ? 88 : 70;
+            svg.appendChild(el("line", {
+                x1: anchorX,
+                y1: axisTop + 8,
+                x2: boxX + 18,
+                y2: boxY,
+                stroke: "#8aa3b7",
+                "stroke-width": 1.6
+            }));
+            svg.appendChild(el("rect", {
+                x: boxX,
+                y: boxY,
+                width: boxWidth,
+                height: boxHeight,
+                rx: 16,
+                fill: "#f8fafc",
+                stroke: "#a5b2be",
+                "stroke-width": 1.2
+            }));
+            svg.appendChild(el("text", {
+                x: boxX + 18,
+                y: boxY + 23,
+                class: "chip-time"
+            }, group.time.toFixed(2) + "s"));
+            group.lines.forEach((line, index) => {
+                svg.appendChild(el("text", {
+                    x: boxX + 18,
+                    y: boxY + 47 + (index * 22),
+                    class: "chip-title"
+                }, line));
+            });
+            svg.appendChild(el("text", {
+                x: boxX + 18,
+                y: boxY + boxHeight - 13,
+                class: "chip-copy"
+            }, group.detail));
+        }
+
+        function addLargeInterval(start, end, label, y) {
+            svg.appendChild(el("line", {
+                x1: start,
+                y1: y,
+                x2: end,
+                y2: y,
+                stroke: "#d95319",
+                "stroke-width": 2,
+                "stroke-dasharray": "10 10",
+                "stroke-linecap": "round"
+            }));
+            svg.appendChild(el("line", {
+                x1: start,
+                y1: y,
+                x2: start,
+                y2: axisTop - 20,
+                stroke: "#d95319",
+                "stroke-width": 2
+            }));
+            svg.appendChild(el("line", {
+                x1: end,
+                y1: y,
+                x2: end,
+                y2: axisTop - 20,
+                stroke: "#d95319",
+                "stroke-width": 2
+            }));
+            svg.appendChild(el("text", {
+                x: (start + end) / 2,
+                y: y - 24,
+                class: "interval-label"
+            }, label));
+        }
+
+        const xPositions = data.map(item => xFor(item.time));
+        const microStart = xPositions[1];
+        const microEnd = xPositions[2];
+        const microCenter = (microStart + microEnd) / 2;
+        const widenedTickGap = 12;
+        const helperLeft = microCenter - (widenedTickGap / 2);
+        const helperRight = microCenter + (widenedTickGap / 2);
+
+        svg.appendChild(el("line", {
+            x1: axisLeft,
+            y1: axisTop,
+            x2: axisRight,
+            y2: axisTop,
+            stroke: "#0072bd",
+            "stroke-width": 6,
+            "stroke-linecap": "round"
+        }));
+
+        svg.appendChild(el("text", {
+            x: axisRight + 30,
+            y: axisTop + 6,
+            class: "axis-label"
+        }, "t [s]"));
+
+        addLargeInterval(xPositions[0], xPositions[1], "12.49s", 182);
+        addLargeInterval(xPositions[2], xPositions[3], "8.57s", 182);
+
+        svg.appendChild(el("rect", {
+            x: microCenter - 8,
+            y: axisTop - 12,
+            width: 16,
+            height: 24,
+            rx: 8,
+            fill: "rgba(217, 83, 25, 0.14)",
+            stroke: "rgba(217, 83, 25, 0.34)",
+            "stroke-width": 1.2
+        }));
+
+        svg.appendChild(el("line", {
+            x1: helperLeft,
+            y1: 140,
+            x2: helperRight,
+            y2: 140,
+            stroke: "#d95319",
+            "stroke-width": 2,
+            "stroke-dasharray": "2 3"
+        }));
+        svg.appendChild(el("line", {
+            x1: helperLeft,
+            y1: 124,
+            x2: helperLeft,
+            y2: 156,
+            stroke: "#d95319",
+            "stroke-width": 2.4
+        }));
+        svg.appendChild(el("line", {
+            x1: helperRight,
+            y1: 124,
+            x2: helperRight,
+            y2: 156,
+            stroke: "#d95319",
+            "stroke-width": 2.4
+        }));
+        svg.appendChild(el("line", {
+            x1: helperLeft,
+            y1: 156,
+            x2: microStart,
+            y2: axisTop - 18,
+            stroke: "#d95319",
+            "stroke-width": 1.8
+        }));
+        svg.appendChild(el("line", {
+            x1: helperRight,
+            y1: 156,
+            x2: microEnd,
+            y2: axisTop - 18,
+            stroke: "#d95319",
+            "stroke-width": 1.8
+        }));
+        svg.appendChild(el("text", {
+            x: microCenter,
+            y: 106,
+            class: "callout-label"
+        }, "0.01s"));
+        svg.appendChild(el("text", {
+            x: microCenter,
+            y: 184,
+            class: "callout-copy"
+        }, "readability callout, main rail unchanged"));
+
+        data.forEach((group, index) => {
+            const x = xPositions[index];
+            const dashTop = index === 1 || index === 2 ? 214 : 200;
+            svg.appendChild(el("line", {
+                x1: x,
+                y1: dashTop,
+                x2: x,
+                y2: axisTop - 18,
+                stroke: "#d95319",
+                "stroke-width": 1.4,
+                "stroke-dasharray": "4 7"
+            }));
+            svg.appendChild(el("circle", {
+                cx: x,
+                cy: axisTop,
+                r: 10,
+                fill: "#ffffff",
+                stroke: "#0072bd",
+                "stroke-width": 4
+            }));
+            svg.appendChild(el("text", {
+                x,
+                y: axisTop + 42,
+                class: "time-text",
+                "text-anchor": "middle"
+            }, group.time.toFixed(2)));
+        });
+
+        addChip(data[0], xPositions[0], 120, 430, 236);
+        addChip(data[1], xPositions[1], 846, 420, 238);
+        addChip(data[2], xPositions[2], 876, 520, 332);
+        addChip(data[3], xPositions[3], 1460, 438, 212);
+    </script>
+</body>
+</html>

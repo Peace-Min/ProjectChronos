@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Min Gap Redistribution Prototype</title>
+    <style>
+        :root {
+            --w: 1920px;
+            --h: 1040px;
+            --axis-left: 140px;
+            --axis-top: 540px;
+            --axis-width: 1640px;
+            --blue: #0072bd;
+            --orange: #d95319;
+            --text: #10161d;
+            --muted: #5d6672;
+            --bg: #ffffff;
+            --panel: #f8fafc;
+            --panel-border: #a8b5c1;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: var(--w);
+            height: var(--h);
+            margin: 0;
+            background: var(--bg);
+            font-family: "Segoe UI", "Malgun Gothic", sans-serif;
+            overflow: hidden;
+        }
+
+        svg {
+            width: var(--w);
+            height: var(--h);
+            display: block;
+        }
+
+        .title {
+            font-size: 34px;
+            font-weight: 700;
+            fill: var(--text);
+        }
+
+        .sub {
+            font-size: 18px;
+            fill: var(--muted);
+        }
+
+        .axis-label {
+            font-family: "Bahnschrift", "Segoe UI", sans-serif;
+            font-size: 17px;
+            fill: var(--text);
+            letter-spacing: 0.04em;
+        }
+
+        .gap-label {
+            font-family: "Bahnschrift", "Segoe UI", sans-serif;
+            font-size: 30px;
+            font-weight: 700;
+            fill: var(--orange);
+            text-anchor: middle;
+        }
+
+        .micro-label {
+            font-family: "Bahnschrift", "Segoe UI", sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            fill: var(--orange);
+            text-anchor: middle;
+        }
+
+        .time-label {
+            font-family: "Consolas", monospace;
+            font-size: 22px;
+            fill: var(--muted);
+            text-anchor: middle;
+        }
+
+        .stack-label {
+            font-family: "Consolas", monospace;
+            font-size: 22px;
+            fill: var(--text);
+            text-anchor: middle;
+        }
+
+        .panel-text {
+            font-size: 17px;
+            fill: var(--muted);
+        }
+
+        .panel-strong {
+            font-size: 18px;
+            font-weight: 700;
+            fill: var(--text);
+        }
+
+        .helper {
+            font-size: 15px;
+            fill: var(--muted);
+            text-anchor: middle;
+        }
+    </style>
+</head>
+<body>
+    <svg id="svg" viewBox="0 0 1920 1040" preserveAspectRatio="xMinYMin meet">
+        <defs>
+            <marker id="arrow-end" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto">
+                <path d="M 0 0 L 14 7 L 0 14" fill="none" stroke="#d95319" stroke-width="1.8"/>
+            </marker>
+            <marker id="arrow-start" markerWidth="14" markerHeight="14" refX="3" refY="7" orient="auto">
+                <path d="M 14 0 L 0 7 L 14 14" fill="none" stroke="#d95319" stroke-width="1.8"/>
+            </marker>
+        </defs>
+    </svg>
+    <script>
+        const svg = document.getElementById("svg");
+        const ns = "http://www.w3.org/2000/svg";
+        const axisLeft = 140;
+        const axisTop = 540;
+        const axisWidth = 1640;
+        const minGapPx = 20;
+        const events = [200.64, 213.13, 213.14, 221.71];
+        const durations = [12.49, 0.01, 8.57];
+        const totalSpan = durations.reduce((sum, value) => sum + value, 0);
+        const baseWidths = durations.map(value => axisWidth * (value / totalSpan));
+        const displayWidths = baseWidths.slice();
+        displayWidths[1] = Math.max(displayWidths[1], minGapPx);
+        const extra = displayWidths[1] - baseWidths[1];
+        const nonMicroBase = baseWidths[0] + baseWidths[2];
+        displayWidths[0] = baseWidths[0] - (extra * (baseWidths[0] / nonMicroBase));
+        displayWidths[2] = baseWidths[2] - (extra * (baseWidths[2] / nonMicroBase));
+        const xs = [
+            axisLeft,
+            axisLeft + displayWidths[0],
+            axisLeft + displayWidths[0] + displayWidths[1],
+            axisLeft + axisWidth
+        ];
+
+        function add(name, attrs = {}, text = "") {
+            const el = document.createElementNS(ns, name);
+            Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+            if (text) {
+                el.textContent = text;
+            }
+            svg.appendChild(el);
+            return el;
+        }
+
+        function addPanelLine(x, y, text, strong = false) {
+            add("text", { x, y, class: strong ? "panel-strong" : "panel-text" }, text);
+        }
+
+        add("text", { x: 96, y: 92, class: "title" }, "Prototype / Min Gap Redistribution");
+        add("text", { x: 96, y: 132, class: "sub" }, "The shortest interval is forced to a minimum display width, then the excess width is proportionally removed from adjacent larger intervals.");
+        add("text", { x: 96, y: 160, class: "sub" }, "This keeps one continuous display scale while preventing the 0.01s cursor region from collapsing into an invisible sub-pixel gap.");
+
+        add("rect", {
+            x: 1260,
+            y: 64,
+            width: 560,
+            height: 170,
+            rx: 18,
+            fill: "#f8fafc",
+            stroke: "#a8b5c1",
+            "stroke-width": 1.2
+        });
+        addPanelLine(1290, 102, "Redistribution Rule", true);
+        addPanelLine(1290, 136, "axis width: 1640px");
+        addPanelLine(1290, 166, "base 0.01s: 0.78px -> forced to 20px");
+        addPanelLine(1290, 196, "12.49s: " + baseWidths[0].toFixed(1) + "px -> " + displayWidths[0].toFixed(1) + "px");
+        addPanelLine(1290, 226, "8.57s: " + baseWidths[2].toFixed(1) + "px -> " + displayWidths[2].toFixed(1) + "px");
+
+        add("line", {
+            x1: axisLeft,
+            y1: axisTop,
+            x2: axisLeft + axisWidth,
+            y2: axisTop,
+            stroke: "#0072bd",
+            "stroke-width": 6,
+            "stroke-linecap": "round"
+        });
+        add("text", { x: axisLeft + axisWidth + 28, y: axisTop + 7, class: "axis-label" }, "t [s]");
+
+        add("line", {
+            x1: xs[0],
+            y1: 428,
+            x2: xs[1],
+            y2: 428,
+            stroke: "#d95319",
+            "stroke-width": 2,
+            "marker-start": "url(#arrow-start)",
+            "marker-end": "url(#arrow-end)"
+        });
+        add("text", { x: (xs[0] + xs[1]) / 2, y: 392, class: "gap-label" }, "12.49s");
+
+        add("line", {
+            x1: xs[1],
+            y1: 334,
+            x2: xs[2],
+            y2: 334,
+            stroke: "#d95319",
+            "stroke-width": 2,
+            "marker-start": "url(#arrow-start)",
+            "marker-end": "url(#arrow-end)"
+        });
+        add("text", { x: (xs[1] + xs[2]) / 2, y: 302, class: "micro-label" }, "0.01s");
+        add("text", { x: (xs[1] + xs[2]) / 2, y: 360, class: "helper" }, "minimum display width = 20px");
+
+        add("line", {
+            x1: xs[2],
+            y1: 428,
+            x2: xs[3],
+            y2: 428,
+            stroke: "#d95319",
+            "stroke-width": 2,
+            "marker-start": "url(#arrow-start)",
+            "marker-end": "url(#arrow-end)"
+        });
+        add("text", { x: (xs[2] + xs[3]) / 2, y: 392, class: "gap-label" }, "8.57s");
+
+        [xs[0], xs[3]].forEach((px, index) => {
+            add("line", {
+                x1: px,
+                y1: axisTop - 28,
+                x2: px,
+                y2: axisTop + 30,
+                stroke: "#111111",
+                "stroke-width": 2
+            });
+            add("text", { x: px, y: axisTop + 86, class: "time-label" }, events[index === 0 ? 0 : 3].toFixed(2));
+        });
+
+        add("line", {
+            x1: xs[1],
+            y1: axisTop - 28,
+            x2: xs[1],
+            y2: axisTop + 26,
+            stroke: "#111111",
+            "stroke-width": 2.3
+        });
+        add("line", {
+            x1: xs[2],
+            y1: axisTop - 28,
+            x2: xs[2],
+            y2: axisTop + 26,
+            stroke: "#111111",
+            "stroke-width": 2.3
+        });
+
+        add("line", {
+            x1: xs[1],
+            y1: axisTop + 26,
+            x2: xs[1],
+            y2: 628,
+            stroke: "#111111",
+            "stroke-width": 1.7
+        });
+        add("line", {
+            x1: xs[2],
+            y1: axisTop + 26,
+            x2: xs[2],
+            y2: 690,
+            stroke: "#111111",
+            "stroke-width": 1.7
+        });
+        add("text", { x: xs[1], y: 664, class: "stack-label" }, "213.13");
+        add("text", { x: xs[2], y: 726, class: "stack-label" }, "213.14");
+
+        add("text", { x: xs[1] - 50, y: 688, class: "panel-text" }, "stack 1");
+        add("text", { x: xs[2] - 50, y: 750, class: "panel-text" }, "stack 2");
+
+        add("text", { x: 96, y: 930, class: "panel-text" }, "This prototype is not strict raw-time scaling. It is a display-scaled axis where the shortest interval is clamped to a minimum visible width and larger intervals absorb the difference proportionally.");
+    </script>
+</body>
+</html>

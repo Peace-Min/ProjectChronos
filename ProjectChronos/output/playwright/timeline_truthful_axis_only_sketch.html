@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Truthful Axis Only Sketch Prototype</title>
+    <style>
+        :root {
+            --w: 9200px;
+            --h: 980px;
+            --axis-left: 340px;
+            --axis-top: 560px;
+            --axis-width: 8428px;
+            --axis-right: calc(var(--axis-left) + var(--axis-width));
+            --blue: #0072bd;
+            --orange: #d95319;
+            --text: #10161d;
+            --muted: #5d6672;
+            --bg: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: var(--w);
+            height: var(--h);
+            margin: 0;
+            background: var(--bg);
+            font-family: "Segoe UI", "Malgun Gothic", sans-serif;
+            overflow: hidden;
+        }
+
+        svg {
+            width: var(--w);
+            height: var(--h);
+            display: block;
+        }
+
+        .title {
+            font-size: 34px;
+            font-weight: 700;
+            fill: var(--text);
+        }
+
+        .sub {
+            font-size: 18px;
+            fill: var(--muted);
+        }
+
+        .axis-label {
+            font-family: "Bahnschrift", "Segoe UI", sans-serif;
+            font-size: 18px;
+            fill: var(--text);
+            letter-spacing: 0.04em;
+        }
+
+        .gap-label {
+            font-family: "Bahnschrift", "Segoe UI", sans-serif;
+            font-size: 30px;
+            font-weight: 700;
+            fill: var(--orange);
+            text-anchor: middle;
+        }
+
+        .time-label {
+            font-family: "Consolas", monospace;
+            font-size: 22px;
+            fill: var(--muted);
+            text-anchor: middle;
+        }
+
+        .note {
+            font-size: 17px;
+            fill: var(--muted);
+        }
+    </style>
+</head>
+<body>
+    <svg id="svg" viewBox="0 0 9200 980" preserveAspectRatio="xMinYMin meet">
+        <defs>
+            <marker id="arrow-end" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto">
+                <path d="M 0 0 L 14 7 L 0 14" fill="none" stroke="#d95319" stroke-width="1.8"/>
+            </marker>
+            <marker id="arrow-start" markerWidth="14" markerHeight="14" refX="3" refY="7" orient="auto">
+                <path d="M 14 0 L 0 7 L 14 14" fill="none" stroke="#d95319" stroke-width="1.8"/>
+            </marker>
+        </defs>
+    </svg>
+    <script>
+        const svg = document.getElementById("svg");
+        const ns = "http://www.w3.org/2000/svg";
+        const axisLeft = 340;
+        const axisTop = 560;
+        const axisWidth = 8428;
+        const data = [200.64, 213.13, 213.14, 221.71];
+        const span = data[data.length - 1] - data[0];
+
+        function add(name, attrs = {}, text = "") {
+            const el = document.createElementNS(ns, name);
+            Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+            if (text) {
+                el.textContent = text;
+            }
+            svg.appendChild(el);
+            return el;
+        }
+
+        function xFor(t) {
+            return axisLeft + (((t - data[0]) / span) * axisWidth);
+        }
+
+        const x = data.map(xFor);
+        const gaps = [
+            { start: x[0], end: x[1], label: "12.49s" },
+            { start: x[1], end: x[2], label: "0.01s" },
+            { start: x[2], end: x[3], label: "8.57s" }
+        ];
+
+        add("text", { x: 120, y: 92, class: "title" }, "Prototype A / Axis Width Only");
+        add("text", { x: 120, y: 132, class: "sub" }, "0.01s visibility is achieved only by expanding the main linear axis until the micro interval reaches 4px.");
+        add("text", { x: 120, y: 160, class: "sub" }, "No helper spacing is added. Everything stays strictly on the widened truthful rail.");
+
+        add("rect", {
+            x: 7340,
+            y: 72,
+            width: 1620,
+            height: 110,
+            rx: 18,
+            fill: "#f8fafc",
+            stroke: "#a8b5c1",
+            "stroke-width": 1.2
+        });
+        add("text", { x: 7380, y: 112, class: "note" }, "Axis width: 8428px");
+        add("text", { x: 7380, y: 142, class: "note" }, "0.01s on axis: 4px");
+        add("text", { x: 7380, y: 172, class: "note" }, "This is the scale needed without a micro-gap aid.");
+
+        add("line", {
+            x1: axisLeft,
+            y1: axisTop,
+            x2: axisLeft + axisWidth,
+            y2: axisTop,
+            stroke: "#0072bd",
+            "stroke-width": 6,
+            "stroke-linecap": "round"
+        });
+        add("text", { x: axisLeft + axisWidth + 34, y: axisTop + 7, class: "axis-label" }, "t [s]");
+
+        gaps.forEach((gap, index) => {
+            const y = index === 1 ? 360 : 408;
+            const labelY = index === 1 ? 332 : 378;
+            add("line", {
+                x1: gap.start,
+                y1: y,
+                x2: gap.end,
+                y2: y,
+                stroke: "#d95319",
+                "stroke-width": 2,
+                "marker-start": "url(#arrow-start)",
+                "marker-end": "url(#arrow-end)"
+            });
+            add("text", { x: (gap.start + gap.end) / 2, y: labelY, class: "gap-label" }, gap.label);
+        });
+
+        x.forEach((px, index) => {
+            add("line", {
+                x1: px,
+                y1: axisTop - 26,
+                x2: px,
+                y2: axisTop + 30,
+                stroke: "#111111",
+                "stroke-width": 2
+            });
+            add("text", { x: px, y: axisTop + 82, class: "time-label" }, data[index].toFixed(2));
+        });
+    </script>
+</body>
+</html>
