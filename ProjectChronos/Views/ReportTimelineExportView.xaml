@@ -33,7 +33,7 @@
             </Grid.RowDefinitions>
 
             <Grid Grid.Row="0">
-                <Canvas Width="{Binding TimelineWidth}"
+                <Canvas Width="{Binding OverviewCanvasWidth}"
                         Height="{Binding OverviewHeight}"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Top">
@@ -52,6 +52,36 @@
                                FontSize="{Binding AxisLabelFontSize}"
                                FontWeight="Regular"
                                Foreground="{StaticResource PrimaryTextBrush}"/>
+
+                    <ItemsControl ItemsSource="{Binding ScaleBreakItems}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <Canvas/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemContainerStyle>
+                            <Style TargetType="ContentPresenter">
+                                <Setter Property="Canvas.Left" Value="{Binding Left}"/>
+                                <Setter Property="Canvas.Top" Value="{Binding Top}"/>
+                            </Style>
+                        </ItemsControl.ItemContainerStyle>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Canvas Width="{Binding Width}"
+                                        Height="{Binding Height}">
+                                    <Rectangle Width="{Binding Width}"
+                                               Height="{Binding Height}"
+                                               Fill="White"/>
+                                    <Path Data="{Binding Geometry}"
+                                          Stroke="{StaticResource BaselineBrush}"
+                                          StrokeThickness="2.5"
+                                          StrokeLineJoin="Round"
+                                          StrokeStartLineCap="Round"
+                                          StrokeEndLineCap="Round"/>
+                                </Canvas>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
 
                     <ItemsControl ItemsSource="{Binding IntervalAnchorItems}">
                         <ItemsControl.ItemsPanel>
@@ -98,12 +128,12 @@
                                         Height="{Binding Height}">
                                     <Path Data="{Binding FrameGeometry}"
                                           Stroke="{Binding Stroke}"
-                                          StrokeThickness="1.5"
+                                          StrokeThickness="{Binding StrokeThickness}"
                                           StrokeStartLineCap="Round"
                                           StrokeEndLineCap="Round"/>
                                     <Path Data="{Binding ArrowGeometry}"
                                           Stroke="{Binding Stroke}"
-                                          StrokeThickness="1.5"
+                                          StrokeThickness="{Binding StrokeThickness}"
                                           StrokeLineJoin="Miter"
                                           StrokeStartLineCap="Flat"
                                           StrokeEndLineCap="Flat">
@@ -123,12 +153,35 @@
                                     </Path>
                                     <TextBlock Text="{Binding Label}"
                                                Canvas.Left="{Binding LabelLeft}"
-                                               Canvas.Top="0"
+                                               Canvas.Top="{Binding LabelTop}"
                                                FontFamily="Segoe UI"
                                                FontSize="{Binding FontSize}"
                                                FontWeight="Bold"
                                                Foreground="{Binding Stroke}"/>
                                 </Canvas>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <ItemsControl ItemsSource="{Binding MicroLabelItems}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <Canvas/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemContainerStyle>
+                            <Style TargetType="ContentPresenter">
+                                <Setter Property="Canvas.Left" Value="{Binding Left}"/>
+                                <Setter Property="Canvas.Top" Value="{Binding Top}"/>
+                            </Style>
+                        </ItemsControl.ItemContainerStyle>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Text}"
+                                           FontFamily="Segoe UI"
+                                           FontSize="{Binding FontSize}"
+                                           FontWeight="Bold"
+                                           Foreground="{Binding Foreground}"/>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
@@ -206,7 +259,7 @@
 
             <Grid Grid.Row="1"
                   Margin="0,8,0,0">
-                <Canvas Width="{Binding TimelineWidth}"
+                <Canvas Width="{Binding DetailCanvasWidth}"
                         Height="{Binding DetailBandHeight}"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Top">

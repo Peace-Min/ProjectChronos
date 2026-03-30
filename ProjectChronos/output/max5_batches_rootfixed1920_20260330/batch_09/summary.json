@@ -1,0 +1,322 @@
+﻿[
+    {
+        "batch_id":  "batch_09",
+        "case_id":  "01_realdata_like",
+        "timestamps":  [
+                           200.64,
+                           213.13,
+                           213.14,
+                           213.14,
+                           221.71
+                       ],
+        "failure_count":  5,
+        "warning_count":  0,
+        "failures":  [
+                         "baseline_out_of_bounds: baseline (160, 1792, 196) is outside overview bounds 1784 x 343.",
+                         "slot_item_right_overflow: rect right 1841 exceeds width 1784.",
+                         "interval_anchor_out_of_bounds: anchor (1792, 106, 84) exceeds overview bounds.",
+                         "interval_item_right_overflow: rect right 1810 exceeds width 1784.",
+                         "detail_card_out_of_bounds_x: rect (1652, -69, 280, 125) exceeds detail width 1784."
+                     ],
+        "warnings":  [
+
+                     ],
+        "rendered_width":  1944,
+        "rendered_height":  774,
+        "overview_height":  343,
+        "detail_band_height":  407,
+        "slot_count":  4,
+        "card_count":  5,
+        "scale_break_count":  2,
+        "png_path":  "C:\\Users\\CEO\\source\\repos\\ProjectChronos\\ProjectChronos\\output\\max5_batches_rootfixed1920_20260330\\batch_09\\images\\01_realdata_like.png"
+    },
+    {
+        "batch_id":  "batch_09",
+        "case_id":  "02_uniform",
+        "timestamps":  [
+                           100,
+                           110,
+                           120,
+                           130,
+                           140
+                       ],
+        "failure_count":  5,
+        "warning_count":  0,
+        "failures":  [
+                         "baseline_out_of_bounds: baseline (160.54, 1792.54, 138.36) is outside overview bounds 1775 x 204.",
+                         "slot_item_right_overflow: rect right 1837.58 exceeds width 1775.",
+                         "interval_anchor_out_of_bounds: anchor (1792.54, 55.56, 77.28) exceeds overview bounds.",
+                         "interval_item_right_overflow: rect right 1809.1 exceeds width 1775.",
+                         "detail_card_out_of_bounds_x: rect (1652.54, 8, 280, 120) exceeds detail width 1775."
+                     ],
+        "warnings":  [
+
+                     ],
+        "rendered_width":  1944,
+        "rendered_height":  364,
+        "overview_height":  204,
+        "detail_band_height":  136,
+        "slot_count":  5,
+        "card_count":  5,
+        "scale_break_count":  0,
+        "png_path":  "C:\\Users\\CEO\\source\\repos\\ProjectChronos\\ProjectChronos\\output\\max5_batches_rootfixed1920_20260330\\batch_09\\images\\02_uniform.png"
+    },
+    {
+        "batch_id":  "batch_09",
+        "case_id":  "03_front_cluster",
+        "timestamps":  [
+                           150,
+                           150.05,
+                           150.09,
+                           161,
+                           173
+                       ],
+        "failure_count":  5,
+        "warning_count":  0,
+        "failures":  [
+                         "baseline_out_of_bounds: baseline (160.54, 1792.54, 182.52) is outside overview bounds 1775 x 342.",
+                         "slot_item_right_overflow: rect right 1837.58 exceeds width 1775.",
+                         "interval_anchor_out_of_bounds: anchor (1792.54, 99.72, 77.28) exceeds overview bounds.",
+                         "interval_item_right_overflow: rect right 1809.1 exceeds width 1775.",
+                         "detail_card_out_of_bounds_x: rect (1652.54, -85.44, 280, 120) exceeds detail width 1775."
+                     ],
+        "warnings":  [
+
+                     ],
+        "rendered_width":  1944,
+        "rendered_height":  757,
+        "overview_height":  342,
+        "detail_band_height":  390.72,
+        "slot_count":  5,
+        "card_count":  5,
+        "scale_break_count":  2,
+        "png_path":  "C:\\Users\\CEO\\source\\repos\\ProjectChronos\\ProjectChronos\\output\\max5_batches_rootfixed1920_20260330\\batch_09\\images\\03_front_cluster.png"
+    },
+    {
+        "batch_id":  "batch_09",
+        "case_id":  "04_middle_cluster",
+        "timestamps":  [
+                           200,
+                           214,
+                           214.01,
+                           214.02,
+                           229
+                       ],
+        "failure_count":  5,
+        "warning_count":  0,
+        "failures":  [
+                         "baseline_out_of_bounds: baseline (160.54, 1792.54, 182.52) is outside overview bounds 1775 x 342.",
+                         "slot_item_right_overflow: rect right 1837.58 exceeds width 1775.",
+                         "interval_anchor_out_of_bounds: anchor (1792.54, 99.72, 77.28) exceeds overview bounds.",
+                         "interval_item_right_overflow: rect right 1809.1 exceeds width 1775.",
+                         "detail_card_out_of_bounds_x: rect (1652.54, -85.44, 280, 120) exceeds detail width 1775."
+                     ],
+        "warnings":  [
+
+                     ],
+        "rendered_width":  1944,
+        "rendered_height":  757,
+        "overview_height":  342,
+        "detail_band_height":  390.72,
+        "slot_count":  5,
+        "card_count":  5,
+        "scale_break_count":  2,
+        "png_path":  "C:\\Users\\CEO\\source\\repos\\ProjectChronos\\ProjectChronos\\output\\max5_batches_rootfixed1920_20260330\\batch_09\\images\\04_middle_cluster.png"
+    },
+    {
+        "batch_id":  "batch_09",
+        "case_id":  "05_tail_cluster",
+        "timestamps":  [
+                           300,
+                           312,
+                           325,
+                           325.06,
+                           325.11
+                       ],
+        "failure_count":  10,
+        "warning_count":  0,
+        "failures":  [
+                         "baseline_out_of_bounds: baseline (160.54, 1792.54, 182.52) is outside overview bounds 1775 x 342.",
+                         "slot_item_right_overflow: rect right 1815.8 exceeds width 1775.",
+                         "slot_item_right_overflow: rect right 1833.44 exceeds width 1775.",
+                         "slot_item_right_overflow: rect right 1837.58 exceeds width 1775.",
+                         "interval_anchor_out_of_bounds: anchor (1792.54, 48.2, 128.8) exceeds overview bounds.",
+                         "micro_label_right_overflow: rect right 1791.22 exceeds width 1775.",
+                         "interval_item_right_overflow: rect right 1803.58 exceeds width 1775.",
+                         "detail_card_out_of_bounds_x: rect (1575.26, 8, 280, 120) exceeds detail width 1775.",
+                         "detail_card_out_of_bounds_x: rect (1613.9, 135.36, 280, 120) exceeds detail width 1775.",
+                         "detail_card_out_of_bounds_x: rect (1652.54, 262.72, 280, 120) exceeds detail width 1775."
+                     ],
+        "warnings":  [
+
+                     ],
+        "rendered_width":  1944,
+        "rendered_height":  757,
+        "overview_height":  342,
+        "detail_band_height":  390.72,
+        "slot_count":  5,
+        "card_count":  5,
+        "scale_break_count":  2,
+        "png_path":  "C:\\Users\\CEO\\source\\repos\\ProjectChronos\\ProjectChronos\\output\\max5_batches_rootfixed1920_20260330\\batch_09\\images\\05_tail_cluster.png"
+    },
+    {
+        "batch_id":  "batch_09",
+        "case_id":  "06_all_micro",
+        "timestamps":  [
+                           400,
+                           400.08,
+                           400.16,
+                           400.24,
+                           400.32
+                       ],
+        "failure_count":  5,
+        "warning_count":  0,
+        "failures":  [
+                         "baseline_out_of_bounds: baseline (160.54, 1792.54, 138.36) is outside overview bounds 1775 x 204.",
+                         "slot_item_right_overflow: rect right 1837.58 exceeds width 1775.",
+                         "interval_anchor_out_of_bounds: anchor (1792.54, 55.56, 77.28) exceeds overview bounds.",
+                         "interval_item_right_overflow: rect right 1809.1 exceeds width 1775.",
+                         "detail_card_out_of_bounds_x: rect (1652.54, 8, 280, 120) exceeds detail width 1775."
+                     ],
+        "warnings":  [
+
+                     ],
+        "rendered_width":  1945,
+        "rendered_height":  364,
+        "overview_height":  204,
+        "detail_band_height":  136,
+        "slot_count":  5,
+        "card_count":  5,
+        "scale_break_count":  0,
+        "png_path":  "C:\\Users\\CEO\\source\\repos\\ProjectChronos\\ProjectChronos\\output\\max5_batches_rootfixed1920_20260330\\batch_09\\images\\06_all_micro.png"
+    },
+    {
+        "batch_id":  "batch_09",
+        "case_id":  "07_duplicate_pair",
+        "timestamps":  [
+                           500,
+                           511,
+                           511,
+                           522,
+                           534
+                       ],
+        "failure_count":  5,
+        "warning_count":  0,
+        "failures":  [
+                         "baseline_out_of_bounds: baseline (160, 1792, 148) is outside overview bounds 1784 x 244.",
+                         "slot_item_right_overflow: rect right 1841 exceeds width 1784.",
+                         "interval_anchor_out_of_bounds: anchor (1792, 58, 84) exceeds overview bounds.",
+                         "interval_item_right_overflow: rect right 1810 exceeds width 1784.",
+                         "detail_card_out_of_bounds_x: rect (1652, -18, 280, 125) exceeds detail width 1784."
+                     ],
+        "warnings":  [
+
+                     ],
+        "rendered_width":  1944,
+        "rendered_height":  542,
+        "overview_height":  244,
+        "detail_band_height":  274,
+        "slot_count":  4,
+        "card_count":  5,
+        "scale_break_count":  0,
+        "png_path":  "C:\\Users\\CEO\\source\\repos\\ProjectChronos\\ProjectChronos\\output\\max5_batches_rootfixed1920_20260330\\batch_09\\images\\07_duplicate_pair.png"
+    },
+    {
+        "batch_id":  "batch_09",
+        "case_id":  "08_seeded_micro",
+        "timestamps":  [
+                           210.954,
+                           211.208,
+                           211.596,
+                           212.03,
+                           212.071
+                       ],
+        "failure_count":  7,
+        "warning_count":  0,
+        "failures":  [
+                         "baseline_out_of_bounds: baseline (160.54, 1792.54, 138.36) is outside overview bounds 1775 x 251.",
+                         "slot_item_right_overflow: rect right 1812.18 exceeds width 1775.",
+                         "slot_item_right_overflow: rect right 1837.58 exceeds width 1775.",
+                         "interval_anchor_out_of_bounds: anchor (1792.54, 55.56, 77.28) exceeds overview bounds.",
+                         "interval_item_right_overflow: rect right 1809.1 exceeds width 1775.",
+                         "detail_card_out_of_bounds_x: rect (1592.64, 8, 280, 120) exceeds detail width 1775.",
+                         "detail_card_out_of_bounds_x: rect (1652.54, 135.36, 280, 120) exceeds detail width 1775."
+                     ],
+        "warnings":  [
+
+                     ],
+        "rendered_width":  1944,
+        "rendered_height":  539,
+        "overview_height":  251,
+        "detail_band_height":  263.36,
+        "slot_count":  5,
+        "card_count":  5,
+        "scale_break_count":  0,
+        "png_path":  "C:\\Users\\CEO\\source\\repos\\ProjectChronos\\ProjectChronos\\output\\max5_batches_rootfixed1920_20260330\\batch_09\\images\\08_seeded_micro.png"
+    },
+    {
+        "batch_id":  "batch_09",
+        "case_id":  "09_seeded_cluster",
+        "timestamps":  [
+                           213.646,
+                           220.052,
+                           220.081,
+                           225.855,
+                           226.069
+                       ],
+        "failure_count":  8,
+        "warning_count":  0,
+        "failures":  [
+                         "baseline_out_of_bounds: baseline (160.54, 1792.54, 182.52) is outside overview bounds 1775 x 295.",
+                         "slot_item_right_overflow: rect right 1833.44 exceeds width 1775.",
+                         "slot_item_right_overflow: rect right 1837.58 exceeds width 1775.",
+                         "interval_anchor_out_of_bounds: anchor (1792.54, 48.2, 128.8) exceeds overview bounds.",
+                         "micro_label_right_overflow: rect right 1792.22 exceeds width 1775.",
+                         "interval_item_right_overflow: rect right 1803.58 exceeds width 1775.",
+                         "detail_card_out_of_bounds_x: rect (1613.9, 8, 280, 120) exceeds detail width 1775.",
+                         "detail_card_out_of_bounds_x: rect (1652.54, 135.36, 280, 120) exceeds detail width 1775."
+                     ],
+        "warnings":  [
+
+                     ],
+        "rendered_width":  1944,
+        "rendered_height":  583,
+        "overview_height":  295,
+        "detail_band_height":  263.36,
+        "slot_count":  5,
+        "card_count":  5,
+        "scale_break_count":  2,
+        "png_path":  "C:\\Users\\CEO\\source\\repos\\ProjectChronos\\ProjectChronos\\output\\max5_batches_rootfixed1920_20260330\\batch_09\\images\\09_seeded_cluster.png"
+    },
+    {
+        "batch_id":  "batch_09",
+        "case_id":  "10_seeded_mixed",
+        "timestamps":  [
+                           201.719,
+                           207.26,
+                           213.112,
+                           213.985,
+                           222.435
+                       ],
+        "failure_count":  5,
+        "warning_count":  0,
+        "failures":  [
+                         "baseline_out_of_bounds: baseline (160.54, 1792.54, 138.36) is outside overview bounds 1775 x 251.",
+                         "slot_item_right_overflow: rect right 1837.58 exceeds width 1775.",
+                         "interval_anchor_out_of_bounds: anchor (1792.54, 55.56, 77.28) exceeds overview bounds.",
+                         "interval_item_right_overflow: rect right 1809.1 exceeds width 1775.",
+                         "detail_card_out_of_bounds_x: rect (1652.54, -38.72, 280, 120) exceeds detail width 1775."
+                     ],
+        "warnings":  [
+
+                     ],
+        "rendered_width":  1944,
+        "rendered_height":  539,
+        "overview_height":  251,
+        "detail_band_height":  263.36,
+        "slot_count":  5,
+        "card_count":  5,
+        "scale_break_count":  0,
+        "png_path":  "C:\\Users\\CEO\\source\\repos\\ProjectChronos\\ProjectChronos\\output\\max5_batches_rootfixed1920_20260330\\batch_09\\images\\10_seeded_mixed.png"
+    }
+]

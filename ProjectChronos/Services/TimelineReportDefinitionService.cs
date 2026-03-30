@@ -9,6 +9,7 @@ namespace ProjectChronos.Services
     public class TimelineReportDefinitionService
     {
         public const double DefaultScenarioDurationSeconds = 300.0;
+        public const double DefaultReportCanvasWidth = 1920.0;
 
         public string GetDefaultPrototypeExportPath()
         {
@@ -46,7 +47,7 @@ namespace ProjectChronos.Services
                 "\uADF8\uB798\uD504 \uC608\uC2DC 3",
                 "Time-Event",
                 Array.Empty<string>(),
-                1200,
+                DefaultReportCanvasWidth,
                 0,
                 events ?? Array.Empty<SimulationEventMarker>(),
                 outputPath);

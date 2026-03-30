@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -473,6 +473,17 @@ namespace ProjectChronos.Services
                 }
             }
 
+            foreach (ReportTimelineScaleBreakItem scaleBreakItem in viewModel.ScaleBreakItems)
+            {
+                ValidateRect("scale_break", scaleBreakItem.Left, scaleBreakItem.Top, scaleBreakItem.Width, scaleBreakItem.Height, viewModel.TimelineWidth, viewModel.OverviewHeight, result);
+            }
+
+            foreach (ReportTimelineMicroLabelItem microLabelItem in viewModel.MicroLabelItems)
+            {
+                Size labelSize = MeasureText(microLabelItem.Text, UiBoldTypeface, microLabelItem.FontSize, double.PositiveInfinity);
+                ValidateRect("micro_label", microLabelItem.Left, microLabelItem.Top, labelSize.Width, labelSize.Height, viewModel.TimelineWidth, viewModel.OverviewHeight, result);
+            }
+
             foreach (ReportTimelineSlotIntervalItem intervalItem in viewModel.IntervalItems)
             {
                 ValidateRect("interval_item", intervalItem.Left, intervalItem.Top, intervalItem.Width, intervalItem.Height, viewModel.TimelineWidth, viewModel.OverviewHeight, result);
@@ -496,7 +507,29 @@ namespace ProjectChronos.Services
 
             foreach (ReportTimelineDetailCardItem card in cards)
             {
-                ValidateRect("detail_card", card.Left, card.Top, card.Width, card.Height, viewModel.TimelineWidth, viewModel.DetailBandHeight, result);
+                if (card.Left < -0.5 || card.Left + card.Width > viewModel.TimelineWidth + 0.5)
+                {
+                    result.FailureReasons.Add(string.Format(
+                        CultureInfo.InvariantCulture,
+                        "detail_card_out_of_bounds_x: rect ({0:0.##}, {1:0.##}, {2:0.##}, {3:0.##}) exceeds detail width {4:0.##}.",
+                        card.Left,
+                        card.Top,
+                        card.Width,
+                        card.Height,
+                        viewModel.TimelineWidth));
+                }
+
+                if (card.Top + card.Height > viewModel.DetailBandHeight + 0.5)
+                {
+                    result.FailureReasons.Add(string.Format(
+                        CultureInfo.InvariantCulture,
+                        "detail_card_out_of_bounds_bottom: rect ({0:0.##}, {1:0.##}, {2:0.##}, {3:0.##}) exceeds detail height {4:0.##}.",
+                        card.Left,
+                        card.Top,
+                        card.Width,
+                        card.Height,
+                        viewModel.DetailBandHeight));
+                }
 
                 if (card.Width < WarningCardWidthThreshold)
                 {

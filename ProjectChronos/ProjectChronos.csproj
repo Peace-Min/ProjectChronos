@@ -14,6 +14,7 @@
     <WarningLevel>4</WarningLevel>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -69,8 +70,18 @@
     <Compile Include="Services\TimelineReportStressService.Cases.cs" />
     <Compile Include="Services\TimelineReportStressService.Helpers.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
+    <Compile Include="ViewModels\ReportTimelineDetailCardItem.cs" />
+    <Compile Include="ViewModels\ReportTimelineDetailFieldItem.cs" />
     <Compile Include="ViewModels\ReportTimelineExportViewModel.cs" />
+    <Compile Include="ViewModels\ReportTimelineIntervalAnchorItem.cs" />
+    <Compile Include="ViewModels\ReportTimelineMicroLabelItem.cs" />
+    <Compile Include="ViewModels\ReportTimelineScaleBreakItem.cs" />
+    <Compile Include="ViewModels\ReportTimelineSlotGroupItem.cs" />
+    <Compile Include="ViewModels\ReportTimelineSlotIntervalItem.cs" />
+    <Compile Include="ViewModels\ReportTimelineSlotTitleItem.cs" />
     <Compile Include="ViewModels\SimulationReplayViewModel.cs" />
+    <Compile Include="ViewModels\SlotIntervalLaneKind.cs" />
+    <Compile Include="ViewModels\TimelineReportExportInput.cs" />
     <Compile Include="Views\EventMarkerPanel.cs" />
     <Compile Include="Views\ReportTimelineExportView.xaml.cs">
       <DependentUpon>ReportTimelineExportView.xaml</DependentUpon>
