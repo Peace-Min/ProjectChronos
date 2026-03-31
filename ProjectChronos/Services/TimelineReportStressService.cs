@@ -429,7 +429,7 @@ namespace ProjectChronos.Services
 
         private void ValidateBaseline(ReportTimelineExportViewModel viewModel, TimelineReportStressCaseResult result)
         {
-            if (viewModel.BaselineStartX < 0.0 || viewModel.BaselineEndX > viewModel.TimelineWidth + 0.5 || viewModel.BaselineY < 0.0 || viewModel.BaselineY > viewModel.OverviewHeight + 0.5)
+            if (viewModel.BaselineStartX < 0.0 || viewModel.BaselineEndX > viewModel.OverviewCanvasWidth + 0.5 || viewModel.BaselineY < 0.0 || viewModel.BaselineY > viewModel.OverviewHeight + 0.5)
             {
                 result.FailureReasons.Add(string.Format(
                     CultureInfo.InvariantCulture,
@@ -437,7 +437,7 @@ namespace ProjectChronos.Services
                     viewModel.BaselineStartX,
                     viewModel.BaselineEndX,
                     viewModel.BaselineY,
-                    viewModel.TimelineWidth,
+                    viewModel.OverviewCanvasWidth,
                     viewModel.OverviewHeight));
             }
         }
@@ -446,7 +446,7 @@ namespace ProjectChronos.Services
         {
             foreach (ReportTimelineSlotGroupItem slotItem in viewModel.SlotItems)
             {
-                ValidateRect("slot_item", slotItem.Left, slotItem.Top, slotItem.Width, slotItem.Height, viewModel.TimelineWidth, viewModel.OverviewHeight, result);
+                ValidateRect("slot_item", slotItem.Left, slotItem.Top, slotItem.Width, slotItem.Height, viewModel.OverviewCanvasWidth, viewModel.OverviewHeight, result);
 
                 if (slotItem.TitleLeft < -0.5 || slotItem.TitleTop < -0.5 || slotItem.TitleLeft + slotItem.TitleWidth > slotItem.Width + 0.5)
                 {
@@ -462,7 +462,7 @@ namespace ProjectChronos.Services
 
             foreach (ReportTimelineIntervalAnchorItem anchorItem in viewModel.IntervalAnchorItems)
             {
-                if (anchorItem.X < -0.5 || anchorItem.X > viewModel.TimelineWidth + 0.5 || anchorItem.Top < -0.5 || anchorItem.Top + anchorItem.Height > viewModel.OverviewHeight + 0.5)
+                if (anchorItem.X < -0.5 || anchorItem.X > viewModel.OverviewCanvasWidth + 0.5 || anchorItem.Top < -0.5 || anchorItem.Top + anchorItem.Height > viewModel.OverviewHeight + 0.5)
                 {
                     result.FailureReasons.Add(string.Format(
                         CultureInfo.InvariantCulture,
@@ -475,18 +475,18 @@ namespace ProjectChronos.Services
 
             foreach (ReportTimelineScaleBreakItem scaleBreakItem in viewModel.ScaleBreakItems)
             {
-                ValidateRect("scale_break", scaleBreakItem.Left, scaleBreakItem.Top, scaleBreakItem.Width, scaleBreakItem.Height, viewModel.TimelineWidth, viewModel.OverviewHeight, result);
+                ValidateRect("scale_break", scaleBreakItem.Left, scaleBreakItem.Top, scaleBreakItem.Width, scaleBreakItem.Height, viewModel.OverviewCanvasWidth, viewModel.OverviewHeight, result);
             }
 
             foreach (ReportTimelineMicroLabelItem microLabelItem in viewModel.MicroLabelItems)
             {
                 Size labelSize = MeasureText(microLabelItem.Text, UiBoldTypeface, microLabelItem.FontSize, double.PositiveInfinity);
-                ValidateRect("micro_label", microLabelItem.Left, microLabelItem.Top, labelSize.Width, labelSize.Height, viewModel.TimelineWidth, viewModel.OverviewHeight, result);
+                ValidateRect("micro_label", microLabelItem.Left, microLabelItem.Top, labelSize.Width, labelSize.Height, viewModel.OverviewCanvasWidth, viewModel.OverviewHeight, result);
             }
 
             foreach (ReportTimelineSlotIntervalItem intervalItem in viewModel.IntervalItems)
             {
-                ValidateRect("interval_item", intervalItem.Left, intervalItem.Top, intervalItem.Width, intervalItem.Height, viewModel.TimelineWidth, viewModel.OverviewHeight, result);
+                ValidateRect("interval_item", intervalItem.Left, intervalItem.Top, intervalItem.Width, intervalItem.Height, viewModel.OverviewCanvasWidth, viewModel.OverviewHeight, result);
 
                 Size labelSize = MeasureText(intervalItem.Label, UiBoldTypeface, intervalItem.FontSize, double.PositiveInfinity);
                 if (intervalItem.LabelLeft < -0.5 || intervalItem.LabelLeft + labelSize.Width > intervalItem.Width + 0.5)
@@ -507,7 +507,7 @@ namespace ProjectChronos.Services
 
             foreach (ReportTimelineDetailCardItem card in cards)
             {
-                if (card.Left < -0.5 || card.Left + card.Width > viewModel.TimelineWidth + 0.5)
+                if (card.Left < -0.5 || card.Left + card.Width > viewModel.DetailCanvasWidth + 0.5)
                 {
                     result.FailureReasons.Add(string.Format(
                         CultureInfo.InvariantCulture,
@@ -516,7 +516,7 @@ namespace ProjectChronos.Services
                         card.Top,
                         card.Width,
                         card.Height,
-                        viewModel.TimelineWidth));
+                        viewModel.DetailCanvasWidth));
                 }
 
                 if (card.Top + card.Height > viewModel.DetailBandHeight + 0.5)

@@ -1293,6 +1293,10 @@ public class ReportTimelineExportViewModel : ViewModelBase
 		string text = (Environment.GetEnvironmentVariable("PC_TIMELINE_EDGE_CANVAS_POLICY") ?? string.Empty).Trim().ToLowerInvariant();
 		switch (text)
 		{
+		case "none":
+		case "off":
+		case "disabled":
+			return EdgeCanvasPolicy.None;
 		case "detail":
 		case "detail-band":
 		case "detailband":
@@ -1304,7 +1308,7 @@ public class ReportTimelineExportViewModel : ViewModelBase
 		case "root_expand":
 			return EdgeCanvasPolicy.RootOverscan;
 		default:
-			return EdgeCanvasPolicy.None;
+			return EdgeCanvasPolicy.RootOverscan;
 		}
 	}
 
