@@ -37,14 +37,25 @@
                         Height="{Binding OverviewHeight}"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Top">
-                    <Line X1="{Binding BaselineStartX}"
-                          X2="{Binding BaselineEndX}"
-                          Y1="{Binding BaselineY}"
-                          Y2="{Binding BaselineY}"
-                          Stroke="{StaticResource BaselineBrush}"
-                          StrokeThickness="4.0"
-                          StrokeStartLineCap="Round"
-                          StrokeEndLineCap="Round"/>
+                    <ItemsControl ItemsSource="{Binding BaselineSegmentItems}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <Canvas/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Line X1="{Binding X1}"
+                                      X2="{Binding X2}"
+                                      Y1="{Binding Y}"
+                                      Y2="{Binding Y}"
+                                      Stroke="{StaticResource BaselineBrush}"
+                                      StrokeThickness="4.0"
+                                      StrokeStartLineCap="{Binding StartLineCap}"
+                                      StrokeEndLineCap="{Binding EndLineCap}"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                     <TextBlock Canvas.Left="{Binding AxisLabelLeft}"
                                Canvas.Top="{Binding AxisLabelTop}"
                                Text="{Binding AxisLabelText}"
@@ -69,11 +80,6 @@
                             <DataTemplate>
                                 <Canvas Width="{Binding Width}"
                                         Height="{Binding Height}">
-                                    <Rectangle Canvas.Left="{Binding CutoutLeft}"
-                                               Canvas.Top="{Binding CutoutTop}"
-                                               Width="{Binding CutoutWidth}"
-                                               Height="{Binding CutoutHeight}"
-                                               Fill="White"/>
                                     <Path Data="{Binding Geometry}"
                                           Stroke="{StaticResource BaselineBrush}"
                                           StrokeThickness="4.0"

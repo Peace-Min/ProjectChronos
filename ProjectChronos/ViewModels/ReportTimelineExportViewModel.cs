@@ -188,13 +188,11 @@ public class ReportTimelineExportViewModel : ViewModelBase
 
 	private const double BaseMicroLabelCollisionGap = 6.0;
 
-	private const double BaseScaleBreakWidth = 28.0;
+	private const double BaseScaleBreakWidth = 38.0;
 
-	private const double BaseScaleBreakHeight = 28.0;
+	private const double BaseScaleBreakHeight = 36.0;
 
-	private const double BaseScaleBreakCutoutRatio = 1.0;
-
-	private const double BaseScaleBreakCutoutHeight = 8.0;
+	private const double BaseScaleBreakEnvelopePadding = 0.15;
 
 	private const double BaseScaleBreakMinimumNeighborSpan = 96.0;
 
@@ -330,6 +328,8 @@ public class ReportTimelineExportViewModel : ViewModelBase
 
 	public ObservableCollection<ReportTimelineMicroLabelItem> MicroLabelItems { get; }
 
+	public ObservableCollection<ReportTimelineBaselineSegmentItem> BaselineSegmentItems { get; }
+
 	public ObservableCollection<ReportTimelineScaleBreakItem> ScaleBreakItems { get; }
 
 	public ObservableCollection<ReportTimelineDetailCardItem> DetailCardItems { get; }
@@ -365,6 +365,7 @@ public class ReportTimelineExportViewModel : ViewModelBase
 		IntervalAnchorItems = new ObservableCollection<ReportTimelineIntervalAnchorItem>();
 		IntervalItems = new ObservableCollection<ReportTimelineSlotIntervalItem>();
 		MicroLabelItems = new ObservableCollection<ReportTimelineMicroLabelItem>();
+		BaselineSegmentItems = new ObservableCollection<ReportTimelineBaselineSegmentItem>();
 		ScaleBreakItems = new ObservableCollection<ReportTimelineScaleBreakItem>();
 		DetailCardItems = new ObservableCollection<ReportTimelineDetailCardItem>();
 		OverviewHeight = BaselineY + 220.0;
@@ -651,6 +652,7 @@ public class ReportTimelineExportViewModel : ViewModelBase
 		ScaleBreakItems.Clear();
 		if (intervalLayouts.Count == 0)
 		{
+			RebuildBaselineSegments();
 			return;
 		}
 		double symbolWidth = BaseScaleBreakWidth * layoutScale;
@@ -662,6 +664,45 @@ public class ReportTimelineExportViewModel : ViewModelBase
 			{
 				AddScaleBreak(intervalLayout, symbolWidth, symbolHeight);
 			}
+		}
+		RebuildBaselineSegments();
+	}
+
+	private void RebuildBaselineSegments()
+	{
+		BaselineSegmentItems.Clear();
+		double segmentStart = Math.Min(BaselineStartX, BaselineEndX);
+		double segmentEnd = Math.Max(BaselineStartX, BaselineEndX);
+		var orderedBreaks = ScaleBreakItems.OrderBy((ReportTimelineScaleBreakItem item) => item.Left).ToList();
+		for (int index = 0; index < orderedBreaks.Count; index++)
+		{
+			ReportTimelineScaleBreakItem scaleBreakItem = orderedBreaks[index];
+			double cutoutStart = scaleBreakItem.Left + scaleBreakItem.CutoutLeft;
+			double cutoutEnd = cutoutStart + scaleBreakItem.CutoutWidth;
+			double visibleEnd = Math.Max(segmentStart, Math.Min(segmentEnd, cutoutStart));
+			if (visibleEnd > segmentStart)
+			{
+				BaselineSegmentItems.Add(new ReportTimelineBaselineSegmentItem
+				{
+					EndLineCap = PenLineCap.Flat,
+					StartLineCap = ((index == 0) ? PenLineCap.Round : PenLineCap.Flat),
+					X1 = segmentStart,
+					X2 = visibleEnd,
+					Y = BaselineY
+				});
+			}
+			segmentStart = Math.Max(segmentStart, Math.Min(segmentEnd, cutoutEnd));
+		}
+		if (segmentEnd > segmentStart)
+		{
+			BaselineSegmentItems.Add(new ReportTimelineBaselineSegmentItem
+			{
+				EndLineCap = PenLineCap.Round,
+				StartLineCap = ((orderedBreaks.Count == 0) ? PenLineCap.Round : PenLineCap.Flat),
+				X1 = segmentStart,
+				X2 = segmentEnd,
+				Y = BaselineY
+			});
 		}
 	}
 
@@ -780,13 +821,15 @@ public class ReportTimelineExportViewModel : ViewModelBase
 	private void AddScaleBreak(IntervalLayout intervalLayout, double symbolWidth, double symbolHeight)
 	{
 		double centerX = (intervalLayout.StartGroup.CenterX + intervalLayout.EndGroup.CenterX) / 2.0;
-		double cutoutWidth = Math.Max(1.0, Math.Min(symbolWidth - 2.0, symbolWidth * BaseScaleBreakCutoutRatio));
-		double cutoutHeight = Math.Min(symbolHeight, BaseScaleBreakCutoutHeight);
+		ScaleBreakEnvelope envelope = GetScaleBreakEnvelope(symbolWidth, symbolHeight);
+		double cutoutLeft = Clamp(envelope.LeftVisualX - BaseScaleBreakEnvelopePadding, 0.0, symbolWidth);
+		double cutoutRight = Clamp(envelope.RightVisualX + BaseScaleBreakEnvelopePadding, 0.0, symbolWidth);
+		double cutoutWidth = Math.Max(0.0, cutoutRight - cutoutLeft);
 		ScaleBreakItems.Add(new ReportTimelineScaleBreakItem
 		{
-			CutoutHeight = cutoutHeight,
-			CutoutLeft = (symbolWidth - cutoutWidth) / 2.0,
-			CutoutTop = (symbolHeight - cutoutHeight) / 2.0,
+			CutoutHeight = symbolHeight,
+			CutoutLeft = cutoutLeft,
+			CutoutTop = 0.0,
 			CutoutWidth = cutoutWidth,
 			Geometry = BuildScaleBreakGeometry(symbolWidth, symbolHeight),
 			Height = symbolHeight,
@@ -1017,6 +1060,7 @@ public class ReportTimelineExportViewModel : ViewModelBase
 			group.CenterX += shiftX;
 		}
 		AxisLabelLeft += shiftX;
+		RebuildBaselineSegments();
 	}
 
 	private List<DetailColumnPlacement> BuildDetailColumnPlacements(IReadOnlyList<SlotGroup> groups, IReadOnlyList<double> slotBottoms, IReadOnlyList<double> groupColumnHeights, double cardWidth, double minimumColumnGap, double clusterStackGap, double outerMargin, double canvasWidth, double centerOffset)
@@ -1276,6 +1320,7 @@ public class ReportTimelineExportViewModel : ViewModelBase
 		}
 		AxisLabelTop += shiftY;
 		AxisLabelLeft += shiftX;
+		RebuildBaselineSegments();
 		TimelineWidth = Math.Ceiling(maxRight + shiftX + 16.0);
 		FooterWidth = Math.Max(680.0, TimelineWidth - 260.0);
 		OverviewHeight = Math.Ceiling(maxBottom + shiftY + 16.0);
@@ -1575,26 +1620,63 @@ public class ReportTimelineExportViewModel : ViewModelBase
 
 	private static Geometry BuildScaleBreakGeometry(double width, double height)
 	{
-		double baselineY = height / 2.0;
-		double top = height * 0.18;
-		double bottom = height * 0.82;
-		double amplitude = Math.Max(1.0, width * 0.102);
-		double leftCenter = width * 0.405;
-		double rightCenter = width * 0.595;
-		double leftStubEnd = Math.Max(width * 0.14, leftCenter - amplitude * 0.9);
-		double rightStubStart = Math.Min(width * 0.86, rightCenter + amplitude * 0.9);
+		ScaleBreakLayoutMetrics metrics = GetScaleBreakLayoutMetrics(width, height);
 		StreamGeometry geometry = new StreamGeometry();
 		using (StreamGeometryContext context = geometry.Open())
 		{
-			context.BeginFigure(new Point(0.0, baselineY), isFilled: false, isClosed: false);
-			context.LineTo(new Point(leftStubEnd, baselineY), isStroked: true, isSmoothJoin: true);
-			AppendVerticalSCurve(context, leftCenter, top, bottom, amplitude);
-			AppendVerticalSCurve(context, rightCenter, top, bottom, amplitude);
-			context.BeginFigure(new Point(rightStubStart, baselineY), isFilled: false, isClosed: false);
-			context.LineTo(new Point(width, baselineY), isStroked: true, isSmoothJoin: true);
+			AppendVerticalSCurve(context, metrics.LeftCenter, metrics.Top, metrics.Bottom, metrics.Amplitude);
+			AppendVerticalSCurve(context, metrics.RightCenter, metrics.Top, metrics.Bottom, metrics.Amplitude);
 		}
 		geometry.Freeze();
 		return geometry;
+	}
+
+	private static ScaleBreakEnvelope GetScaleBreakEnvelope(double width, double height)
+	{
+		ScaleBreakLayoutMetrics metrics = GetScaleBreakLayoutMetrics(width, height);
+		double middleY = (metrics.Top + metrics.Bottom) / 2.0;
+		double verticalSpan = metrics.Bottom - metrics.Top;
+		double upperControlY = metrics.Top + verticalSpan * 0.16;
+		double lowerControlY = metrics.Bottom - verticalSpan * 0.16;
+		double leftMinX = GetBezierCurveMinX(
+			new Point(metrics.LeftCenter, metrics.Top),
+			new Point(metrics.LeftCenter + metrics.ControlOffset, upperControlY),
+			new Point(metrics.LeftCenter + metrics.ControlOffset, middleY - verticalSpan * 0.16),
+			new Point(metrics.LeftCenter, middleY),
+			new Point(metrics.LeftCenter - metrics.ControlOffset, middleY + verticalSpan * 0.16),
+			new Point(metrics.LeftCenter - metrics.ControlOffset, lowerControlY),
+			new Point(metrics.LeftCenter, metrics.Bottom));
+		double rightMaxX = GetBezierCurveMaxX(
+			new Point(metrics.RightCenter, metrics.Top),
+			new Point(metrics.RightCenter + metrics.ControlOffset, upperControlY),
+			new Point(metrics.RightCenter + metrics.ControlOffset, middleY - verticalSpan * 0.16),
+			new Point(metrics.RightCenter, middleY),
+			new Point(metrics.RightCenter - metrics.ControlOffset, middleY + verticalSpan * 0.16),
+			new Point(metrics.RightCenter - metrics.ControlOffset, lowerControlY),
+			new Point(metrics.RightCenter, metrics.Bottom));
+		return new ScaleBreakEnvelope
+		{
+			BottomVisualY = metrics.Bottom,
+			LeftVisualX = leftMinX,
+			RightVisualX = rightMaxX,
+			TopVisualY = metrics.Top
+		};
+	}
+
+	private static ScaleBreakLayoutMetrics GetScaleBreakLayoutMetrics(double width, double height)
+	{
+		double top = height * 0.15;
+		double bottom = height * 0.85;
+		double amplitude = Math.Max(1.0, width * 0.106);
+		return new ScaleBreakLayoutMetrics
+		{
+			Amplitude = amplitude,
+			Bottom = bottom,
+			ControlOffset = amplitude * 0.92,
+			LeftCenter = width * 0.38,
+			RightCenter = width * 0.62,
+			Top = top
+		};
 	}
 
 	private static void AppendVerticalSCurve(StreamGeometryContext context, double centerX, double top, double bottom, double amplitude)
@@ -1618,6 +1700,70 @@ public class ReportTimelineExportViewModel : ViewModelBase
 			new Point(centerX, bottom),
 			isStroked: true,
 			isSmoothJoin: true);
+	}
+
+	private static double GetBezierCurveMaxX(Point start, Point control1, Point control2, Point middle, Point control3, Point control4, Point end)
+	{
+		double maxX = Math.Max(start.X, Math.Max(middle.X, end.X));
+		for (int index = 0; index <= 24; index++)
+		{
+			double t = (double)index / 24.0;
+			maxX = Math.Max(maxX, EvaluateCubicBezier(start, control1, control2, middle, t).X);
+			maxX = Math.Max(maxX, EvaluateCubicBezier(middle, control3, control4, end, t).X);
+		}
+		return maxX;
+	}
+
+	private static double GetBezierCurveMinX(Point start, Point control1, Point control2, Point middle, Point control3, Point control4, Point end)
+	{
+		double minX = Math.Min(start.X, Math.Min(middle.X, end.X));
+		for (int index = 0; index <= 24; index++)
+		{
+			double t = (double)index / 24.0;
+			minX = Math.Min(minX, EvaluateCubicBezier(start, control1, control2, middle, t).X);
+			minX = Math.Min(minX, EvaluateCubicBezier(middle, control3, control4, end, t).X);
+		}
+		return minX;
+	}
+
+	private static Point EvaluateCubicBezier(Point start, Point control1, Point control2, Point end, double t)
+	{
+		double inverseT = 1.0 - t;
+		double x = inverseT * inverseT * inverseT * start.X
+			+ 3.0 * inverseT * inverseT * t * control1.X
+			+ 3.0 * inverseT * t * t * control2.X
+			+ t * t * t * end.X;
+		double y = inverseT * inverseT * inverseT * start.Y
+			+ 3.0 * inverseT * inverseT * t * control1.Y
+			+ 3.0 * inverseT * t * t * control2.Y
+			+ t * t * t * end.Y;
+		return new Point(x, y);
+	}
+
+	private struct ScaleBreakEnvelope
+	{
+		public double BottomVisualY { get; set; }
+
+		public double LeftVisualX { get; set; }
+
+		public double RightVisualX { get; set; }
+
+		public double TopVisualY { get; set; }
+	}
+
+	private struct ScaleBreakLayoutMetrics
+	{
+		public double Amplitude { get; set; }
+
+		public double Bottom { get; set; }
+
+		public double ControlOffset { get; set; }
+
+		public double LeftCenter { get; set; }
+
+		public double RightCenter { get; set; }
+
+		public double Top { get; set; }
 	}
 
 	private static double Clamp(double value, double min, double max)

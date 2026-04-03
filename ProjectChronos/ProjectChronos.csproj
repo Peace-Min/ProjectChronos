@@ -74,6 +74,7 @@
     <Compile Include="ViewModels\ReportTimelineDetailFieldItem.cs" />
     <Compile Include="ViewModels\ReportTimelineExportViewModel.cs" />
     <Compile Include="ViewModels\ReportTimelineIntervalAnchorItem.cs" />
+    <Compile Include="ViewModels\ReportTimelineBaselineSegmentItem.cs" />
     <Compile Include="ViewModels\ReportTimelineMicroLabelItem.cs" />
     <Compile Include="ViewModels\ReportTimelineScaleBreakItem.cs" />
     <Compile Include="ViewModels\ReportTimelineSlotGroupItem.cs" />
