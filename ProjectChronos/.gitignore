@@ -1,0 +1,12 @@
+/.agents/skills/report-break-review/agents/
+/.dotnet/
+/.tools/
+/Docs/prototype_archive/
+/_decompiled_latest/
+/output/report_break_batches_20260403/
+/output/single_preview_pathgeometry_20260331/
+/output/single_preview_scurve_vector2_20260331/
+/output/single_preview_scurve_vector_20260331/
+/rewrite_viewmodel.py
+/skills-main/
+/ProjectChronos_*_wpftmp.csproj
