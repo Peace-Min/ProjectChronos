@@ -168,7 +168,7 @@ public class ReportTimelineExportViewModel : ViewModelBase
 
 	private const double BaseMicroIntervalFontSize = 18.0;
 
-	private const double BaseMinimumReservedGap = 28.0;
+	private const double BaseMinimumReservedGap = 48.0;
 
 	private const double BaseSlotCollisionLaneGap = 8.0;
 
@@ -188,9 +188,13 @@ public class ReportTimelineExportViewModel : ViewModelBase
 
 	private const double BaseMicroLabelCollisionGap = 6.0;
 
-	private const double BaseScaleBreakWidth = 30.0;
+	private const double BaseScaleBreakWidth = 28.0;
 
-	private const double BaseScaleBreakHeight = 24.0;
+	private const double BaseScaleBreakHeight = 28.0;
+
+	private const double BaseScaleBreakCutoutRatio = 1.0;
+
+	private const double BaseScaleBreakCutoutHeight = 8.0;
 
 	private const double BaseScaleBreakMinimumNeighborSpan = 96.0;
 
@@ -649,9 +653,9 @@ public class ReportTimelineExportViewModel : ViewModelBase
 		{
 			return;
 		}
-		double symbolWidth = 30.0 * layoutScale;
-		double symbolHeight = 24.0 * layoutScale;
-		double minimumNeighborSpan = 96.0 * layoutScale;
+		double symbolWidth = BaseScaleBreakWidth * layoutScale;
+		double symbolHeight = BaseScaleBreakHeight * layoutScale;
+		double minimumNeighborSpan = BaseScaleBreakMinimumNeighborSpan * layoutScale;
 		foreach (IntervalLayout intervalLayout in intervalLayouts)
 		{
 			if (!intervalLayout.UsesMinimumGap && !(intervalLayout.Width < minimumNeighborSpan) && ShouldShowScaleBreak(intervalLayout))
@@ -776,8 +780,14 @@ public class ReportTimelineExportViewModel : ViewModelBase
 	private void AddScaleBreak(IntervalLayout intervalLayout, double symbolWidth, double symbolHeight)
 	{
 		double centerX = (intervalLayout.StartGroup.CenterX + intervalLayout.EndGroup.CenterX) / 2.0;
+		double cutoutWidth = Math.Max(1.0, Math.Min(symbolWidth - 2.0, symbolWidth * BaseScaleBreakCutoutRatio));
+		double cutoutHeight = Math.Min(symbolHeight, BaseScaleBreakCutoutHeight);
 		ScaleBreakItems.Add(new ReportTimelineScaleBreakItem
 		{
+			CutoutHeight = cutoutHeight,
+			CutoutLeft = (symbolWidth - cutoutWidth) / 2.0,
+			CutoutTop = (symbolHeight - cutoutHeight) / 2.0,
+			CutoutWidth = cutoutWidth,
 			Geometry = BuildScaleBreakGeometry(symbolWidth, symbolHeight),
 			Height = symbolHeight,
 			Left = centerX - symbolWidth / 2.0,
@@ -934,7 +944,10 @@ public class ReportTimelineExportViewModel : ViewModelBase
 		{
 			return 0.0;
 		}
-		double scaledMinimumGap = Clamp(42.0 * layoutScale, 30.0, 42.0);
+
+		// Keep compressed sections readable by guaranteeing a stable node-to-node spacing
+		// before we draw the axis-break symbol on the long neighboring intervals.
+		double scaledMinimumGap = Clamp(BaseMinimumReservedGap * layoutScale, 34.0, BaseMinimumReservedGap);
 		double maximumFitGap = usableWidth / (double)Math.Max(1, groupCount - 1);
 		return Math.Max(0.0, Math.Min(scaledMinimumGap, maximumFitGap));
 	}
@@ -1562,9 +1575,49 @@ public class ReportTimelineExportViewModel : ViewModelBase
 
 	private static Geometry BuildScaleBreakGeometry(double width, double height)
 	{
-		double midY = height / 2.0;
-		string path = string.Format(CultureInfo.InvariantCulture, "M {0:0.##},{4:0.##} L {1:0.##},{5:0.##} L {2:0.##},{6:0.##} L {3:0.##},{4:0.##}", width * 0.1, width * 0.3, width * 0.7, width * 0.9, midY, height * 0.25, height * 0.75);
-		return Geometry.Parse(path);
+		double baselineY = height / 2.0;
+		double top = height * 0.18;
+		double bottom = height * 0.82;
+		double amplitude = Math.Max(1.0, width * 0.102);
+		double leftCenter = width * 0.405;
+		double rightCenter = width * 0.595;
+		double leftStubEnd = Math.Max(width * 0.14, leftCenter - amplitude * 0.9);
+		double rightStubStart = Math.Min(width * 0.86, rightCenter + amplitude * 0.9);
+		StreamGeometry geometry = new StreamGeometry();
+		using (StreamGeometryContext context = geometry.Open())
+		{
+			context.BeginFigure(new Point(0.0, baselineY), isFilled: false, isClosed: false);
+			context.LineTo(new Point(leftStubEnd, baselineY), isStroked: true, isSmoothJoin: true);
+			AppendVerticalSCurve(context, leftCenter, top, bottom, amplitude);
+			AppendVerticalSCurve(context, rightCenter, top, bottom, amplitude);
+			context.BeginFigure(new Point(rightStubStart, baselineY), isFilled: false, isClosed: false);
+			context.LineTo(new Point(width, baselineY), isStroked: true, isSmoothJoin: true);
+		}
+		geometry.Freeze();
+		return geometry;
+	}
+
+	private static void AppendVerticalSCurve(StreamGeometryContext context, double centerX, double top, double bottom, double amplitude)
+	{
+		double middleY = (top + bottom) / 2.0;
+		double verticalSpan = bottom - top;
+		double upperControlY = top + verticalSpan * 0.16;
+		double lowerControlY = bottom - verticalSpan * 0.16;
+		double controlOffset = amplitude * 0.92;
+		Point start = new Point(centerX, top);
+		context.BeginFigure(start, isFilled: false, isClosed: false);
+		context.BezierTo(
+			new Point(centerX + controlOffset, upperControlY),
+			new Point(centerX + controlOffset, middleY - verticalSpan * 0.16),
+			new Point(centerX, middleY),
+			isStroked: true,
+			isSmoothJoin: true);
+		context.BezierTo(
+			new Point(centerX - controlOffset, middleY + verticalSpan * 0.16),
+			new Point(centerX - controlOffset, lowerControlY),
+			new Point(centerX, bottom),
+			isStroked: true,
+			isSmoothJoin: true);
 	}
 
 	private static double Clamp(double value, double min, double max)

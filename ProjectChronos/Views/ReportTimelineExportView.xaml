@@ -42,7 +42,7 @@
                           Y1="{Binding BaselineY}"
                           Y2="{Binding BaselineY}"
                           Stroke="{StaticResource BaselineBrush}"
-                          StrokeThickness="4.5"
+                          StrokeThickness="4.0"
                           StrokeStartLineCap="Round"
                           StrokeEndLineCap="Round"/>
                     <TextBlock Canvas.Left="{Binding AxisLabelLeft}"
@@ -69,12 +69,14 @@
                             <DataTemplate>
                                 <Canvas Width="{Binding Width}"
                                         Height="{Binding Height}">
-                                    <Rectangle Width="{Binding Width}"
-                                               Height="{Binding Height}"
+                                    <Rectangle Canvas.Left="{Binding CutoutLeft}"
+                                               Canvas.Top="{Binding CutoutTop}"
+                                               Width="{Binding CutoutWidth}"
+                                               Height="{Binding CutoutHeight}"
                                                Fill="White"/>
                                     <Path Data="{Binding Geometry}"
                                           Stroke="{StaticResource BaselineBrush}"
-                                          StrokeThickness="2.5"
+                                          StrokeThickness="4.0"
                                           StrokeLineJoin="Round"
                                           StrokeStartLineCap="Round"
                                           StrokeEndLineCap="Round"/>
