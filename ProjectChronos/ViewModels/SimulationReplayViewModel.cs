@@ -8,6 +8,7 @@ using System.Windows.Input;
 using System.Windows;
 using System.Windows.Threading;
 using ProjectChronos.Core;
+using ProjectChronos.Messages;
 using ProjectChronos.Models;
 using ProjectChronos.Services;
 
@@ -83,6 +84,8 @@ namespace ProjectChronos.ViewModels
             JumpToEventTimeCommand = new RelayCommand(param => JumpToEventTime(param));
             ExportReportImageCommand = new RelayCommand(_ => ExportReportImage());
         }
+
+        public event Action<SimulationTimeChangedMessage> SimulationTimeChanged;
 
         /// <summary>
         /// 시뮬레이션 데이터로 뷰모델을 초기화합니다.
@@ -199,6 +202,11 @@ namespace ProjectChronos.ViewModels
         /// <param name="forceNotify">true일 경우 스로틀링을 무시하고 강제로 알림 전송</param>
         private void SetCurrentTimeInternal(double value, bool forceNotify)
         {
+            SetCurrentTimeInternal(value, forceNotify, SimulationTimeChangeKind.Seek);
+        }
+
+        private void SetCurrentTimeInternal(double value, bool forceNotify, SimulationTimeChangeKind changeKind)
+        {
             // 범위 제한 (Clamp)
             if (value < 0.0) value = 0.0;
             if (value > TotalDuration) value = TotalDuration;
@@ -209,7 +217,11 @@ namespace ProjectChronos.ViewModels
                 OnPropertyChanged(nameof(CurrentTime)); // Slider 바인딩 명시적 업데이트
 
                 // 중요: 시간이 변경될 때마다 외부 연동 로직 호출
-                NotifyTimeChanged(_currentTime, forceNotify);
+                NotifyTimeChanged(_currentTime, changeKind, forceNotify);
+            }
+            else if (forceNotify)
+            {
+                NotifyTimeChanged(_currentTime, changeKind, forceNotify: true);
             }
         }
 
@@ -403,6 +415,11 @@ namespace ProjectChronos.ViewModels
         /// <param name="forceNotify">true일 경우 스로틀링을 무시하고 강제로 메시지 전송 (이벤트 스냅, 수동 탐색 등)</param>
         private void NotifyTimeChanged(double newTime, bool forceNotify = false)
         {
+            NotifyTimeChanged(newTime, SimulationTimeChangeKind.Seek, forceNotify);
+        }
+
+        private void NotifyTimeChanged(double newTime, SimulationTimeChangeKind changeKind, bool forceNotify = false)
+        {
             // 렌더링 모드 체크
             if (!_isRealtimeRenderingEnabled && !forceNotify) return;
 
@@ -429,23 +446,30 @@ namespace ProjectChronos.ViewModels
                     CurrentEvents = matchedGroup?.Events;
                 }
 
-                // 외부 메시지 전송 등
-                // Messenger.Default.Send(new SimulationTimeChangedMessage(newTime, CurrentEvent));
+                var currentEvent = CurrentEvents?.FirstOrDefault();
+                SimulationTimeChanged?.Invoke(new SimulationTimeChangedMessage(newTime, currentEvent, changeKind));
 
-                System.Diagnostics.Debug.WriteLine($"[Time Notify] {newTime:F3}s");
+                System.Diagnostics.Debug.WriteLine($"[Time Notify] {changeKind} @ {newTime:F3}s");
             }
         }
 
         private void TogglePlayPause()
         {
-            IsPlaying = !IsPlaying;
+            if (IsPlaying)
+            {
+                IsPlaying = false;
+                NotifyTimeChanged(CurrentTime, SimulationTimeChangeKind.Stopped, forceNotify: true);
+                return;
+            }
+
+            IsPlaying = true;
         }
 
         private void StartPlayback()
         {
             if (CurrentTime >= TotalDuration)
             {
-                CurrentTime = 0.0;
+                SetCurrentTimeInternal(0.0, forceNotify: true, SimulationTimeChangeKind.Seek);
             }
 
             _lastElapsedSeconds = 0;
@@ -482,7 +506,7 @@ namespace ProjectChronos.ViewModels
             // 3. 종료 조건 체크
             if (nextTime >= TotalDuration)
             {
-                CurrentTime = TotalDuration;
+                SetCurrentTimeInternal(TotalDuration, forceNotify: true, SimulationTimeChangeKind.Stopped);
                 IsPlaying = false;
                 return;
             }
@@ -501,7 +525,7 @@ namespace ProjectChronos.ViewModels
                 {
                     // 🎯 [SNAP] 이벤트가 있다면, 목표 시간(nextTime)을 무시하고 이벤트 시간으로 강제 착륙
                     // 스로틀링 무시하고 즉시 알림 전송 (forceNotify: true)
-                    SetCurrentTimeInternal(matchedGroup.Timestamp, forceNotify: true);
+                    SetCurrentTimeInternal(matchedGroup.Timestamp, forceNotify: true, SimulationTimeChangeKind.StoppedByEvent);
 
                     IsPlaying = false; // 일시 정지
 
@@ -510,15 +534,15 @@ namespace ProjectChronos.ViewModels
                 else
                 {
                     // 자동 멈춤 OFF: 멈추지 않고 흘러감 (잔상 기능 제거됨)
-                    SetCurrentTimeInternal(matchedGroup.Timestamp, forceNotify: true);
-                    CurrentTime = nextTime;
+                    SetCurrentTimeInternal(matchedGroup.Timestamp, forceNotify: true, SimulationTimeChangeKind.Playback);
+                    SetCurrentTimeInternal(nextTime, forceNotify: false, SimulationTimeChangeKind.Playback);
                 }
             }
             else
             {
                 // 이벤트가 없으면 원래 목표대로 이동하고, CurrentEvents 초기화
                 CurrentEvents = null;
-                CurrentTime = nextTime;
+                SetCurrentTimeInternal(nextTime, forceNotify: false, SimulationTimeChangeKind.Playback);
             }
         }
 
@@ -540,7 +564,7 @@ namespace ProjectChronos.ViewModels
 
             // SetCurrentTimeInternal을 사용하여 이중 호출 방지
             // forceNotify=true로 수동 조작 시 즉시 알림 전송
-            SetCurrentTimeInternal(newTime, forceNotify: true);
+            SetCurrentTimeInternal(newTime, forceNotify: true, SimulationTimeChangeKind.Seek);
         }
 
         /// <summary>
@@ -569,7 +593,7 @@ namespace ProjectChronos.ViewModels
                 // 더 이상 이벤트가 없으면 끝으로 이동
                 if (targetGroup == null)
                 {
-                    SetCurrentTimeInternal(TotalDuration, forceNotify: true);
+                    SetCurrentTimeInternal(TotalDuration, forceNotify: true, SimulationTimeChangeKind.Seek);
                     return;
                 }
             }
@@ -581,7 +605,7 @@ namespace ProjectChronos.ViewModels
                 // 더 이상 이벤트가 없으면 처음으로 이동
                 if (targetGroup == null)
                 {
-                    SetCurrentTimeInternal(0.0, forceNotify: true);
+                    SetCurrentTimeInternal(0.0, forceNotify: true, SimulationTimeChangeKind.Seek);
                     return;
                 }
             }
@@ -591,7 +615,7 @@ namespace ProjectChronos.ViewModels
             {
                 // SetCurrentTimeInternal을 사용하여 이중 호출 방지
                 // forceNotify=true로 이벤트 이동 시 즉시 알림 전송
-                SetCurrentTimeInternal(targetGroup.Timestamp, forceNotify: true);
+                SetCurrentTimeInternal(targetGroup.Timestamp, forceNotify: true, SimulationTimeChangeKind.Seek);
             }
         }
 
@@ -603,7 +627,7 @@ namespace ProjectChronos.ViewModels
             if (double.TryParse(JumpTargetTimeText, out double targetTime))
             {
                 IsPlaying = false; // 이동 시 일시 정지
-                SetCurrentTimeInternal(targetTime, forceNotify: true);
+                SetCurrentTimeInternal(targetTime, forceNotify: true, SimulationTimeChangeKind.Seek);
             }
         }
 
@@ -615,12 +639,12 @@ namespace ProjectChronos.ViewModels
             if (param is SimulationEventMarker marker)
             {
                 IsPlaying = false;
-                SetCurrentTimeInternal(marker.Timestamp, forceNotify: true);
+                SetCurrentTimeInternal(marker.Timestamp, forceNotify: true, SimulationTimeChangeKind.Seek);
             }
             else if (param is double timestamp)
             {
                 IsPlaying = false;
-                SetCurrentTimeInternal(timestamp, forceNotify: true);
+                SetCurrentTimeInternal(timestamp, forceNotify: true, SimulationTimeChangeKind.Seek);
             }
         }
 

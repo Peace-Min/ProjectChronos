@@ -62,6 +62,8 @@
     <Compile Include="Converters\PriorityToTagConverter.cs" />
     <Compile Include="Core\RelayCommand.cs" />
     <Compile Include="Core\ViewModelBase.cs" />
+    <Compile Include="Messages\SimulationTimeChangeKind.cs" />
+    <Compile Include="Messages\SimulationTimeChangedMessage.cs" />
     <Compile Include="Models\SimulationModels.cs" />
     <Compile Include="Services\TimelineReportDefinitionService.cs" />
     <Compile Include="Services\TimelineReportExportService.cs" />
