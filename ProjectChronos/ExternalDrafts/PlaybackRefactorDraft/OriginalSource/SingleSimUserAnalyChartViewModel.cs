@@ -94,8 +94,10 @@ namespace OSTES.ViewModel.SIngleSim
 
         private CancellationTokenSource _renderCts;
 
+        // Playback 상태에서는 중간 프레임 일부를 생략하여 차트 커서 렌더 부하를 줄인다.
         private DateTime _lastPlaybackRenderAt = DateTime.MinValue;
 
+        // Stop / Event Stop / Seek는 즉시 반영하고, 일반 Playback만 약 30fps 수준으로 제한한다.
         private readonly TimeSpan _playbackRenderInterval = TimeSpan.FromMilliseconds(33);
 
 
@@ -790,6 +792,8 @@ namespace OSTES.ViewModel.SIngleSim
 
             // 이전 작업 취소 및 토큰 갱신.
 
+            // Playback 중간 프레임만 throttle 적용.
+            // 최종 정지 프레임(Stopped / StoppedByEvent / Seek)은 skip하면 안 되므로 바로 통과시킨다.
             if (message.ChangeKind == SimulationTimeChangeKind.Playback)
 
             {
@@ -818,6 +822,8 @@ namespace OSTES.ViewModel.SIngleSim
 
 
 
+            // throttle을 통과한 요청만 기존 cancellation 파이프라인에 태운다.
+            // 이렇게 하면 오래된 렌더 작업은 취소되고 최신 프레임만 UI에 반영된다.
             _renderCts?.Cancel();
 
             _renderCts = new CancellationTokenSource();
