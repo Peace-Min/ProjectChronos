@@ -158,6 +158,26 @@ namespace OSTES.Chart
 
         private LineSeriesCursor _trackingCurosr;
 
+        /** @brief PlaybackCursor 마커 캐시 */
+
+        private readonly Dictionary<int, List<SeriesEventMarker>> _playbackMarkerPool = new Dictionary<int, List<SeriesEventMarker>>();
+
+        /** @brief PlaybackCursor 렌더 상태 캐시 */
+
+        private readonly Dictionary<int, PlaybackCursorSnapshot[]> _playbackSnapshots = new Dictionary<int, PlaybackCursorSnapshot[]>();
+
+        private struct PlaybackCursorSnapshot
+
+        {
+
+            public double X;
+
+            public double Y;
+
+            public bool Visible;
+
+        }
+
 
 
         public UserCustomChart_2DSubplotGraph(ChartViewType chartViewType, string axisXTitle, string axisYTitle)
@@ -351,6 +371,8 @@ namespace OSTES.Chart
 
 
             _chart.EndUpdate();
+
+            ResetPlaybackState();
 
         }
 
@@ -560,17 +582,144 @@ namespace OSTES.Chart
 
         #region IChartPlayback Public API
 
-        public void SetPlaybackCursor() { Debug.WriteLine("미사용 API"); }
+        public void SetPlaybackCursor()
+
+        {
+
+            _chart.BeginUpdate();
+
+
+
+            try
+
+            {
+
+                ResetPlaybackState();
+
+
+
+                for (int seriesIndex = 0; seriesIndex < _chart.ViewXY.FreeformPointLineSeries.Count; seriesIndex++)
+
+                {
+
+                    var series = _chart.ViewXY.FreeformPointLineSeries[seriesIndex];
+
+                    var playbackMarkers = series.SeriesEventMarkers.Where(m => (m.Tag is MarkerType type) && type == MarkerType.PlaybackCursor).ToList();
+
+
+
+                    if (playbackMarkers.Count == 0)
+
+                    {
+
+                        var playbackCursorMarker = CreateEventMarker(MarkerType.PlaybackCursor);
+
+                        playbackCursorMarker.Symbol.BorderColor = series.LineStyle.Color;
+
+                        playbackCursorMarker.Symbol.Color1 = playbackCursorMarker.Symbol.Color2 = playbackCursorMarker.Symbol.Color3 = series.LineStyle.Color;
+
+                        series.SeriesEventMarkers.Add(playbackCursorMarker);
+
+                        playbackMarkers.Add(playbackCursorMarker);
+
+                    }
+
+                    else
+
+                    {
+
+                        foreach (var marker in playbackMarkers)
+
+                        {
+
+                            marker.Symbol.BorderColor = series.LineStyle.Color;
+
+                            marker.Symbol.Color1 = marker.Symbol.Color2 = marker.Symbol.Color3 = series.LineStyle.Color;
+
+                            marker.Visible = false;
+
+                        }
+
+                    }
+
+
+
+                    _playbackMarkerPool[seriesIndex] = playbackMarkers;
+
+                    _playbackSnapshots[seriesIndex] = CreateHiddenPlaybackSnapshots(playbackMarkers.Count);
+
+                }
+
+            }
+
+            finally
+
+            {
+
+                _chart.EndUpdate();
+
+            }
+
+        }
 
 
 
         public void UpdatePlaybackCursorPosition(AddSeriesPointDTO addSeriesPointDTO)
 
         {
+            if (addSeriesPointDTO == null) { return; }
 
             var selectedFreeformPointLineSeries = _chart.ViewXY.FreeformPointLineSeries.ElementAtOrDefault(addSeriesPointDTO.SeriesIndex);
 
             if (selectedFreeformPointLineSeries == null) { return; }
+
+            var points = addSeriesPointDTO.SeriesPoint2D ?? Array.Empty<SeriesPoint>();
+
+            EnsurePlaybackMarkerPool(addSeriesPointDTO.SeriesIndex, points.Length, selectedFreeformPointLineSeries.LineStyle.Color);
+
+            var pooledMarkers = _playbackMarkerPool[addSeriesPointDTO.SeriesIndex];
+
+            var snapshots = _playbackSnapshots[addSeriesPointDTO.SeriesIndex];
+
+            var hasVisualChange = false;
+
+            for (var i = 0; i < pooledMarkers.Count; i++)
+
+            {
+
+                var shouldBeVisible = i < points.Length;
+
+                if (!shouldBeVisible)
+
+                {
+
+                    if (snapshots[i].Visible)
+
+                    {
+
+                        hasVisualChange = true;
+
+                    }
+
+                    continue;
+
+                }
+
+
+
+                var point = points[i];
+
+                if (!snapshots[i].Visible || snapshots[i].X != point.X || snapshots[i].Y != point.Y)
+
+                {
+
+                    hasVisualChange = true;
+
+                }
+
+            }
+
+            if (!hasVisualChange) { return; }
 
 
 
@@ -578,6 +727,67 @@ namespace OSTES.Chart
 
 
 
+            try
+
+            {
+
+                for (var i = 0; i < pooledMarkers.Count; i++)
+
+                {
+
+                    var currentMarker = pooledMarkers[i];
+
+                    if (i < points.Length)
+
+                    {
+
+                        currentMarker.XValue = points[i].X;
+
+                        currentMarker.YValue = points[i].Y;
+
+                        currentMarker.Visible = true;
+
+                        snapshots[i] = new PlaybackCursorSnapshot()
+
+                        {
+
+                            X = points[i].X,
+
+                            Y = points[i].Y,
+
+                            Visible = true
+
+                        };
+
+                    }
+
+                    else
+
+                    {
+
+                        currentMarker.Visible = false;
+
+                        snapshots[i] = new PlaybackCursorSnapshot() { Visible = false };
+
+                    }
+
+                }
+
+            }
+
+            finally
+
+            {
+
+                _chart.EndUpdate();
+
+            }
+
+            return;
+
+
+
+#if false
             try
 
             {
@@ -663,6 +873,7 @@ namespace OSTES.Chart
                 _chart.EndUpdate();
 
             }
+#endif
 
         }
 
@@ -703,6 +914,8 @@ namespace OSTES.Chart
                 _chart = null;
 
             }
+
+            ResetPlaybackState();
 
         }
 
@@ -1183,6 +1396,8 @@ namespace OSTES.Chart
 
 
             _chart.EndUpdate();
+
+            ResetPlaybackState();
 
         }
 
@@ -2291,6 +2506,92 @@ namespace OSTES.Chart
                 _chart.ViewXY.LineSeriesCursors.Remove(cursorSeries);
 
             }
+
+        }
+
+        private void EnsurePlaybackMarkerPool(int seriesIndex, int requiredCount, Color color)
+
+        {
+
+            if (!_playbackMarkerPool.TryGetValue(seriesIndex, out var markers))
+
+            {
+
+                markers = new List<SeriesEventMarker>();
+
+                _playbackMarkerPool[seriesIndex] = markers;
+
+            }
+
+
+
+            while (markers.Count < requiredCount)
+
+            {
+
+                var marker = CreateEventMarker(MarkerType.PlaybackCursor);
+
+                marker.Symbol.BorderColor = color;
+
+                marker.Symbol.Color1 = marker.Symbol.Color2 = marker.Symbol.Color3 = color;
+
+                _chart.ViewXY.FreeformPointLineSeries[seriesIndex].SeriesEventMarkers.Add(marker);
+
+                markers.Add(marker);
+
+            }
+
+
+
+            if (!_playbackSnapshots.TryGetValue(seriesIndex, out var snapshots))
+
+            {
+
+                snapshots = Array.Empty<PlaybackCursorSnapshot>();
+
+            }
+
+
+
+            if (snapshots.Length >= markers.Count) { return; }
+
+
+
+            var expanded = new PlaybackCursorSnapshot[markers.Count];
+
+            Array.Copy(snapshots, expanded, snapshots.Length);
+
+            _playbackSnapshots[seriesIndex] = expanded;
+
+        }
+
+        private PlaybackCursorSnapshot[] CreateHiddenPlaybackSnapshots(int count)
+
+        {
+
+            var snapshots = new PlaybackCursorSnapshot[count];
+
+            for (var i = 0; i < count; i++)
+
+            {
+
+                snapshots[i] = new PlaybackCursorSnapshot() { Visible = false };
+
+            }
+
+
+
+            return snapshots;
+
+        }
+
+        private void ResetPlaybackState()
+
+        {
+
+            _playbackMarkerPool.Clear();
+
+            _playbackSnapshots.Clear();
 
         }
 
