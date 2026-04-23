@@ -594,6 +594,7 @@ namespace OSTES.Chart
 
             {
 
+                // 차트 재생성 이후 기존 PlaybackCursor 참조가 남지 않도록 캐시를 먼저 초기화한다.
                 ResetPlaybackState();
 
 
@@ -604,6 +605,7 @@ namespace OSTES.Chart
 
                     var series = _chart.ViewXY.FreeformPointLineSeries[seriesIndex];
 
+                    // 시리즈별 기존 PlaybackCursor 마커를 재사용하고, 없으면 1개만 선생성한다.
                     var playbackMarkers = series.SeriesEventMarkers.Where(m => (m.Tag is MarkerType type) && type == MarkerType.PlaybackCursor).ToList();
 
 
@@ -683,6 +685,7 @@ namespace OSTES.Chart
 
             var hasVisualChange = false;
 
+            // 마지막으로 반영한 좌표와 동일하면 차트 갱신을 생략한다.
             for (var i = 0; i < pooledMarkers.Count; i++)
 
             {
@@ -731,6 +734,7 @@ namespace OSTES.Chart
 
             {
 
+                // marker pool에 확보된 PlaybackCursor만 갱신하고, 남는 marker는 숨긴다.
                 for (var i = 0; i < pooledMarkers.Count; i++)
 
                 {
@@ -2529,6 +2533,7 @@ namespace OSTES.Chart
 
             {
 
+                // 같은 시점에 여러 point가 수신되는 경우에만 PlaybackCursor 마커를 추가 생성한다.
                 var marker = CreateEventMarker(MarkerType.PlaybackCursor);
 
                 marker.Symbol.BorderColor = color;
@@ -2589,6 +2594,7 @@ namespace OSTES.Chart
 
         {
 
+            // ClearChart / ResetMarkers / Dispose 이후 stale playback cache를 제거한다.
             _playbackMarkerPool.Clear();
 
             _playbackSnapshots.Clear();

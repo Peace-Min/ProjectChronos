@@ -14,9 +14,11 @@ namespace OSTES.Chart
     /// </summary>
     public partial class UserCustomChart_2DGraph
     {
+        // 시리즈별 PlaybackCursor 마커를 재사용하기 위한 캐시.
         private readonly Dictionary<int, List<SeriesEventMarker>> _playbackMarkerPool
             = new Dictionary<int, List<SeriesEventMarker>>();
 
+        // 마지막으로 반영한 PlaybackCursor 좌표를 저장하여 동일 좌표 갱신을 생략한다.
         private readonly Dictionary<int, PlaybackCursorSnapshot[]> _playbackSnapshots
             = new Dictionary<int, PlaybackCursorSnapshot[]>();
 
@@ -33,6 +35,7 @@ namespace OSTES.Chart
 
             try
             {
+                // 차트 재구성 이후 stale reference가 남지 않도록 playback 캐시를 먼저 초기화한다.
                 _playbackMarkerPool.Clear();
                 _playbackSnapshots.Clear();
 
@@ -89,6 +92,7 @@ namespace OSTES.Chart
 
             bool hasVisualChange = false;
 
+            // 동일 좌표/가시성 상태면 marker 갱신 자체를 생략한다.
             for (int i = 0; i < markers.Count; i++)
             {
                 bool shouldBeVisible = i < points.Length;
@@ -157,6 +161,7 @@ namespace OSTES.Chart
                 _playbackMarkerPool[seriesIndex] = markers;
             }
 
+            // 같은 시점에 여러 point가 들어오는 경우에만 marker pool을 확장한다.
             while (markers.Count < requiredCount)
             {
                 var marker = CreatePlaybackMarker(color);
