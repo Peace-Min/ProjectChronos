@@ -94,7 +94,7 @@ namespace OSTES.Chart
 
         /** @brief Delta 계산에 사용되는 최근 선택 포인트 */
 
-        private readonly RecentDeltaPointBuffer _recentDeltaPoints = new RecentDeltaPointBuffer();
+        private readonly RecentDeltaPointBuffer<DeltaPointSnapshot> _recentDeltaPoints = new RecentDeltaPointBuffer<DeltaPointSnapshot>();
 
 
 
@@ -938,7 +938,12 @@ namespace OSTES.Chart
 
                 _selectionPinMarkerSeries.AddPoints(updatSeriesPoint3D, false);
 
-                _recentDeltaPoints.Push(activeSeriesPoint3D);
+                _recentDeltaPoints.Push(new DeltaPointSnapshot
+                {
+                    X = activeSeriesPoint3D.X,
+                    Y = activeSeriesPoint3D.Y,
+                    Z = activeSeriesPoint3D.Z
+                });
 
 
 
@@ -2057,13 +2062,13 @@ namespace OSTES.Chart
         /// 마우스로 선택한 최근 두 3D 포인트를 보관한다.
         /// SelectionPin Marker는 기존 UI 로직이 관리하고, Delta Text는 이 버퍼의 좌표를 기준으로 계산한다.
         /// </summary>
-        private sealed class RecentDeltaPointBuffer
+        private sealed class RecentDeltaPointBuffer<T>
 
         {
 
             /** @brief 최근 선택 포인트 2개를 저장하는 고정 버퍼 */
 
-            private readonly DeltaPointSnapshot[] _points = new DeltaPointSnapshot[2];
+            private readonly T[] _points = new T[2];
 
             /** @brief 다음 클릭 좌표가 저장될 위치 */
 
@@ -2079,33 +2084,21 @@ namespace OSTES.Chart
 
             /** @brief 현재 Delta 계산 기준 중 오래된 포인트 */
 
-            public DeltaPointSnapshot OlderPoint => _points[_nextWriteIndex];
+            public T OlderPoint => _points[_nextWriteIndex];
 
             /** @brief 현재 Delta 계산 기준 중 최신 포인트 */
 
-            public DeltaPointSnapshot NewerPoint => _points[(_nextWriteIndex + 1) % _points.Length];
+            public T NewerPoint => _points[(_nextWriteIndex + 1) % _points.Length];
 
             /// <summary>
             /// 새 선택 좌표를 추가한다.
             /// 2개를 초과하면 가장 오래된 좌표를 덮어써서 항상 최신 두 점만 유지한다.
             /// </summary>
-            public void Push(SeriesPoint3D point)
+            public void Push(T point)
 
             {
 
-                _points[_nextWriteIndex] = new DeltaPointSnapshot
-
-                {
-
-                    X = point.X,
-
-                    Y = point.Y,
-
-                    Z = point.Z,
-
-                    Visible = true
-
-                };
+                _points[_nextWriteIndex] = point;
 
                 _nextWriteIndex = (_nextWriteIndex + 1) % _points.Length;
 
@@ -2150,8 +2143,6 @@ namespace OSTES.Chart
             public double Y;
 
             public double Z;
-
-            public bool Visible;
 
         }
 
