@@ -92,12 +92,6 @@ namespace OSTES.Chart
 
         private bool isFirst;
 
-        /** @brief Delta 계산에 사용되는 최근 선택 포인트 */
-
-        private readonly RecentDeltaPointBuffer<DeltaPointSnapshot> _recentDeltaPoints = new RecentDeltaPointBuffer<DeltaPointSnapshot>();
-
-
-
         /** @brief 해당 인스턴스에 설정된 차트 타입(Diff 계산에 사용됨). */
 
         private readonly ChartViewType _chartViewType;
@@ -422,8 +416,6 @@ namespace OSTES.Chart
 
             _chart.EndUpdate();
 
-            ResetDeltaPointState();
-
         }
 
         #endregion
@@ -714,8 +706,6 @@ namespace OSTES.Chart
 
             }
 
-            ResetDeltaPointState();
-
         }
 
         #endregion
@@ -937,15 +927,6 @@ namespace OSTES.Chart
                 _selectionPinMarkerSeries.Clear();
 
                 _selectionPinMarkerSeries.AddPoints(updatSeriesPoint3D, false);
-
-                _recentDeltaPoints.Push(new DeltaPointSnapshot
-                {
-                    X = activeSeriesPoint3D.X,
-                    Y = activeSeriesPoint3D.Y,
-                    Z = activeSeriesPoint3D.Z
-                });
-
-
 
                 SetAnnotation3D(annot, activeSeriesPoint3D);
 
@@ -1178,8 +1159,6 @@ namespace OSTES.Chart
 
 
             _chart.EndUpdate();
-
-            ResetDeltaPointState();
 
         }
 
@@ -1561,13 +1540,15 @@ namespace OSTES.Chart
 
         {
 
-            if (_recentDeltaPoints.HasTwoPoints)
+            if ((_selectionPinMarkerSeries?.Points?.Length ?? 0) >= 2 &&
+                HasValidDeltaPoint(_selectionPinMarkerSeries.Points[0]) &&
+                HasValidDeltaPoint(_selectionPinMarkerSeries.Points[1]))
 
             {
 
-                var value1 = _recentDeltaPoints.OlderPoint;
+                var value1 = _selectionPinMarkerSeries.Points[0];
 
-                var value2 = _recentDeltaPoints.NewerPoint;
+                var value2 = _selectionPinMarkerSeries.Points[1];
 
 
 
@@ -1968,6 +1949,14 @@ namespace OSTES.Chart
 
         }
 
+        private bool HasValidDeltaPoint(SeriesPoint3D point)
+
+        {
+
+            return !double.IsNaN(point.X) && !double.IsNaN(point.Y) && !double.IsNaN(point.Z);
+
+        }
+
 
 
         private void EditorBox_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -2045,28 +2034,6 @@ namespace OSTES.Chart
                 _editingAnnotation3D.Text = newText;
 
             }
-
-        }
-
-        private void ResetDeltaPointState()
-
-        {
-
-            _recentDeltaPoints.Clear();
-
-            isFirst = false;
-
-        }
-
-        private struct DeltaPointSnapshot
-
-        {
-
-            public double X;
-
-            public double Y;
-
-            public double Z;
 
         }
 

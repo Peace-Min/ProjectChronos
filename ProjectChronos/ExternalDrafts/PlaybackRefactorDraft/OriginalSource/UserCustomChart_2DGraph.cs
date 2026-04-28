@@ -132,11 +132,9 @@ namespace OSTES.Chart
 
         private bool isFirst;
 
-        /** @brief Delta 계산에 사용되는 최근 선택 포인트 */
+        /** @brief 최근 선택된 두 점과 해당 마커를 함께 관리하는 Delta 계산 버퍼 */
 
-        private readonly RecentDeltaPointBuffer<DeltaPointSnapshot> _recentDeltaPoints = new RecentDeltaPointBuffer<DeltaPointSnapshot>();
-
-
+        private readonly DeltaSelectionMarkerBuffer _deltaSelectionMarkers = new DeltaSelectionMarkerBuffer();
 
         /** @brief 차트 전시 범위 */
 
@@ -408,9 +406,9 @@ namespace OSTES.Chart
 
 
 
-            ResetDeltaPointState();
-
             ResetPlaybackCursorState();
+
+            ResetSelectionPinMarkerState();
 
         }
 
@@ -894,9 +892,9 @@ namespace OSTES.Chart
 
 
 
-            ResetDeltaPointState();
-
             ResetPlaybackCursorState();
+
+            ResetSelectionPinMarkerState();
 
         }
 
@@ -1100,10 +1098,6 @@ namespace OSTES.Chart
 
                 {
 
-                    var isDel = false;
-
-
-
                     annot = GetDeltaAnnotation();
 
                     isFirst = !isFirst;
@@ -1118,25 +1112,11 @@ namespace OSTES.Chart
 
 
 
-                    if (!isDel)
-
-                    {
-
-                        marker = GetDeltaEventMarker(bestLineSeries);
-
-                        marker.XValue = xValue;
-
-                        marker.YValue = yValue;
-
-                        marker.Visible = true;
-
-                        _recentDeltaPoints.Push(new DeltaPointSnapshot
-                        {
-                            X = xValue,
-                            Y = yValue
-                        });
-
-                    }
+                    marker = _deltaSelectionMarkers.Push(
+                        bestLineSeries,
+                        () => CreateEventMarker(MarkerType.SelectionPin),
+                        xValue,
+                        yValue);
 
                 }
 
@@ -1360,9 +1340,9 @@ namespace OSTES.Chart
 
 
 
-            ResetDeltaPointState();
-
             ResetPlaybackCursorState();
+
+            ResetSelectionPinMarkerState();
 
         }
 
@@ -1750,13 +1730,13 @@ namespace OSTES.Chart
 
         {
 
-            if (_recentDeltaPoints.HasTwoPoints)
+            if (_deltaSelectionMarkers.HasTwoPoints)
 
             {
 
-                var value1 = _recentDeltaPoints.OlderPoint;
+                var value1 = _deltaSelectionMarkers.FirstPoint;
 
-                var value2 = _recentDeltaPoints.NewerPoint;
+                var value2 = _deltaSelectionMarkers.SecondPoint;
 
 
 
@@ -1864,65 +1844,7 @@ namespace OSTES.Chart
 
         */
 
-        private SeriesEventMarker GetDeltaEventMarker(FreeformPointLineSeries series)
-
-        {
-
-            var marker = default(SeriesEventMarker);
-
-
-
-            var diffMarkers = _chart.ViewXY.FreeformPointLineSeries.SelectMany(item => item.SeriesEventMarkers.Where(m => (m.Visible) && (m.Tag is MarkerType type) && (type == MarkerType.SelectionPin))).ToList();
-
-            if (diffMarkers.Count() < 2) //! delta event marker가 3개 미만이면 생성
-
-            {
-
-                marker = CreateEventMarker(MarkerType.SelectionPin);
-
-                series.SeriesEventMarkers.Add(marker);
-
-            }
-
-            else
-
-            {
-
-                if (isFirst)  //! delta aevent marker가 3개이상이면 순차적으로 반환
-
-                {
-
-                    diffMarkers.ElementAt(0).Visible = false;
-
-
-
-                    marker = CreateEventMarker(MarkerType.SelectionPin);
-
-                    series.SeriesEventMarkers.Add(marker);
-
-                }
-
-                else
-
-                {
-
-                    diffMarkers.ElementAt(1).Visible = false;
-
-
-
-                    marker = CreateEventMarker(MarkerType.SelectionPin);
-
-                    series.SeriesEventMarkers.Add(marker);
-
-                }
-
-            }
-
-
-
-            return marker;
-
-        }
+        
 
 
 
@@ -2286,18 +2208,6 @@ namespace OSTES.Chart
 
         }
 
-        private void ResetDeltaPointState()
-
-        {
-
-            _recentDeltaPoints.Clear();
-
-            isFirst = false;
-
-        }
-
-
-
         private void EnsurePlaybackMarkerPool(int seriesIndex, int requiredCount, Color color)
 
         {
@@ -2422,6 +2332,16 @@ namespace OSTES.Chart
 
         }
 
+        private void ResetSelectionPinMarkerState()
+
+        {
+
+            _deltaSelectionMarkers.Clear();
+
+            isFirst = false;
+
+        }
+
         private struct DeltaPointSnapshot
 
         {
@@ -2429,6 +2349,76 @@ namespace OSTES.Chart
             public double X;
 
             public double Y;
+
+            public bool HasValue;
+
+        }
+
+        private sealed class DeltaSelectionMarkerBuffer
+
+        {
+
+            private readonly SeriesEventMarker[] _markers = new SeriesEventMarker[2];
+
+            private readonly DeltaPointSnapshot[] _points = new DeltaPointSnapshot[2];
+
+            private int _nextIndex;
+
+            public bool HasTwoPoints => _points.All(point => point.HasValue);
+
+            public DeltaPointSnapshot FirstPoint => _points[0];
+
+            public DeltaPointSnapshot SecondPoint => _points[1];
+
+            public SeriesEventMarker Push(FreeformPointLineSeries series, Func<SeriesEventMarker> createMarker, double xValue, double yValue)
+
+            {
+
+                var markerIndex = _nextIndex;
+                var marker = _markers[markerIndex];
+
+                if ((marker == null) || !series.SeriesEventMarkers.Contains(marker))
+                {
+                    if (marker != null)
+                    {
+                        marker.Visible = false;
+                    }
+
+                    marker = createMarker();
+                    series.SeriesEventMarkers.Add(marker);
+                    _markers[markerIndex] = marker;
+                }
+
+                marker.XValue = xValue;
+                marker.YValue = yValue;
+                marker.Visible = true;
+
+                _points[markerIndex] = new DeltaPointSnapshot
+                {
+                    X = xValue,
+                    Y = yValue,
+                    HasValue = true
+                };
+
+                _nextIndex = (_nextIndex + 1) % _markers.Length;
+
+                return marker;
+
+            }
+
+            public void Clear()
+
+            {
+
+                for (var i = 0; i < _markers.Length; i++)
+                {
+                    _markers[i] = null;
+                    _points[i] = default;
+                }
+
+                _nextIndex = 0;
+
+            }
 
         }
 
