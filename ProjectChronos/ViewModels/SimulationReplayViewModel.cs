@@ -47,18 +47,16 @@ namespace ProjectChronos.ViewModels
         public double TimeResolution => _timeResolution;
 
         // --- 성능 최적화 ---
-        // 메시지 전송 스로틀링: DB 데이터 간격(10ms)만큼만 메시지를 보냄
+        // 메시지 전송 스로틀링: 렌더링 가능한 UI 갱신 cadence로 수신부 메시지를 제한합니다.
         private DateTime _lastNotifyUtc = DateTime.MinValue;
 
         // 이벤트 마커 정렬 캐시 (StepEvent 성능 최적화용)
         private System.Collections.Generic.List<SimulationMarkerGroup> _sortedGroups;
+        private System.Collections.Generic.List<SimulationEventMarker> _sourceEvents;
 
-        private int _setTimeCallCount = 0;
-        private int _notifyCallCount = 0;
-        private int _notifySentCount = 0;
-        private int _notifyThrottledCount = 0;
-        private int _tickCallCount = 0;
-        private DateTime _debugCounterResetTime;
+        private bool _isUiTimeUpdatePending = false;
+        private bool _forcePendingUiTimeDisplayUpdate = false;
+        private DateTime _lastTimeDisplayUpdateUtc = DateTime.MinValue;
 
 
 
@@ -71,19 +69,24 @@ namespace ProjectChronos.ViewModels
         // [상수 (Constants)]
         // -----------------------------------------------------------
 
-        /// <summary>메시지 전송 최소 간격 (초) - DB 데이터 간격과 동일</summary>
+        /// <summary>재생 중 수신부 메시지 전송 최소 간격 (밀리초)</summary>
         private const int PlaybackRenderIntervalMs = 100;
+
+        /// <summary>재생 중 현재 시간 텍스트 표시 갱신 최소 간격 (밀리초)</summary>
+        private const int CurrentTimeDisplayUpdateIntervalMs = 100;
 
         /// <summary>Tick에서 허용하는 최대 델타 타임 (초) - 시스템 렉 방지</summary>
 
-        /// <summary>현재 시간과 이벤트 매칭 시 허용 오차 (초)</summary>
-        private const double EventMatchEpsilon = 0.005; // 5ms
+        /// <summary>현재 시간과 이벤트 매칭 시 허용하는 최대 오차 (초)</summary>
+        private const double MaxEventMatchEpsilon = 0.005; // 5ms
 
-        /// <summary>시간 변경 감지 최소 오차 (초)</summary>
-        private const double TimeChangeTolerance = 0.0001;
+        /// <summary>시간 변경 감지에 사용하는 최대 오차 (초)</summary>
+        private const double MaxTimeChangeTolerance = 0.0001;
 
-        /// <summary>이벤트 탐색 시 현재 위치 회피 오차 (초)</summary>
-        private const double EventSearchEpsilon = 0.0001;
+        /// <summary>이벤트 탐색 시 현재 위치 회피에 사용하는 최대 오차 (초)</summary>
+        private const double MaxEventSearchEpsilon = 0.0001;
+
+        private const double MinTimeEpsilon = 0.000000001;
 
 
         // -----------------------------------------------------------
@@ -106,6 +109,12 @@ namespace ProjectChronos.ViewModels
 
         public event Action<SimulationTimeChangedMessage> SimulationTimeChanged;
 
+        private void RaiseCurrentTimeDisplayChanged()
+        {
+            _lastTimeDisplayUpdateUtc = DateTime.UtcNow;
+            OnPropertyChanged(nameof(CurrentTimeDisplay));
+        }
+
         public void Clear()
         {
             if (IsPlaying)
@@ -122,6 +131,7 @@ namespace ProjectChronos.ViewModels
             _playbackSpeed = 1.0;
 
             Events.Clear();
+            _sourceEvents = null;
             _sortedGroups = null;
             CurrentEvents = null;
 
@@ -138,10 +148,13 @@ namespace ProjectChronos.ViewModels
             ExtraEventCount = 0;
 
             _lastNotifyUtc = DateTime.MinValue;
+            _lastTimeDisplayUpdateUtc = DateTime.MinValue;
+            _isUiTimeUpdatePending = false;
+            _forcePendingUiTimeDisplayUpdate = false;
             _startWallTime = 0.0;
             _startSimTime = 0.0;
 
-            OnPropertyChanged(nameof(CurrentTimeDisplay));
+            RaiseCurrentTimeDisplayChanged();
             OnPropertyChanged(nameof(TotalTimeDisplay));
             OnPropertyChanged(nameof(CurrentTime));
             OnPropertyChanged(nameof(TotalDuration));
@@ -155,9 +168,10 @@ namespace ProjectChronos.ViewModels
                 _timeResolution = resolutionSeconds;
             }
 
-            System.Diagnostics.Debug.WriteLine($"[TimeRes] Resolution changed: {_timeResolution:F6}s ({_timeResolution * 1000:F3}ms)");
             UpdateTimeDisplayFormat();
-            OnPropertyChanged(nameof(CurrentTimeDisplay));
+            RebuildEventGroups();
+            SetCurrentTimeInternal(CurrentTime, forceNotify: true, SimulationTimeChangeKind.Seek);
+            RaiseCurrentTimeDisplayChanged();
             OnPropertyChanged(nameof(TotalTimeDisplay));
             OnPropertyChanged(nameof(StepIntervalText));
             OnPropertyChanged(nameof(JumpTargetTimeText));
@@ -167,7 +181,7 @@ namespace ProjectChronos.ViewModels
 
         private void UpdateTimeDisplayFormat()
         {
-            int digits = (int)-Math.Floor(Math.Log10(_timeResolution));
+            int digits = GetResolutionDecimalDigits();
             _timeDisplayFormat = digits > 0
                 ? "mm\\:ss\\." + new string('f', digits)
                 : "mm\\:ss";
@@ -175,6 +189,95 @@ namespace ProjectChronos.ViewModels
                 ? "0." + new string('0', digits)
                 : "0";
             _numericTimeMinWidth = 62 + (digits - 2) * 8;
+        }
+
+        private int GetResolutionDecimalDigits()
+        {
+            if (_timeResolution >= 1.0)
+            {
+                return 0;
+            }
+
+            return Math.Min(9, Math.Max(0, (int)Math.Ceiling(-Math.Log10(_timeResolution))));
+        }
+
+        private double NormalizeReplayTime(double value)
+        {
+            if (double.IsNaN(value) || double.IsInfinity(value))
+            {
+                return _currentTime;
+            }
+
+            if (value <= 0.0)
+            {
+                return 0.0;
+            }
+
+            if (TotalDuration > 0.0 && value >= TotalDuration)
+            {
+                return TotalDuration;
+            }
+
+            double clamped = TotalDuration > 0.0 ? Math.Min(value, TotalDuration) : value;
+            if (_timeResolution <= 0.0)
+            {
+                return clamped;
+            }
+
+            double normalized = Math.Round(clamped / _timeResolution, MidpointRounding.AwayFromZero) * _timeResolution;
+            if (TotalDuration > 0.0)
+            {
+                normalized = Math.Min(normalized, TotalDuration);
+            }
+
+            return Math.Max(0.0, normalized);
+        }
+
+        private double NormalizeReplayDuration(double value)
+        {
+            if (double.IsNaN(value) || double.IsInfinity(value) || value <= 0.0)
+            {
+                return _timeResolution > 0.0 ? _timeResolution : 0.0;
+            }
+
+            if (_timeResolution <= 0.0)
+            {
+                return value;
+            }
+
+            return Math.Max(
+                _timeResolution,
+                Math.Round(value / _timeResolution, MidpointRounding.AwayFromZero) * _timeResolution);
+        }
+
+        private double GetResolutionHalfStep()
+        {
+            return _timeResolution > 0.0
+                ? Math.Max(_timeResolution * 0.5, MinTimeEpsilon)
+                : MinTimeEpsilon;
+        }
+
+        private double GetTimeChangeTolerance()
+        {
+            double resolutionNoiseTolerance = _timeResolution > 0.0
+                ? Math.Max(_timeResolution * 0.000001, MinTimeEpsilon)
+                : MinTimeEpsilon;
+            return Math.Min(MaxTimeChangeTolerance, resolutionNoiseTolerance);
+        }
+
+        private double GetEventMatchEpsilon()
+        {
+            return Math.Min(MaxEventMatchEpsilon, GetResolutionHalfStep());
+        }
+
+        private double GetEventSearchEpsilon()
+        {
+            return Math.Min(MaxEventSearchEpsilon, GetResolutionHalfStep());
+        }
+
+        private double GetEventGroupKey(double timestamp)
+        {
+            return NormalizeReplayTime(timestamp);
         }
 
         public double NumericTimeMinWidth
@@ -204,35 +307,8 @@ namespace ProjectChronos.ViewModels
         {
             TotalDuration = totalDuration;
 
-            // 기존 이벤트 클리어 후 다시 추가
-            Events.Clear();
-            if (events != null)
-            {
-                // 1. StepEvent 기능을 위해 그룹 캐시 생성
-                _sortedGroups = events
-                    .GroupBy(e => Math.Round(e.Timestamp, 3))
-                    .Select(g => new SimulationMarkerGroup(g.Key, g))
-                    .OrderBy(g => g.Timestamp)
-                    .ToList();
-
-                // 2. 개별 이벤트 리스트(Events) 채우기 및 Primary 마커(Tick 용) 설정
-                // EventMarkerPanel이 개별 이벤트마다 레이블 너비를 실측하여 X축 충돌을 감지합니다.
-                foreach (var group in _sortedGroups)
-                {
-                    bool isFirst = true;
-                    foreach (var ev in group.Events)
-                    {
-                        ev.IsPrimaryMarker = isFirst;
-                        ev.MarkerPriority = group.MaxPriority; // 그룹 내 가장 높은 우선순위 색상을 틱에 적용
-                        Events.Add(ev);
-                        isFirst = false;
-                    }
-                }
-            }
-            else
-            {
-                _sortedGroups = null;
-            }
+            _sourceEvents = events?.ToList();
+            RebuildEventGroups();
 
             CurrentTime = 0.0;
             IsPlaying = false;
@@ -255,12 +331,42 @@ namespace ProjectChronos.ViewModels
             if (_sortedGroups == null || _sortedGroups.Count == 0) return;
 
             // 0초 근처(EventMatchEpsilon 이내)에 있는 그룹 찾기
-            var zeroGroup = _sortedGroups.FirstOrDefault(g => Math.Abs(g.Timestamp) <= EventMatchEpsilon);
+            var zeroGroup = _sortedGroups.FirstOrDefault(g => Math.Abs(g.Timestamp) <= GetEventMatchEpsilon());
 
             if (zeroGroup != null)
             {
                 CurrentEvents = zeroGroup.Events;
-                System.Diagnostics.Debug.WriteLine($"[Init] Event found at 0s - Count: {zeroGroup.Events.Count}");
+            }
+        }
+
+        private void RebuildEventGroups()
+        {
+            Events.Clear();
+            CurrentEvents = null;
+
+            if (_sourceEvents == null || _sourceEvents.Count == 0)
+            {
+                _sortedGroups = null;
+                return;
+            }
+
+            _sortedGroups = _sourceEvents
+                .GroupBy(e => GetEventGroupKey(e.Timestamp))
+                .Select(g => new SimulationMarkerGroup(g.Key, g))
+                .OrderBy(g => g.Timestamp)
+                .ToList();
+
+            // EventMarkerPanel이 개별 이벤트마다 레이블 너비를 실측하여 X축 충돌을 감지합니다.
+            foreach (var group in _sortedGroups)
+            {
+                bool isFirst = true;
+                foreach (var ev in group.Events)
+                {
+                    ev.IsPrimaryMarker = isFirst;
+                    ev.MarkerPriority = group.MaxPriority;
+                    Events.Add(ev);
+                    isFirst = false;
+                }
             }
         }
 
@@ -327,10 +433,7 @@ namespace ProjectChronos.ViewModels
 
         private void SetCurrentTimeInternal(double value, bool forceNotify, SimulationTimeChangeKind changeKind, bool asyncNotify, bool resetWallClock)
         {
-            if (value < 0.0) value = 0.0;
-            if (value > TotalDuration) value = TotalDuration;
-
-            _setTimeCallCount++;
+            value = NormalizeReplayTime(value);
 
             if (IsPlaying && resetWallClock)
             {
@@ -338,39 +441,34 @@ namespace ProjectChronos.ViewModels
                 _startSimTime = value;
             }
 
-            if (SetProperty(ref _currentTime, value))
+            if (Math.Abs(_currentTime - value) > GetTimeChangeTolerance())
             {
-                if (_setTimeCallCount % 1000 == 0)
-                {
-                    PrintDebugCounters();
-                }
+                _currentTime = value;
 
                 if (asyncNotify)
                 {
-                    Task.Run(() => NotifyTimeChanged(_currentTime, changeKind, forceNotify));
-
-                    Application.Current.Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        OnPropertyChanged(nameof(CurrentTimeDisplay));
-                        OnPropertyChanged(nameof(CurrentTime));
-                    }), DispatcherPriority.DataBind);
+                    PublishTimeChangedAsyncIfDue(_currentTime, changeKind, forceNotify);
+                    QueueUiTimeUpdate(forceDisplayUpdate: forceNotify || changeKind != SimulationTimeChangeKind.Playback);
                 }
                 else
                 {
-                    OnPropertyChanged(nameof(CurrentTimeDisplay));
+                    RaiseCurrentTimeDisplayChanged();
                     OnPropertyChanged(nameof(CurrentTime));
-                    NotifyTimeChanged(_currentTime, changeKind, forceNotify);
+                    PublishTimeChangedIfDue(_currentTime, changeKind, forceNotify);
                 }
             }
             else if (forceNotify)
             {
                 if (asyncNotify)
                 {
-                    Task.Run(() => NotifyTimeChanged(_currentTime, changeKind, forceNotify: true));
+                    PublishTimeChangedAsyncIfDue(_currentTime, changeKind, forceNotify: true);
+                    QueueUiTimeUpdate(forceDisplayUpdate: true);
                 }
                 else
                 {
-                    NotifyTimeChanged(_currentTime, changeKind, forceNotify: true);
+                    RaiseCurrentTimeDisplayChanged();
+                    OnPropertyChanged(nameof(CurrentTime));
+                    PublishTimeChangedIfDue(_currentTime, changeKind, forceNotify: true);
                 }
             }
         }
@@ -463,7 +561,7 @@ namespace ProjectChronos.ViewModels
             {
                 if (double.TryParse(value, out double result) && result > 0)
                 {
-                    StepIntervalSeconds = result;
+                    StepIntervalSeconds = NormalizeReplayDuration(result);
                 }
                 OnPropertyChanged(nameof(StepIntervalText));
             }
@@ -480,7 +578,7 @@ namespace ProjectChronos.ViewModels
             {
                 if (double.TryParse(value, out double result))
                 {
-                    _jumpTargetTime = result;
+                    _jumpTargetTime = NormalizeReplayTime(result);
                 }
                 OnPropertyChanged(nameof(JumpTargetTimeText));
             }
@@ -524,10 +622,6 @@ namespace ProjectChronos.ViewModels
                     }
                     _previousHighlightedEvents = _currentEvents;
 
-                    if (_currentEvents != null && _currentEvents.Count > 0)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"[Events Detected] Count: {_currentEvents.Count} at {_currentEvents[0].Timestamp:F2}s");
-                    }
                     UpdateEventSummary();
                 }
             }
@@ -588,55 +682,104 @@ namespace ProjectChronos.ViewModels
         /// <param name="forceNotify">true일 경우 스로틀링을 무시하고 강제로 메시지 전송 (이벤트 스냅, 수동 탐색 등)</param>
         private void NotifyTimeChanged(double newTime, bool forceNotify = false)
         {
-            NotifyTimeChanged(newTime, SimulationTimeChangeKind.Seek, forceNotify);
+            PublishTimeChangedIfDue(newTime, SimulationTimeChangeKind.Seek, forceNotify);
         }
 
         private void NotifyTimeChanged(double newTime, SimulationTimeChangeKind changeKind, bool forceNotify = false)
         {
-            _notifyCallCount++;
+            PublishTimeChangedIfDue(newTime, changeKind, forceNotify);
+        }
 
-            if (!_isRealtimeRenderingEnabled && !forceNotify) return;
+        private void PublishTimeChangedAsyncIfDue(double newTime, SimulationTimeChangeKind changeKind, bool forceNotify)
+        {
+            var message = CreateTimeChangedMessageIfDue(newTime, changeKind, forceNotify);
+            if (message == null)
+            {
+                return;
+            }
+
+            Task.Run(() => SimulationTimeChanged?.Invoke(message));
+        }
+
+        private void PublishTimeChangedIfDue(double newTime, SimulationTimeChangeKind changeKind, bool forceNotify)
+        {
+            var message = CreateTimeChangedMessageIfDue(newTime, changeKind, forceNotify);
+            if (message == null)
+            {
+                return;
+            }
+
+            SimulationTimeChanged?.Invoke(message);
+        }
+
+        private SimulationTimeChangedMessage CreateTimeChangedMessageIfDue(double newTime, SimulationTimeChangeKind changeKind, bool forceNotify)
+        {
+            if (!_isRealtimeRenderingEnabled && !forceNotify) return null;
 
             bool shouldNotify = forceNotify || (DateTime.UtcNow - _lastNotifyUtc) >= TimeSpan.FromMilliseconds(PlaybackRenderIntervalMs);
 
             if (!shouldNotify)
             {
-                _notifyThrottledCount++;
-                return;
+                return null;
             }
 
-            _notifySentCount++;
             _lastNotifyUtc = DateTime.UtcNow;
 
             if (!IsPlaying || forceNotify)
             {
+                double eventMatchEpsilon = GetEventMatchEpsilon();
                 var matchedGroup = _sortedGroups?
-                    .FirstOrDefault(g => Math.Abs(g.Timestamp - newTime) <= EventMatchEpsilon);
+                    .FirstOrDefault(g => Math.Abs(g.Timestamp - newTime) <= eventMatchEpsilon);
 
                 CurrentEvents = matchedGroup?.Events;
             }
 
-            if (_isInitialize)
+            if (!_isInitialize)
             {
-                if (!HasInteracted && (changeKind == SimulationTimeChangeKind.Seek || changeKind == SimulationTimeChangeKind.Playback))
-                {
-                    HasInteracted = true;
-                }
-
-                bool logForce = forceNotify || _notifySentCount % 100 == 0;
-                if (logForce)
-                {
-                    double elapsed = (DateTime.UtcNow - _debugCounterResetTime).TotalSeconds;
-                    double rate = elapsed > 0 ? _notifySentCount / elapsed : 0;
-                    System.Diagnostics.Debug.WriteLine(
-                        $"[TimeMsg] send t={Math.Round(newTime, 4)}F, kind={changeKind}, force={forceNotify} | " +
-                        $"counts call={_notifyCallCount}, sent={_notifySentCount}, throttled={_notifyThrottledCount} | " +
-                        $"rate={rate:F1}/s, elapsed={elapsed:F1}s");
-                }
-
-                var currentEvent = CurrentEvents?.FirstOrDefault();
-                SimulationTimeChanged?.Invoke(new SimulationTimeChangedMessage(newTime, currentEvent, changeKind));
+                return null;
             }
+
+            if (!HasInteracted && (changeKind == SimulationTimeChangeKind.Seek || changeKind == SimulationTimeChangeKind.Playback))
+            {
+                HasInteracted = true;
+            }
+
+            var currentEvent = CurrentEvents?.FirstOrDefault();
+            return new SimulationTimeChangedMessage(newTime, currentEvent, changeKind);
+        }
+
+        private void QueueUiTimeUpdate(bool forceDisplayUpdate)
+        {
+            if (forceDisplayUpdate)
+            {
+                _forcePendingUiTimeDisplayUpdate = true;
+            }
+
+            if (_isUiTimeUpdatePending)
+            {
+                return;
+            }
+
+            _isUiTimeUpdatePending = true;
+            Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                _isUiTimeUpdatePending = false;
+                bool updateDisplay = _forcePendingUiTimeDisplayUpdate || ShouldUpdateCurrentTimeDisplay();
+                _forcePendingUiTimeDisplayUpdate = false;
+
+                if (updateDisplay)
+                {
+                    RaiseCurrentTimeDisplayChanged();
+                }
+
+                OnPropertyChanged(nameof(CurrentTime));
+            }), DispatcherPriority.DataBind);
+        }
+
+        private bool ShouldUpdateCurrentTimeDisplay()
+        {
+            return (DateTime.UtcNow - _lastTimeDisplayUpdateUtc) >=
+                   TimeSpan.FromMilliseconds(CurrentTimeDisplayUpdateIntervalMs);
         }
 
         private void TogglePlayPause()
@@ -662,12 +805,9 @@ namespace ProjectChronos.ViewModels
             _startWallTime = _stopwatch.Elapsed.TotalSeconds;
             _startSimTime = CurrentTime;
 
-            _setTimeCallCount = 0;
-            _notifyCallCount = 0;
-            _notifySentCount = 0;
-            _notifyThrottledCount = 0;
-            _tickCallCount = 0;
-            _debugCounterResetTime = DateTime.UtcNow;
+            _isUiTimeUpdatePending = false;
+            _forcePendingUiTimeDisplayUpdate = false;
+            _lastTimeDisplayUpdateUtc = DateTime.MinValue;
         }
 
         private void StopPlayback()
@@ -675,40 +815,15 @@ namespace ProjectChronos.ViewModels
             _stopwatch.Stop();
         }
 
-        private void PrintDebugCounters()
-        {
-            double elapsed = (DateTime.UtcNow - _debugCounterResetTime).TotalSeconds;
-            double tickRate = elapsed > 0 ? _tickCallCount / elapsed : 0;
-            double setTimeRate = elapsed > 0 ? _setTimeCallCount / elapsed : 0;
-            double notifyRate = elapsed > 0 ? _notifySentCount / elapsed : 0;
-            double throttlePct = _notifyCallCount > 0 ? (double)_notifyThrottledCount / _notifyCallCount * 100 : 0;
-
-            System.Diagnostics.Debug.WriteLine(
-                $"[TimeDebug] elapsed={elapsed:F1}s | " +
-                $"Tick={_tickCallCount}({tickRate:F1}/s) | " +
-                $"SetTime={_setTimeCallCount}({setTimeRate:F1}/s) | " +
-                $"Notify=sent{_notifySentCount}/throttled{_notifyThrottledCount}({throttlePct:F1}%) | " +
-                $"actualSend={notifyRate:F1}/s | " +
-                $"resolution={_timeResolution * 1000:F3}ms | " +
-                $"speed={PlaybackSpeed}x");
-        }
-
         public void Tick(object sender, EventArgs e)
         {
             if (!IsPlaying) return;
-
-            _tickCallCount++;
 
             double currentWallTime = _stopwatch.Elapsed.TotalSeconds;
             double elapsedWallSeconds = currentWallTime - _startWallTime;
             double nextTime = _startSimTime + elapsedWallSeconds * PlaybackSpeed;
 
-            nextTime = Math.Round(nextTime / _timeResolution) * _timeResolution;
-
-            if (_tickCallCount % 100 == 0)
-            {
-                PrintDebugCounters();
-            }
+            nextTime = NormalizeReplayTime(nextTime);
 
             if (nextTime >= TotalDuration)
             {
@@ -730,7 +845,6 @@ namespace ProjectChronos.ViewModels
                     SetCurrentTimeInternal(matchedGroup.Timestamp, forceNotify: true, SimulationTimeChangeKind.StoppedByEvent);
                     IsPlaying = false;
 
-                    System.Diagnostics.Debug.WriteLine($"[Auto Pause] Event Group at {matchedGroup.Timestamp:F2}s - Count: {matchedGroup.Events.Count}");
                 }
                 else
                 {
@@ -785,10 +899,11 @@ namespace ProjectChronos.ViewModels
             SimulationMarkerGroup targetGroup = null;
 
             // EventSearchEpsilon을 두어 현재 위치와 같은 이벤트에 갇히지 않도록 함
+            double eventSearchEpsilon = GetEventSearchEpsilon();
             if (direction > 0)
             {
                 // 다음 이벤트 찾기
-                targetGroup = _sortedGroups.FirstOrDefault(g => g.Timestamp > CurrentTime + EventSearchEpsilon);
+                targetGroup = _sortedGroups.FirstOrDefault(g => g.Timestamp > CurrentTime + eventSearchEpsilon);
 
                 // 더 이상 이벤트가 없으면 끝으로 이동
                 if (targetGroup == null)
@@ -800,7 +915,7 @@ namespace ProjectChronos.ViewModels
             else
             {
                 // 이전 이벤트 찾기
-                targetGroup = _sortedGroups.LastOrDefault(g => g.Timestamp < CurrentTime - EventSearchEpsilon);
+                targetGroup = _sortedGroups.LastOrDefault(g => g.Timestamp < CurrentTime - eventSearchEpsilon);
 
                 // 더 이상 이벤트가 없으면 처음으로 이동
                 if (targetGroup == null)
@@ -861,7 +976,7 @@ namespace ProjectChronos.ViewModels
                 }
 
                 string imagePath = _timelineReportDefinitionService.GetDefaultPrototypeExportPath();
-                var exportInput = _timelineReportDefinitionService.CreateReportExportInput(eventSnapshot, imagePath);
+                var exportInput = _timelineReportDefinitionService.CreateReportExportInput(eventSnapshot, imagePath, _timeResolution);
 
                 var imageService = new TimelineReportExportService();
                 imageService.Export(exportInput);

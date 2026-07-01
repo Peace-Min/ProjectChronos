@@ -21,7 +21,9 @@ public class TimelineReportExportInput
 
 	public string OutputPath { get; }
 
-	public TimelineReportExportInput(string title, string sectionLabel, IEnumerable<string> footerNotes, double canvasWidth, double canvasHeight, IReadOnlyList<SimulationEventMarker> events, string outputPath)
+	public double TimeResolution { get; }
+
+	public TimelineReportExportInput(string title, string sectionLabel, IEnumerable<string> footerNotes, double canvasWidth, double canvasHeight, IReadOnlyList<SimulationEventMarker> events, string outputPath, double timeResolution = 0.01)
 	{
 		Title = (string.IsNullOrWhiteSpace(title) ? "Timeline Report" : title);
 		SectionLabel = (string.IsNullOrWhiteSpace(sectionLabel) ? "Time-Event" : sectionLabel);
@@ -30,5 +32,6 @@ public class TimelineReportExportInput
 		CanvasHeight = ((canvasHeight > 0.0) ? canvasHeight : 0.0);
 		Events = events ?? Array.Empty<SimulationEventMarker>();
 		OutputPath = outputPath;
+		TimeResolution = ((timeResolution > 0.0) ? timeResolution : 0.01);
 	}
 }

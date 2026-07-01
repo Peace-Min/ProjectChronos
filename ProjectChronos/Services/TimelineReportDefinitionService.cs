@@ -41,7 +41,7 @@ namespace ProjectChronos.Services
             return CreateReportExportInput(CreateRealDataVisibilityEvents(), outputPath);
         }
 
-        public TimelineReportExportInput CreateReportExportInput(IReadOnlyList<SimulationEventMarker> events, string outputPath)
+        public TimelineReportExportInput CreateReportExportInput(IReadOnlyList<SimulationEventMarker> events, string outputPath, double timeResolution = 0.01)
         {
             return new TimelineReportExportInput(
                 "\uADF8\uB798\uD504 \uC608\uC2DC 3",
@@ -50,7 +50,8 @@ namespace ProjectChronos.Services
                 DefaultReportCanvasWidth,
                 0,
                 events ?? Array.Empty<SimulationEventMarker>(),
-                outputPath);
+                outputPath,
+                timeResolution);
         }
 
         public IReadOnlyList<SimulationEventMarker> CreateRealDataVisibilityEvents()

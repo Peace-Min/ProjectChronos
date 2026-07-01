@@ -342,6 +342,10 @@ public class ReportTimelineExportViewModel : ViewModelBase
 
 	private double DetailCanvasInset { get; set; }
 
+	private double TimeResolution { get; }
+
+	private string TimestampFormat { get; }
+
 	public ReportTimelineExportViewModel(TimelineReportExportInput input)
 	{
 		if (input == null)
@@ -360,6 +364,8 @@ public class ReportTimelineExportViewModel : ViewModelBase
 		BaselineY = 224.0;
 		FooterWidth = Math.Max(680.0, TimelineWidth - 260.0);
 		ActiveEdgeCanvasPolicy = ResolveEdgeCanvasPolicy();
+		TimeResolution = input.TimeResolution;
+		TimestampFormat = BuildTimestampFormat(TimeResolution);
 		FooterNotes = new ObservableCollection<string>((input.FooterNotes ?? Array.Empty<string>()).Take(3));
 		SlotItems = new ObservableCollection<ReportTimelineSlotGroupItem>();
 		IntervalAnchorItems = new ObservableCollection<ReportTimelineIntervalAnchorItem>();
@@ -387,7 +393,7 @@ public class ReportTimelineExportViewModel : ViewModelBase
 			return;
 		}
 		List<SlotGroup> groups = (from entry in orderedEvents
-			group entry by Math.Round(entry.Event.Timestamp, 3) into @group
+			group entry by GetTimestampGroupKey(entry.Event.Timestamp) into @group
 			orderby @group.Key
 			select @group).Select((IGrouping<double, IndexedEvent> group, int index2) => new SlotGroup
 		{
@@ -1794,8 +1800,29 @@ public class ReportTimelineExportViewModel : ViewModelBase
 		AxisLabelTop = BaselineY - axisLabelSize.Height / 2.0;
 	}
 
-	private static string FormatTimestamp(double timestamp)
+	private static string BuildTimestampFormat(double timeResolution)
 	{
-		return string.Format(CultureInfo.InvariantCulture, "{0:F2}", timestamp);
+		if (timeResolution >= 1.0)
+		{
+			return "0";
+		}
+
+		int digits = Math.Min(9, Math.Max(0, (int)Math.Ceiling(-Math.Log10(timeResolution))));
+		return digits > 0 ? "0." + new string('0', digits) : "0";
+	}
+
+	private double GetTimestampGroupKey(double timestamp)
+	{
+		if (TimeResolution <= 0.0)
+		{
+			return timestamp;
+		}
+
+		return Math.Round(timestamp / TimeResolution, MidpointRounding.AwayFromZero) * TimeResolution;
+	}
+
+	private string FormatTimestamp(double timestamp)
+	{
+		return GetTimestampGroupKey(timestamp).ToString(TimestampFormat, CultureInfo.InvariantCulture);
 	}
 }
