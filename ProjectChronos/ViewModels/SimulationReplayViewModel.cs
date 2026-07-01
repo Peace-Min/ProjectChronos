@@ -1,9 +1,10 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows;
 using System.Windows.Threading;
@@ -21,6 +22,11 @@ namespace ProjectChronos.ViewModels
         // -----------------------------------------------------------
 
         // --- 시뮬레이션 상태 ---
+        private dynamic _scenarioInfoSingle;
+        private bool _isInitialize = false;
+
+        public bool HasInteracted { get; private set; } = false;
+
         private double _totalDuration;
         private double _currentTime;
         private bool _isPlaying;
@@ -31,14 +37,28 @@ namespace ProjectChronos.ViewModels
         // 고정밀 시간 계산을 위한 Stopwatch
         // DispatcherTimer 대신 View의 CompositionTarget.Rendering에서 Tick()을 호출받아 사용합니다.
         private readonly System.Diagnostics.Stopwatch _stopwatch = new System.Diagnostics.Stopwatch();
-        private double _lastElapsedSeconds;
+        private double _startWallTime;
+        private double _startSimTime;
+        private double _timeResolution = 0.01;
+        private string _timeDisplayFormat = "mm\\:ss\\.ff";
+        private string _numericTimeFormat = "0.00";
+        private double _numericTimeMinWidth = 62;
+
+        public double TimeResolution => _timeResolution;
 
         // --- 성능 최적화 ---
         // 메시지 전송 스로틀링: DB 데이터 간격(10ms)만큼만 메시지를 보냄
-        private double _lastNotifiedTime = double.MinValue;
+        private DateTime _lastNotifyUtc = DateTime.MinValue;
 
         // 이벤트 마커 정렬 캐시 (StepEvent 성능 최적화용)
         private System.Collections.Generic.List<SimulationMarkerGroup> _sortedGroups;
+
+        private int _setTimeCallCount = 0;
+        private int _notifyCallCount = 0;
+        private int _notifySentCount = 0;
+        private int _notifyThrottledCount = 0;
+        private int _tickCallCount = 0;
+        private DateTime _debugCounterResetTime;
 
 
 
@@ -52,10 +72,9 @@ namespace ProjectChronos.ViewModels
         // -----------------------------------------------------------
 
         /// <summary>메시지 전송 최소 간격 (초) - DB 데이터 간격과 동일</summary>
-        private const double MinNotifyInterval = 0.01; // 10ms
+        private const int PlaybackRenderIntervalMs = 100;
 
         /// <summary>Tick에서 허용하는 최대 델타 타임 (초) - 시스템 렉 방지</summary>
-        private const double MaxTickDeltaTime = 0.1;
 
         /// <summary>현재 시간과 이벤트 매칭 시 허용 오차 (초)</summary>
         private const double EventMatchEpsilon = 0.005; // 5ms
@@ -86,6 +105,95 @@ namespace ProjectChronos.ViewModels
         }
 
         public event Action<SimulationTimeChangedMessage> SimulationTimeChanged;
+
+        public void Clear()
+        {
+            if (IsPlaying)
+            {
+                IsPlaying = false;
+            }
+
+            _scenarioInfoSingle = null;
+            _isInitialize = false;
+            HasInteracted = false;
+
+            _currentTime = 0.0;
+            _totalDuration = 0.0;
+            _playbackSpeed = 1.0;
+
+            Events.Clear();
+            _sortedGroups = null;
+            CurrentEvents = null;
+
+            if (_previousHighlightedEvents != null)
+            {
+                foreach (var ev in _previousHighlightedEvents)
+                {
+                    ev.IsHighlighted = false;
+                }
+                _previousHighlightedEvents = null;
+            }
+
+            PrimaryEvent = null;
+            ExtraEventCount = 0;
+
+            _lastNotifyUtc = DateTime.MinValue;
+            _startWallTime = 0.0;
+            _startSimTime = 0.0;
+
+            OnPropertyChanged(nameof(CurrentTimeDisplay));
+            OnPropertyChanged(nameof(TotalTimeDisplay));
+            OnPropertyChanged(nameof(CurrentTime));
+            OnPropertyChanged(nameof(TotalDuration));
+            OnPropertyChanged(nameof(PlaybackSpeed));
+        }
+
+        public void SetTimeResolution(double resolutionSeconds)
+        {
+            if (resolutionSeconds > 0)
+            {
+                _timeResolution = resolutionSeconds;
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[TimeRes] Resolution changed: {_timeResolution:F6}s ({_timeResolution * 1000:F3}ms)");
+            UpdateTimeDisplayFormat();
+            OnPropertyChanged(nameof(CurrentTimeDisplay));
+            OnPropertyChanged(nameof(TotalTimeDisplay));
+            OnPropertyChanged(nameof(StepIntervalText));
+            OnPropertyChanged(nameof(JumpTargetTimeText));
+            OnPropertyChanged(nameof(NumericTimeMinWidth));
+            OnPropertyChanged(nameof(TimeResolution));
+        }
+
+        private void UpdateTimeDisplayFormat()
+        {
+            int digits = (int)-Math.Floor(Math.Log10(_timeResolution));
+            _timeDisplayFormat = digits > 0
+                ? "mm\\:ss\\." + new string('f', digits)
+                : "mm\\:ss";
+            _numericTimeFormat = digits > 0
+                ? "0." + new string('0', digits)
+                : "0";
+            _numericTimeMinWidth = 62 + (digits - 2) * 8;
+        }
+
+        public double NumericTimeMinWidth
+        {
+            get => _numericTimeMinWidth;
+        }
+
+        public void InitializeSpatialDbSource(dynamic scenarioInfoSingle, double simulationMaxTime)
+        {
+            _scenarioInfoSingle = scenarioInfoSingle;
+
+            if (_scenarioInfoSingle == null || _scenarioInfoSingle.SimulationEventMarkers == null)
+            {
+                Initialize(simulationMaxTime, null);
+                return;
+            }
+
+            Initialize(simulationMaxTime, _scenarioInfoSingle.SimulationEventMarkers);
+        }
 
         /// <summary>
         /// 시뮬레이션 데이터로 뷰모델을 초기화합니다.
@@ -131,10 +239,12 @@ namespace ProjectChronos.ViewModels
             CurrentEvents = null;
 
             // 스로틀링 타이머 초기화 (새 시뮬레이션 시작 시 즉시 알림 가능하도록)
-            _lastNotifiedTime = double.MinValue;
+            _lastNotifyUtc = DateTime.MinValue;
 
             // [추가] 초기 상태(0초)에 이벤트가 있는지 확인하여 설정
             CheckEventAtZero();
+
+            _isInitialize = true;
         }
 
         /// <summary>
@@ -207,27 +317,66 @@ namespace ProjectChronos.ViewModels
 
         private void SetCurrentTimeInternal(double value, bool forceNotify, SimulationTimeChangeKind changeKind)
         {
-            // 범위 제한 (Clamp)
+            SetCurrentTimeInternal(value, forceNotify, changeKind, asyncNotify: false, resetWallClock: changeKind == SimulationTimeChangeKind.Seek);
+        }
+
+        private void SetCurrentTimeInternal(double value, bool forceNotify, SimulationTimeChangeKind changeKind, bool asyncNotify)
+        {
+            SetCurrentTimeInternal(value, forceNotify, changeKind, asyncNotify, resetWallClock: false);
+        }
+
+        private void SetCurrentTimeInternal(double value, bool forceNotify, SimulationTimeChangeKind changeKind, bool asyncNotify, bool resetWallClock)
+        {
             if (value < 0.0) value = 0.0;
             if (value > TotalDuration) value = TotalDuration;
 
+            _setTimeCallCount++;
+
+            if (IsPlaying && resetWallClock)
+            {
+                _startWallTime = _stopwatch.Elapsed.TotalSeconds;
+                _startSimTime = value;
+            }
+
             if (SetProperty(ref _currentTime, value))
             {
-                OnPropertyChanged(nameof(CurrentTimeDisplay));
-                OnPropertyChanged(nameof(CurrentTime)); // Slider 바인딩 명시적 업데이트
+                if (_setTimeCallCount % 1000 == 0)
+                {
+                    PrintDebugCounters();
+                }
 
-                // 중요: 시간이 변경될 때마다 외부 연동 로직 호출
-                NotifyTimeChanged(_currentTime, changeKind, forceNotify);
+                if (asyncNotify)
+                {
+                    Task.Run(() => NotifyTimeChanged(_currentTime, changeKind, forceNotify));
+
+                    Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        OnPropertyChanged(nameof(CurrentTimeDisplay));
+                        OnPropertyChanged(nameof(CurrentTime));
+                    }), DispatcherPriority.DataBind);
+                }
+                else
+                {
+                    OnPropertyChanged(nameof(CurrentTimeDisplay));
+                    OnPropertyChanged(nameof(CurrentTime));
+                    NotifyTimeChanged(_currentTime, changeKind, forceNotify);
+                }
             }
             else if (forceNotify)
             {
-                NotifyTimeChanged(_currentTime, changeKind, forceNotify: true);
+                if (asyncNotify)
+                {
+                    Task.Run(() => NotifyTimeChanged(_currentTime, changeKind, forceNotify: true));
+                }
+                else
+                {
+                    NotifyTimeChanged(_currentTime, changeKind, forceNotify: true);
+                }
             }
         }
 
-        // 화면 표시용 문자열 (mm:ss.ff 형식 - 10ms 단위 표시)
-        public string CurrentTimeDisplay => TimeSpan.FromSeconds(CurrentTime).ToString(@"mm\:ss\.ff");
-        public string TotalTimeDisplay => TimeSpan.FromSeconds(TotalDuration).ToString(@"mm\:ss\.ff");
+        public string CurrentTimeDisplay => TimeSpan.FromSeconds(CurrentTime).ToString(_timeDisplayFormat);
+        public string TotalTimeDisplay => TimeSpan.FromSeconds(TotalDuration).ToString(_timeDisplayFormat);
 
         // 타임라인 이벤트 목록 Collection (개별 이벤트 단위)
         public ObservableCollection<SimulationEventMarker> Events { get; }
@@ -258,7 +407,24 @@ namespace ProjectChronos.ViewModels
         public double PlaybackSpeed
         {
             get => _playbackSpeed;
-            private set => SetProperty(ref _playbackSpeed, value);
+            set
+            {
+                if (IsPlaying && _playbackSpeed != value)
+                {
+                    double elapsedWall = _stopwatch.Elapsed.TotalSeconds - _startWallTime;
+                    _startSimTime = CurrentTime - elapsedWall * value;
+                }
+
+                SetProperty(ref _playbackSpeed, value);
+            }
+        }
+
+        private static readonly ObservableCollection<double> _speedCollection =
+            new ObservableCollection<double>() { 0.5, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+
+        public ObservableCollection<double> SpeedCollection
+        {
+            get { return _speedCollection; }
         }
 
         /// <summary>
@@ -292,7 +458,7 @@ namespace ProjectChronos.ViewModels
         /// </summary>
         public string StepIntervalText
         {
-            get => _stepIntervalSeconds.ToString("0.##");
+            get => _stepIntervalSeconds.ToString(_numericTimeFormat);
             set
             {
                 if (double.TryParse(value, out double result) && result > 0)
@@ -306,11 +472,18 @@ namespace ProjectChronos.ViewModels
         /// <summary>
         /// [UI 바인딩용] 수동 이동할 시간 텍스트
         /// </summary>
-        private string _jumpTargetTimeText = "0.0";
+        private double _jumpTargetTime = 0.0;
         public string JumpTargetTimeText
         {
-            get => _jumpTargetTimeText;
-            set => SetProperty(ref _jumpTargetTimeText, value);
+            get => _jumpTargetTime.ToString(_numericTimeFormat);
+            set
+            {
+                if (double.TryParse(value, out double result))
+                {
+                    _jumpTargetTime = result;
+                }
+                OnPropertyChanged(nameof(JumpTargetTimeText));
+            }
         }
 
         /// <summary>
@@ -420,36 +593,49 @@ namespace ProjectChronos.ViewModels
 
         private void NotifyTimeChanged(double newTime, SimulationTimeChangeKind changeKind, bool forceNotify = false)
         {
-            // 렌더링 모드 체크
+            _notifyCallCount++;
+
             if (!_isRealtimeRenderingEnabled && !forceNotify) return;
 
-            // 스로틀링 체크
-            bool shouldNotify = forceNotify || (Math.Abs(newTime - _lastNotifiedTime) >= MinNotifyInterval);
+            bool shouldNotify = forceNotify || (DateTime.UtcNow - _lastNotifyUtc) >= TimeSpan.FromMilliseconds(PlaybackRenderIntervalMs);
 
-            if (shouldNotify)
+            if (!shouldNotify)
             {
-                _lastNotifiedTime = newTime;
+                _notifyThrottledCount++;
+                return;
+            }
 
-                // [수정] 재생 로직(Range Check)은 Tick으로 이동하여 재귀 호출 위험 제거
+            _notifySentCount++;
+            _lastNotifyUtc = DateTime.UtcNow;
 
-                // [수동 조작 시 UI 반응용 단순 매칭]
-                // 재생 중이 아닐 때(수동 스크럽) 현재 위치의 이벤트를 표시
-                if (!IsPlaying || forceNotify)
+            if (!IsPlaying || forceNotify)
+            {
+                var matchedGroup = _sortedGroups?
+                    .FirstOrDefault(g => Math.Abs(g.Timestamp - newTime) <= EventMatchEpsilon);
+
+                CurrentEvents = matchedGroup?.Events;
+            }
+
+            if (_isInitialize)
+            {
+                if (!HasInteracted && (changeKind == SimulationTimeChangeKind.Seek || changeKind == SimulationTimeChangeKind.Playback))
                 {
-                    // [수정] 가장 가까운 그룹 찾기 (근접 매칭)
-                    // 기존 FirstOrDefault는 범위 내 첫 요소를 반환하므로, 두 그룹이 겹칠 때 항상 앞쪽을 선택하는 문제 방지
-                    var matchedGroup = _sortedGroups?
-                        .Where(g => Math.Abs(g.Timestamp - newTime) <= EventMatchEpsilon)
-                        .OrderBy(g => Math.Abs(g.Timestamp - newTime))
-                        .FirstOrDefault();
+                    HasInteracted = true;
+                }
 
-                    CurrentEvents = matchedGroup?.Events;
+                bool logForce = forceNotify || _notifySentCount % 100 == 0;
+                if (logForce)
+                {
+                    double elapsed = (DateTime.UtcNow - _debugCounterResetTime).TotalSeconds;
+                    double rate = elapsed > 0 ? _notifySentCount / elapsed : 0;
+                    System.Diagnostics.Debug.WriteLine(
+                        $"[TimeMsg] send t={Math.Round(newTime, 4)}F, kind={changeKind}, force={forceNotify} | " +
+                        $"counts call={_notifyCallCount}, sent={_notifySentCount}, throttled={_notifyThrottledCount} | " +
+                        $"rate={rate:F1}/s, elapsed={elapsed:F1}s");
                 }
 
                 var currentEvent = CurrentEvents?.FirstOrDefault();
                 SimulationTimeChanged?.Invoke(new SimulationTimeChangedMessage(newTime, currentEvent, changeKind));
-
-                System.Diagnostics.Debug.WriteLine($"[Time Notify] {changeKind} @ {newTime:F3}s");
             }
         }
 
@@ -472,38 +658,58 @@ namespace ProjectChronos.ViewModels
                 SetCurrentTimeInternal(0.0, forceNotify: true, SimulationTimeChangeKind.Seek);
             }
 
-            _lastElapsedSeconds = 0;
             _stopwatch.Restart();
-            // _playbackTimer.Start(); // 제거됨
+            _startWallTime = _stopwatch.Elapsed.TotalSeconds;
+            _startSimTime = CurrentTime;
+
+            _setTimeCallCount = 0;
+            _notifyCallCount = 0;
+            _notifySentCount = 0;
+            _notifyThrottledCount = 0;
+            _tickCallCount = 0;
+            _debugCounterResetTime = DateTime.UtcNow;
         }
 
         private void StopPlayback()
         {
-            // _playbackTimer.Stop(); // 제거됨
             _stopwatch.Stop();
         }
 
-        /// <summary>
-        /// View의 CompositionTarget.Rendering 이벤트에서 매 프레임 호출됩니다.
-        /// [핵심 역할] 시뮬레이션 시간 진행, 이벤트 감지(Range Check), 스냅(Snap), 상태 초기화를 총괄하는 사령탑 메서드입니다.
-        /// </summary>
+        private void PrintDebugCounters()
+        {
+            double elapsed = (DateTime.UtcNow - _debugCounterResetTime).TotalSeconds;
+            double tickRate = elapsed > 0 ? _tickCallCount / elapsed : 0;
+            double setTimeRate = elapsed > 0 ? _setTimeCallCount / elapsed : 0;
+            double notifyRate = elapsed > 0 ? _notifySentCount / elapsed : 0;
+            double throttlePct = _notifyCallCount > 0 ? (double)_notifyThrottledCount / _notifyCallCount * 100 : 0;
+
+            System.Diagnostics.Debug.WriteLine(
+                $"[TimeDebug] elapsed={elapsed:F1}s | " +
+                $"Tick={_tickCallCount}({tickRate:F1}/s) | " +
+                $"SetTime={_setTimeCallCount}({setTimeRate:F1}/s) | " +
+                $"Notify=sent{_notifySentCount}/throttled{_notifyThrottledCount}({throttlePct:F1}%) | " +
+                $"actualSend={notifyRate:F1}/s | " +
+                $"resolution={_timeResolution * 1000:F3}ms | " +
+                $"speed={PlaybackSpeed}x");
+        }
+
         public void Tick(object sender, EventArgs e)
         {
             if (!IsPlaying) return;
 
-            // 1. 델타 타임 계산
-            double currentElapsed = _stopwatch.Elapsed.TotalSeconds;
-            double dt = currentElapsed - _lastElapsedSeconds;
-            _lastElapsedSeconds = currentElapsed;
+            _tickCallCount++;
 
-            if (dt <= 0) return;
-            if (dt > MaxTickDeltaTime) dt = MaxTickDeltaTime;
+            double currentWallTime = _stopwatch.Elapsed.TotalSeconds;
+            double elapsedWallSeconds = currentWallTime - _startWallTime;
+            double nextTime = _startSimTime + elapsedWallSeconds * PlaybackSpeed;
 
-            // 2. 가려고 하는 목표 시간 계산
-            var addedTime = dt * PlaybackSpeed;
-            var nextTime = CurrentTime + addedTime;
+            nextTime = Math.Round(nextTime / _timeResolution) * _timeResolution;
 
-            // 3. 종료 조건 체크
+            if (_tickCallCount % 100 == 0)
+            {
+                PrintDebugCounters();
+            }
+
             if (nextTime >= TotalDuration)
             {
                 SetCurrentTimeInternal(TotalDuration, forceNotify: true, SimulationTimeChangeKind.Stopped);
@@ -511,40 +717,34 @@ namespace ProjectChronos.ViewModels
                 return;
             }
 
-            // 4. [핵심] 이동 경로상의 이벤트 감지 (Range Check)
-            // CurrentTime(현재) ~ nextTime(미래) 사이에 이벤트가 있는지 미리 확인
             var matchedGroup = _sortedGroups?.FirstOrDefault(g =>
                 g.Timestamp > CurrentTime && g.Timestamp <= nextTime
             );
 
             if (matchedGroup != null)
             {
-                CurrentEvents = matchedGroup.Events; // UI 알림 (먼저 설정하여 일관성 유지)
+                CurrentEvents = matchedGroup.Events;
 
                 if (IsAutoPauseEnabled)
                 {
-                    // 🎯 [SNAP] 이벤트가 있다면, 목표 시간(nextTime)을 무시하고 이벤트 시간으로 강제 착륙
-                    // 스로틀링 무시하고 즉시 알림 전송 (forceNotify: true)
                     SetCurrentTimeInternal(matchedGroup.Timestamp, forceNotify: true, SimulationTimeChangeKind.StoppedByEvent);
-
-                    IsPlaying = false; // 일시 정지
+                    IsPlaying = false;
 
                     System.Diagnostics.Debug.WriteLine($"[Auto Pause] Event Group at {matchedGroup.Timestamp:F2}s - Count: {matchedGroup.Events.Count}");
                 }
                 else
                 {
-                    // 자동 멈춤 OFF: 멈추지 않고 흘러감 (잔상 기능 제거됨)
-                    SetCurrentTimeInternal(matchedGroup.Timestamp, forceNotify: true, SimulationTimeChangeKind.Playback);
-                    SetCurrentTimeInternal(nextTime, forceNotify: false, SimulationTimeChangeKind.Playback);
+                    SetCurrentTimeInternal(matchedGroup.Timestamp, forceNotify: true, SimulationTimeChangeKind.Playback, asyncNotify: true);
+                    SetCurrentTimeInternal(nextTime, forceNotify: false, SimulationTimeChangeKind.Playback, asyncNotify: true);
                 }
             }
             else
             {
-                // 이벤트가 없으면 원래 목표대로 이동하고, CurrentEvents 초기화
                 CurrentEvents = null;
-                SetCurrentTimeInternal(nextTime, forceNotify: false, SimulationTimeChangeKind.Playback);
+                SetCurrentTimeInternal(nextTime, forceNotify: false, SimulationTimeChangeKind.Playback, asyncNotify: true);
             }
         }
+
 
         /// <summary>
         /// 지정된 간격(StepInterval)만큼 시간을 앞/뒤로 이동합니다.
@@ -624,11 +824,8 @@ namespace ProjectChronos.ViewModels
         /// </summary>
         private void JumpToTime(object param)
         {
-            if (double.TryParse(JumpTargetTimeText, out double targetTime))
-            {
-                IsPlaying = false; // 이동 시 일시 정지
-                SetCurrentTimeInternal(targetTime, forceNotify: true, SimulationTimeChangeKind.Seek);
-            }
+            IsPlaying = false; // 이동 시 일시 정지
+            SetCurrentTimeInternal(_jumpTargetTime, forceNotify: true, SimulationTimeChangeKind.Seek);
         }
 
         /// <summary>
