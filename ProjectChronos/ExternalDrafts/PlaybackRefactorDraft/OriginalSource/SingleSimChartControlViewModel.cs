@@ -40,11 +40,25 @@ namespace OSTES.ViewModel.SIngleSim
         private readonly OSTES.Dialog.IDialogService dialogService = new DialogService();
         private readonly GraphChartType _graphChartType;
 
+        /// <summary>
+        /// 수신 상태(_latestReplayTime/_isReplayRenderPending/_isForceRenderPending) 보호용 잠금.
+        /// 메시지 수신은 송신부 Task.Run 발행으로 스레드풀에서, 렌더 콜백은 UI 스레드에서
+        /// 실행되므로 동기화 없이는 stale 읽기(렌더 유실/이중 예약)가 가능하다.
+        /// </summary>
+        private readonly object _replayGate = new object();
+
         /// <summary>최신 재생 시간 (최신 상태 통합 렌더링용)</summary>
         private double _latestReplayTime = double.NaN;
 
         /// <summary>Dispatcher 렌더링 예약 중 여부 (최대 1개 pending)</summary>
         private bool _isReplayRenderPending;
+
+        /// <summary>
+        /// pending 중 도착한 강제 렌더(Seek/Stopped/StoppedByEvent) 의미 보존용 래치.
+        /// 예약 당시 message.ChangeKind를 클로저로 소비하면 pending 중 도착한 Seek가
+        /// Playback 취급되어 skip/스로틀로 유실될 수 있으므로, 콜백은 실행 시점의 이 값을 소비한다.
+        /// </summary>
+        private bool _isForceRenderPending;
 
         /// <summary>마지막 재생 렌더링 시각 (cadence 제한용)</summary>
         private DateTime _lastPlaybackRenderAt = DateTime.MinValue;
@@ -857,54 +871,66 @@ namespace OSTES.ViewModel.SIngleSim
             // 0. 강제 렌더링 여부 판단 (Seek, Stopped, StoppedByEvent는 즉시 렌더링).
             bool forceRender = message.ChangeKind != SimulationTimeChangeKind.Playback;
 
-            // 1. 최신 시간 갱신.
-            _latestReplayTime = message.NewTime;
-
-            // 2. 재생 중이면 렌더링 cadence 제한.
-            if (!forceRender)
+            lock (_replayGate)
             {
-                var now = DateTime.UtcNow;
-                if ((now - _lastPlaybackRenderAt).TotalMilliseconds < ReplayRenderIntervalMs)
+                // 1. 최신 시간 갱신 + 강제 렌더 의미 래치.
+                //    pending 중 도착한 Seek/Stopped도 여기서 래치되어 콜백에서 유실되지 않는다.
+                _latestReplayTime = message.NewTime;
+                if (forceRender) { _isForceRenderPending = true; }
+
+                // 2. 재생 중이면 렌더링 cadence 제한 (강제 렌더가 래치된 경우 우회).
+                if (!forceRender && !_isForceRenderPending)
+                {
+                    var now = DateTime.UtcNow;
+                    if ((now - _lastPlaybackRenderAt).TotalMilliseconds < ReplayRenderIntervalMs)
+                    {
+                        return;
+                    }
+                }
+
+                // 3. pending 렌더링이 있으면 최신 시간/강제 여부만 갱신된 상태이므로 추가 예약 불필요.
+                if (_isReplayRenderPending)
                 {
                     return;
                 }
-            }
 
-            // 3. pending 렌더링이 있으면 최신 시간만 갱신된 상태이므로 추가 예약 불필요.
-            if (_isReplayRenderPending)
-            {
-                return;
+                // 4. Dispatcher에 렌더링 1개만 예약.
+                _isReplayRenderPending = true;
             }
-
-            // 4. Dispatcher에 렌더링 1개만 예약.
-            _isReplayRenderPending = true;
 
             Application.Current.Dispatcher.BeginInvoke(new Action(() =>
             {
-                _isReplayRenderPending = false;
-                _lastPlaybackRenderAt = DateTime.UtcNow;
+                // 5. 실행 시점의 최신 상태를 lock 하에 소비.
+                //    예약 당시 message의 시간/ChangeKind는 사용하지 않는다 (stale 클로저 방지).
+                double renderTime;
+                bool isForceRender;
+                lock (_replayGate)
+                {
+                    _isReplayRenderPending = false;
+                    isForceRender = _isForceRenderPending;
+                    _isForceRenderPending = false;
+                    renderTime = _latestReplayTime;
+                }
 
-                // 5. 콜백 실행 시점의 최신 시간으로 Lookup.
-                double renderTime = _latestReplayTime;
                 List<AddSeriesPointDTO> targetFrames = null;
                 if (!_playbackFrameIndex.TryGetValue(renderTime, out targetFrames))
                 {
                     // 해상도 확장 전 구간은 반올림 키로 재조회.
-                    renderTime = Math.Round(_latestReplayTime, 2);
+                    renderTime = Math.Round(renderTime, 2);
                     if (!_playbackFrameIndex.TryGetValue(renderTime, out targetFrames))
                     {
                         return;
                     }
                 }
 
-                // 6. 렌더링 수행 (중첩 방지).
-                if (message.ChangeKind == SimulationTimeChangeKind.Playback && _isUpdating)
+                // 6. 렌더링 수행 (중첩 방지). 강제 렌더는 건너뛰지 않는다.
+                if (!isForceRender && _isUpdating)
                 {
                     return;
                 }
 
-                // 7. 3D 차트 전용 스로틀링 (App.config). Playback 일 때만 적용.
-                if (_graphChartType == GraphChartType.ThreeD && message.ChangeKind == SimulationTimeChangeKind.Playback)
+                // 7. 3D 차트 전용 스로틀링 (App.config). 강제 렌더가 아닌 경우만 적용.
+                if (_graphChartType == GraphChartType.ThreeD && !isForceRender)
                 {
                     var now = DateTime.UtcNow;
                     if ((now - _last3DPlaybackUpdateTime).TotalMilliseconds < _chart3DPlaybackThrottleMs)
@@ -923,6 +949,11 @@ namespace OSTES.ViewModel.SIngleSim
                         ((IChartPlayback)ChartControl).UpdatePlaybackCursorPosition(frame);
                     }
                     ChartControl.EndUpdate();
+
+                    // 8. cadence 기준 시각은 실제 렌더 완료 시점에 갱신.
+                    //    조회 미스/중첩 skip이 cadence를 소모해 다음 렌더를 억제하지 않도록
+                    //    콜백 진입 시점이 아닌 여기서 기록한다.
+                    _lastPlaybackRenderAt = DateTime.UtcNow;
                 }
                 finally
                 {
