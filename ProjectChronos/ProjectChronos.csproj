@@ -62,6 +62,10 @@
     <Compile Include="Converters\PriorityToTagConverter.cs" />
     <Compile Include="Core\RelayCommand.cs" />
     <Compile Include="Core\ViewModelBase.cs" />
+    <Compile Include="Diagnostics\ReplayDiagnosticsRunner.cs" />
+    <Compile Include="Diagnostics\ReplaySenderMetrics.cs" />
+    <Compile Include="Diagnostics\SyntheticReplayReceiver.cs" />
+    <Compile Include="Diagnostics\UiLoadGenerator.cs" />
     <Compile Include="Messages\SimulationTimeChangeKind.cs" />
     <Compile Include="Messages\SimulationTimeChangedMessage.cs" />
     <Compile Include="Models\SimulationModels.cs" />
