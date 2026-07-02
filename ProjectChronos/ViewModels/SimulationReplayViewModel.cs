@@ -10,7 +10,9 @@ using System.Windows.Input;
 using System.Windows;
 using System.Windows.Threading;
 using ProjectChronos.Core;
+#if REPLAY_DIAG
 using ProjectChronos.Diagnostics;
+#endif
 using ProjectChronos.Messages;
 using ProjectChronos.Models;
 using ProjectChronos.Services;
@@ -119,8 +121,10 @@ namespace ProjectChronos.ViewModels
 
         public event Action<SimulationTimeChangedMessage> SimulationTimeChanged;
 
-        /// <summary>재생 파이프라인 진단 카운터 (하네스에서 초당 비율 계산)</summary>
+#if REPLAY_DIAG
+        /// <summary>재생 파이프라인 진단 카운터 (하네스에서 초당 비율 계산, 프로토타입 전용)</summary>
         public ReplaySenderMetrics Metrics { get; } = new ReplaySenderMetrics();
+#endif
 
         private bool _isPlaybackSliderThrottleEnabled = true;
 
@@ -137,7 +141,9 @@ namespace ProjectChronos.ViewModels
         private void RaiseCurrentTimeDisplayChanged()
         {
             _lastTimeDisplayUpdateUtc = DateTime.UtcNow;
+#if REPLAY_DIAG
             Metrics.OnDisplayNotify();
+#endif
             OnPropertyChanged(nameof(CurrentTimeDisplay));
         }
 
@@ -148,7 +154,9 @@ namespace ProjectChronos.ViewModels
         private void RaiseCurrentTimeSliderChanged()
         {
             _lastSliderNotifyUtc = DateTime.UtcNow;
+#if REPLAY_DIAG
             Metrics.OnSliderNotify();
+#endif
             OnPropertyChanged(nameof(CurrentTime));
         }
 
@@ -503,7 +511,9 @@ namespace ProjectChronos.ViewModels
             if (Math.Abs(_currentTime - value) > GetTimeChangeTolerance())
             {
                 _currentTime = value;
+#if REPLAY_DIAG
                 Metrics.OnCurrentTimeChanged();
+#endif
 
                 if (asyncNotify)
                 {
@@ -786,7 +796,9 @@ namespace ProjectChronos.ViewModels
 
             if (!shouldNotify)
             {
+#if REPLAY_DIAG
                 Metrics.OnMessageThrottled();
+#endif
                 return null;
             }
 
@@ -812,7 +824,9 @@ namespace ProjectChronos.ViewModels
             }
 
             var currentEvent = CurrentEvents?.FirstOrDefault();
+#if REPLAY_DIAG
             Metrics.OnMessageSent();
+#endif
             return new SimulationTimeChangedMessage(newTime, currentEvent, changeKind);
         }
 
@@ -839,7 +853,9 @@ namespace ProjectChronos.ViewModels
             }
 
             _isUiTimeUpdatePending = true;
+#if REPLAY_DIAG
             Metrics.OnDispatcherPost();
+#endif
             Application.Current.Dispatcher.BeginInvoke(new Action(() =>
             {
                 _isUiTimeUpdatePending = false;
@@ -935,7 +951,9 @@ namespace ProjectChronos.ViewModels
         {
             if (!IsPlaying) return;
 
+#if REPLAY_DIAG
             Metrics.OnTick();
+#endif
 
             double currentWallTime = _stopwatch.Elapsed.TotalSeconds;
             double elapsedWallSeconds = currentWallTime - _startWallTime;
