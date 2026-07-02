@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -280,6 +281,11 @@ namespace ProjectChronos.ViewModels
             return NormalizeReplayTime(timestamp);
         }
 
+        private string FormatNumericTime(double seconds)
+        {
+            return seconds.ToString(_numericTimeFormat, CultureInfo.InvariantCulture);
+        }
+
         public double NumericTimeMinWidth
         {
             get => _numericTimeMinWidth;
@@ -362,6 +368,7 @@ namespace ProjectChronos.ViewModels
                 bool isFirst = true;
                 foreach (var ev in group.Events)
                 {
+                    ev.DisplayTimestamp = FormatNumericTime(group.Timestamp);
                     ev.IsPrimaryMarker = isFirst;
                     ev.MarkerPriority = group.MaxPriority;
                     Events.Add(ev);
@@ -473,8 +480,14 @@ namespace ProjectChronos.ViewModels
             }
         }
 
-        public string CurrentTimeDisplay => TimeSpan.FromSeconds(CurrentTime).ToString(_timeDisplayFormat);
-        public string TotalTimeDisplay => TimeSpan.FromSeconds(TotalDuration).ToString(_timeDisplayFormat);
+        private string FormatReplayTime(double seconds)
+        {
+            long ticks = (long)Math.Round(seconds * TimeSpan.TicksPerSecond, MidpointRounding.AwayFromZero);
+            return TimeSpan.FromTicks(ticks).ToString(_timeDisplayFormat);
+        }
+
+        public string CurrentTimeDisplay => FormatReplayTime(CurrentTime);
+        public string TotalTimeDisplay => FormatReplayTime(TotalDuration);
 
         // 타임라인 이벤트 목록 Collection (개별 이벤트 단위)
         public ObservableCollection<SimulationEventMarker> Events { get; }

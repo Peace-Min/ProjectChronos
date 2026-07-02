@@ -229,7 +229,7 @@
                                                     </Border.Effect>
 
                                                     <StackPanel>
-                                                        <TextBlock Text="{Binding Timestamp, StringFormat='Time: {0}s'}" 
+                                                        <TextBlock Text="{Binding DisplayTimestamp, StringFormat='Time: {0}s'}" 
                                                                    FontFamily="Consolas" FontSize="11" Foreground="#808080" 
                                                                    HorizontalAlignment="Right" Margin="0,0,0,8"/>
 
@@ -312,7 +312,7 @@
                                                 <DropShadowEffect ShadowDepth="2" BlurRadius="6" Opacity="0.8"/>
                                             </Border.Effect>
                                             <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="{Binding Timestamp, StringFormat='{}{0}s'}" 
+                                                <TextBlock Text="{Binding DisplayTimestamp, StringFormat='{}{0}s'}" 
                                                            Foreground="{Binding Priority, Converter={StaticResource PriorityToBrushConverter}}" 
                                                            Margin="0,0,6,0" FontSize="11"/>
                                                 <TextBlock Text="{Binding Title}" Foreground="#ffffff" FontSize="11"/>

@@ -1487,13 +1487,15 @@ public class ReportTimelineExportViewModel : ViewModelBase
 		return laneIndex;
 	}
 
-	private static string FormatDuration(double seconds)
+	private string FormatDuration(double seconds)
 	{
-		if (Math.Abs(seconds - Math.Round(seconds)) < 0.005)
+		double duration = seconds;
+		if (TimeResolution > 0.0)
 		{
-			return string.Format(CultureInfo.InvariantCulture, "{0:0}", seconds);
+			duration = Math.Round(seconds / TimeResolution, MidpointRounding.AwayFromZero) * TimeResolution;
 		}
-		return string.Format(CultureInfo.InvariantCulture, "{0:0.##}", seconds);
+
+		return duration.ToString(TimestampFormat, CultureInfo.InvariantCulture);
 	}
 
 	private static Size MeasureSingleLineText(string text, Typeface typeface, double fontSize)

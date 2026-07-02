@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using ProjectChronos.Core;
 
 namespace ProjectChronos.Models
@@ -22,6 +23,15 @@ namespace ProjectChronos.Models
         /// 이벤트 발생 시점 (초 단위)
         /// </summary>
         public double Timestamp { get; set; }
+
+        private string _displayTimestamp;
+        public string DisplayTimestamp
+        {
+            get => string.IsNullOrWhiteSpace(_displayTimestamp)
+                ? Timestamp.ToString(CultureInfo.InvariantCulture)
+                : _displayTimestamp;
+            set => SetProperty(ref _displayTimestamp, value);
+        }
 
         /// <summary>
         /// 이벤트 중요도 (마커 색상 및 모양 결정)
