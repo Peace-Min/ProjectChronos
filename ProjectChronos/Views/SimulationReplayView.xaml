@@ -410,8 +410,9 @@
                     </ItemsControl>
 
                     <!-- 3. 슬라이더 (Z=3, Transparent Track) -->
-                    <Slider Style="{StaticResource ModernSliderStyle}"
-                            Minimum="0" Maximum="{Binding TotalDuration}" 
+                    <Slider x:Name="ReplaySlider"
+                            Style="{StaticResource ModernSliderStyle}"
+                            Minimum="0" Maximum="{Binding TotalDuration}"
                             Value="{Binding CurrentTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                             TickFrequency="{Binding TimeResolution}" IsSnapToTickEnabled="True"
                             VerticalAlignment="Center"

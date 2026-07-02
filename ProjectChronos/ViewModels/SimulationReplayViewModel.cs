@@ -10,6 +10,7 @@ using System.Windows.Input;
 using System.Windows;
 using System.Windows.Threading;
 using ProjectChronos.Core;
+using ProjectChronos.Diagnostics;
 using ProjectChronos.Messages;
 using ProjectChronos.Models;
 using ProjectChronos.Services;
@@ -58,6 +59,7 @@ namespace ProjectChronos.ViewModels
         private bool _isUiTimeUpdatePending = false;
         private bool _forcePendingUiTimeDisplayUpdate = false;
         private DateTime _lastTimeDisplayUpdateUtc = DateTime.MinValue;
+        private DateTime _lastSliderNotifyUtc = DateTime.MinValue;
 
 
 
@@ -75,6 +77,13 @@ namespace ProjectChronos.ViewModels
 
         /// <summary>재생 중 현재 시간 텍스트 표시 갱신 최소 간격 (밀리초)</summary>
         private const int CurrentTimeDisplayUpdateIntervalMs = 100;
+
+        /// <summary>
+        /// 재생 중 Slider 프레젠테이션(CurrentTime PropertyChanged) 갱신 최소 간격 (밀리초).
+        /// CurrentTime PropertyChanged의 유일한 소비자는 Slider.Value 바인딩이므로,
+        /// 이 케이던스는 재생 중 Thumb 이동 빈도만 제어한다. 수동 조작은 동기 경로로 즉시 알림.
+        /// </summary>
+        private const int PlaybackSliderUpdateIntervalMs = 100;
 
         /// <summary>Tick에서 허용하는 최대 델타 타임 (초) - 시스템 렉 방지</summary>
 
@@ -110,10 +119,48 @@ namespace ProjectChronos.ViewModels
 
         public event Action<SimulationTimeChangedMessage> SimulationTimeChanged;
 
+        /// <summary>재생 파이프라인 진단 카운터 (하네스에서 초당 비율 계산)</summary>
+        public ReplaySenderMetrics Metrics { get; } = new ReplaySenderMetrics();
+
+        private bool _isPlaybackSliderThrottleEnabled = true;
+
+        /// <summary>
+        /// 재생 중 Slider 프레젠테이션 스로틀 사용 여부.
+        /// false면 기존(매 프레임 CurrentTime 알림) 동작 — 베이스라인 A/B 검증용.
+        /// </summary>
+        public bool IsPlaybackSliderThrottleEnabled
+        {
+            get => _isPlaybackSliderThrottleEnabled;
+            set => SetProperty(ref _isPlaybackSliderThrottleEnabled, value);
+        }
+
         private void RaiseCurrentTimeDisplayChanged()
         {
             _lastTimeDisplayUpdateUtc = DateTime.UtcNow;
+            Metrics.OnDisplayNotify();
             OnPropertyChanged(nameof(CurrentTimeDisplay));
+        }
+
+        /// <summary>
+        /// Slider 프레젠테이션(CurrentTime PropertyChanged) 알림.
+        /// 재생 스로틀 타임스탬프를 함께 갱신해 시크 직후 이중 알림을 방지한다.
+        /// </summary>
+        private void RaiseCurrentTimeSliderChanged()
+        {
+            _lastSliderNotifyUtc = DateTime.UtcNow;
+            Metrics.OnSliderNotify();
+            OnPropertyChanged(nameof(CurrentTime));
+        }
+
+        private bool ShouldNotifySliderPresentation()
+        {
+            if (!IsPlaybackSliderThrottleEnabled)
+            {
+                return true;
+            }
+
+            return (DateTime.UtcNow - _lastSliderNotifyUtc) >=
+                   TimeSpan.FromMilliseconds(PlaybackSliderUpdateIntervalMs);
         }
 
         public void Clear()
@@ -150,6 +197,7 @@ namespace ProjectChronos.ViewModels
 
             _lastNotifyUtc = DateTime.MinValue;
             _lastTimeDisplayUpdateUtc = DateTime.MinValue;
+            _lastSliderNotifyUtc = DateTime.MinValue;
             _isUiTimeUpdatePending = false;
             _forcePendingUiTimeDisplayUpdate = false;
             _startWallTime = 0.0;
@@ -410,6 +458,10 @@ namespace ProjectChronos.ViewModels
         /// <summary>
         /// 현재 시뮬레이션 시간 (초 단위 Double)
         /// 변경 시 유효성 검사(Clamp) 및 외부 알림(NotifyTimeChanged)을 수행합니다.
+        /// [주의] 재생(Playback) 중 이 속성의 PropertyChanged는 프레젠테이션 케이던스
+        /// (PlaybackSliderUpdateIntervalMs)로 스로틀됩니다. 내부 값(_currentTime)은 매 틱
+        /// 고정밀 갱신되므로, 고빈도 소비가 필요한 로직은 바인딩 대신 필드/이벤트를 사용할 것.
+        /// 새 XAML 바인딩 소비자를 추가하면 재생 중 10Hz 갱신을 암묵적으로 상속받습니다.
         /// </summary>
         public double CurrentTime
         {
@@ -451,6 +503,7 @@ namespace ProjectChronos.ViewModels
             if (Math.Abs(_currentTime - value) > GetTimeChangeTolerance())
             {
                 _currentTime = value;
+                Metrics.OnCurrentTimeChanged();
 
                 if (asyncNotify)
                 {
@@ -460,7 +513,7 @@ namespace ProjectChronos.ViewModels
                 else
                 {
                     RaiseCurrentTimeDisplayChanged();
-                    OnPropertyChanged(nameof(CurrentTime));
+                    RaiseCurrentTimeSliderChanged();
                     PublishTimeChangedIfDue(_currentTime, changeKind, forceNotify);
                 }
             }
@@ -474,7 +527,7 @@ namespace ProjectChronos.ViewModels
                 else
                 {
                     RaiseCurrentTimeDisplayChanged();
-                    OnPropertyChanged(nameof(CurrentTime));
+                    RaiseCurrentTimeSliderChanged();
                     PublishTimeChangedIfDue(_currentTime, changeKind, forceNotify: true);
                 }
             }
@@ -733,6 +786,7 @@ namespace ProjectChronos.ViewModels
 
             if (!shouldNotify)
             {
+                Metrics.OnMessageThrottled();
                 return null;
             }
 
@@ -758,6 +812,7 @@ namespace ProjectChronos.ViewModels
             }
 
             var currentEvent = CurrentEvents?.FirstOrDefault();
+            Metrics.OnMessageSent();
             return new SimulationTimeChangedMessage(newTime, currentEvent, changeKind);
         }
 
@@ -773,19 +828,33 @@ namespace ProjectChronos.ViewModels
                 return;
             }
 
+            // 재생 프레젠테이션 케이던스: display/slider 둘 다 due가 아니면
+            // Dispatcher 포스트 자체를 생략한다. 매 프레임 DataBind 포스트와
+            // Slider 레이아웃 체인이 사라져 Background 수신부가 실행될 idle 슬롯이 생긴다.
+            if (!_forcePendingUiTimeDisplayUpdate &&
+                !ShouldUpdateCurrentTimeDisplay() &&
+                !ShouldNotifySliderPresentation())
+            {
+                return;
+            }
+
             _isUiTimeUpdatePending = true;
+            Metrics.OnDispatcherPost();
             Application.Current.Dispatcher.BeginInvoke(new Action(() =>
             {
                 _isUiTimeUpdatePending = false;
-                bool updateDisplay = _forcePendingUiTimeDisplayUpdate || ShouldUpdateCurrentTimeDisplay();
+                bool force = _forcePendingUiTimeDisplayUpdate;
                 _forcePendingUiTimeDisplayUpdate = false;
 
-                if (updateDisplay)
+                if (force || ShouldUpdateCurrentTimeDisplay())
                 {
                     RaiseCurrentTimeDisplayChanged();
                 }
 
-                OnPropertyChanged(nameof(CurrentTime));
+                if (force || ShouldNotifySliderPresentation())
+                {
+                    RaiseCurrentTimeSliderChanged();
+                }
             }), DispatcherPriority.DataBind);
         }
 
@@ -793,6 +862,29 @@ namespace ProjectChronos.ViewModels
         {
             return (DateTime.UtcNow - _lastTimeDisplayUpdateUtc) >=
                    TimeSpan.FromMilliseconds(CurrentTimeDisplayUpdateIntervalMs);
+        }
+
+        /// <summary>
+        /// 사용자 Slider 조작 시작 (Thumb 드래그 / 트랙 클릭).
+        /// Step/JumpToTime 등 다른 수동 조작과 동일하게 재생을 일시정지하여,
+        /// 재생 Tick이 사용자가 움직이는 Thumb를 되돌리지 않도록 한다.
+        /// </summary>
+        public void BeginUserSliderSeek()
+        {
+            if (IsPlaying)
+            {
+                IsPlaying = false;
+            }
+        }
+
+        /// <summary>
+        /// 사용자 Slider 조작 종료.
+        /// 드래그 중 마지막 위치의 수신부 메시지가 스로틀로 유실될 수 있으므로
+        /// 최종 위치를 강제 통지하여 수신부/표시 상태를 정확히 안착시킨다.
+        /// </summary>
+        public void EndUserSliderSeek()
+        {
+            SetCurrentTimeInternal(CurrentTime, forceNotify: true, SimulationTimeChangeKind.Seek);
         }
 
         private void TogglePlayPause()
@@ -821,16 +913,29 @@ namespace ProjectChronos.ViewModels
             _isUiTimeUpdatePending = false;
             _forcePendingUiTimeDisplayUpdate = false;
             _lastTimeDisplayUpdateUtc = DateTime.MinValue;
+            _lastSliderNotifyUtc = DateTime.MinValue;
         }
 
         private void StopPlayback()
         {
             _stopwatch.Stop();
+
+            // 재생 스로틀로 마지막 프레젠테이션 갱신이 생략되었을 수 있으므로
+            // 정지 시점의 CurrentTime을 Thumb/텍스트에 즉시 flush한다.
+            // 스로틀 비활성(베이스라인 A/B) 모드에서는 매 프레임 알림되므로 불필요 —
+            // 기존 동작과의 엄밀한 등가성을 위해 게이트한다.
+            if (IsPlaybackSliderThrottleEnabled)
+            {
+                RaiseCurrentTimeDisplayChanged();
+                RaiseCurrentTimeSliderChanged();
+            }
         }
 
         public void Tick(object sender, EventArgs e)
         {
             if (!IsPlaying) return;
+
+            Metrics.OnTick();
 
             double currentWallTime = _stopwatch.Elapsed.TotalSeconds;
             double elapsedWallSeconds = currentWallTime - _startWallTime;

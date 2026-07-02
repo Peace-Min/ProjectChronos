@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Input;
 
 namespace ProjectChronos.Views
 {
@@ -12,6 +13,34 @@ namespace ProjectChronos.Views
             InitializeComponent();
             this.Loaded += OnLoaded;
             this.Unloaded += OnUnloaded;
+
+            // 재생 중 사용자 Slider 조작(Thumb 드래그/트랙 클릭) 처리:
+            // 누르는 순간 재생을 중단해 Tick과의 Thumb 소유권 경합을 제거하고,
+            // 놓는 순간 최종 위치를 수신부에 강제 통지한다.
+            // [주의] UserControl은 내용에서 올라오는 라우팅 이벤트의 Source를 자신으로
+            // 바꾸므로(Source 재조정), UserControl 레벨 + Source 검사 방식은 동작하지 않는다.
+            // 반드시 Slider 요소에 직접 연결한다. handledEventsToo=true로 템플릿 내부
+            // (Thumb/RepeatButton)가 소비한 이벤트도 수신한다.
+            ReplaySlider.AddHandler(PreviewMouseLeftButtonDownEvent,
+                new MouseButtonEventHandler(OnSliderPreviewMouseLeftButtonDown), handledEventsToo: true);
+            ReplaySlider.AddHandler(PreviewMouseLeftButtonUpEvent,
+                new MouseButtonEventHandler(OnSliderPreviewMouseLeftButtonUp), handledEventsToo: true);
+        }
+
+        private void OnSliderPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (DataContext is ProjectChronos.ViewModels.SimulationReplayViewModel vm)
+            {
+                vm.BeginUserSliderSeek();
+            }
+        }
+
+        private void OnSliderPreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (DataContext is ProjectChronos.ViewModels.SimulationReplayViewModel vm)
+            {
+                vm.EndUserSliderSeek();
+            }
         }
 
         private void OnLoaded(object sender, System.Windows.RoutedEventArgs e)
