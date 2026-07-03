@@ -90,7 +90,12 @@ namespace OSTES.ViewModel.SIngleSim
         private ChartViewType _chartViewType;
 
         private Dictionary<string, int> _seriesIndexByPlayerKey;
-        private Dictionary<double, List<AddSeriesPointDTO>> _playbackFrameIndex;
+
+        /// <summary>
+        /// 재생 프레임 인덱스 (수신부 공용 ReplayFrameIndex).
+        /// 해상도 그리드 정수 키로 저장/조회해 double 완전 일치 조회의 ULP 미스를 방지한다.
+        /// </summary>
+        private ReplayFrameIndex<List<AddSeriesPointDTO>> _playbackFrameIndex;
 
         /// <summary>
         /// 사전에 정의가 필요한 그래프 차트별 아군, 적군 정보.
@@ -293,10 +298,14 @@ namespace OSTES.ViewModel.SIngleSim
         public async Task InitializeSpatialDbSourceAsync(SpatialSimulationModel source, CScenarioInfoSingle scenarioInfoSingle, ChartComponentConfig chartConfig = null)
         {
             _seriesIndexByPlayerKey = new Dictionary<string, int>();
-            _playbackFrameIndex = new Dictionary<double, List<AddSeriesPointDTO>>();
+            _playbackFrameIndex = new ReplayFrameIndex<List<AddSeriesPointDTO>>();
             _spatialSimulationModel = source;
             _scenarioInfo = scenarioInfoSingle.CScenarioInfo;
             _scenarioInfoSingle = scenarioInfoSingle;
+
+            // 시나리오가 보유한 시간해상도로 키 단위 확정 (송신부 SetTimeResolution과 동일 소스).
+            // NOTE: 이식 시 실제 해상도 속성명으로 연결할 것.
+            _playbackFrameIndex.Configure(scenarioInfoSingle.TimeResolution);
 
             UpdateConfig();
 
@@ -383,7 +392,7 @@ namespace OSTES.ViewModel.SIngleSim
                         frames[seriesIndex] = dto;
                     }
 
-                    _playbackFrameIndex[timeEntry.Key] = frames;
+                    _playbackFrameIndex.Add(timeEntry.Key, frames);
                 }
             });
 
@@ -720,8 +729,8 @@ namespace OSTES.ViewModel.SIngleSim
 
             if (_graphChartType == GraphChartType.ThreeD)
             {
-                var allPoints = _playbackFrameIndex
-                    .SelectMany(frame => frame.Value)
+                var allPoints = _playbackFrameIndex.Frames
+                    .SelectMany(frames => frames)
                     .SelectMany(dto => dto.SeriesPoint3D ?? Array.Empty<SeriesPoint3D>())
                     .ToList();
 
@@ -731,8 +740,8 @@ namespace OSTES.ViewModel.SIngleSim
             }
             else
             {
-                var allPoints = _playbackFrameIndex
-                    .SelectMany(frame => frame.Value)
+                var allPoints = _playbackFrameIndex.Frames
+                    .SelectMany(frames => frames)
                     .SelectMany(dto => dto.SeriesPoint2D ?? Array.Empty<SeriesPoint>())
                     .ToList();
 
@@ -912,15 +921,16 @@ namespace OSTES.ViewModel.SIngleSim
                     renderTime = _latestReplayTime;
                 }
 
+                // 5-0. Background 대기 중 ClearChart로 인덱스가 해제될 수 있으므로 로컬 참조로 방어.
+                var frameIndex = _playbackFrameIndex;
+                if (frameIndex == null) { return; }
+
+                // 5-1. 해상도 그리드 정수 키 조회 (정밀 → 10ms 폴백은 ReplayFrameIndex가 수행).
                 List<AddSeriesPointDTO> targetFrames = null;
-                if (!_playbackFrameIndex.TryGetValue(renderTime, out targetFrames))
+                if (!frameIndex.TryGetFrame(renderTime, out targetFrames))
                 {
-                    // 해상도 확장 전 구간은 반올림 키로 재조회.
-                    renderTime = Math.Round(renderTime, 2);
-                    if (!_playbackFrameIndex.TryGetValue(renderTime, out targetFrames))
-                    {
-                        return;
-                    }
+                    // 해당 시간에 데이터 없음 → 렌더하지 않음 (기존 의도 유지).
+                    return;
                 }
 
                 // 6. 렌더링 수행 (중첩 방지). 강제 렌더는 건너뛰지 않는다.
