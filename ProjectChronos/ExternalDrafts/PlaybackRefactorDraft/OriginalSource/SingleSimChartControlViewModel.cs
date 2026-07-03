@@ -90,7 +90,55 @@ namespace OSTES.ViewModel.SIngleSim
         private ChartViewType _chartViewType;
 
         private Dictionary<string, int> _seriesIndexByPlayerKey;
-        private Dictionary<double, List<AddSeriesPointDTO>> _playbackFrameIndex;
+
+        /// <summary>
+        /// 재생 프레임 인덱스. 키는 시간(초)이 아니라 <see cref="ToReplayTimeKey"/>로 변환한
+        /// "해상도 그리드 칸 번호(정수)"다.
+        /// double을 완전 일치 키로 쓰면 같은 십진 시간이라도 계산 경로(송신부 양자화 vs DB 원본)에
+        /// 따라 마지막 비트가 달라 조회가 빗나가고, 조용히 10ms 폴백으로 강하하는 문제가 있다.
+        /// 정수 키는 반올림이 ULP 노이즈를 흡수하므로 같은 칸이면 반드시 같은 키가 된다.
+        /// </summary>
+        private Dictionary<long, List<AddSeriesPointDTO>> _playbackFrameIndex;
+
+        /// <summary>초당 키 단위 수 (= 1 / 시간해상도). 데이터 로드 시점에 확정되며 이후 불변.</summary>
+        private double _replayKeyUnitsPerSecond = LegacyKeyUnitsPerSecond;
+
+        /// <summary>10ms(해상도 확장 전 기록 그리드) 폴백 조회용 키 단위 수.</summary>
+        private long _replayCoarseKeyUnits = 1;
+
+        /// <summary>레거시 기본 해상도(10ms) 기준 초당 키 단위 수.</summary>
+        private const double LegacyKeyUnitsPerSecond = 100.0;
+
+        /// <summary>레거시 기본 시간해상도 (10ms).</summary>
+        private const double LegacyTimeResolutionSeconds = 0.01;
+
+        /// <summary>시간(초)을 현재 해상도 그리드의 정수 키로 변환합니다.</summary>
+        private long ToReplayTimeKey(double seconds)
+        {
+            return (long)Math.Round(seconds * _replayKeyUnitsPerSecond);
+        }
+
+        /// <summary>정밀 키를 10ms 폴백 그리드 키로 스냅합니다. (기존 Math.Round(t, 2) 폴백과 동일 의미)</summary>
+        private long ToCoarseReplayTimeKey(long key)
+        {
+            return (long)Math.Round(key / (double)_replayCoarseKeyUnits) * _replayCoarseKeyUnits;
+        }
+
+        /// <summary>
+        /// 데이터 로드 시점에 시간해상도를 받아 키 단위를 확정합니다.
+        /// 송신부 SetTimeResolution에 전달되는 값과 동일한 소스(시나리오 정보)여야 합니다.
+        /// </summary>
+        private void ConfigureReplayTimeKeyUnits(double timeResolutionSeconds)
+        {
+            double resolution = timeResolutionSeconds > 0.0
+                ? timeResolutionSeconds
+                : LegacyTimeResolutionSeconds;
+
+            // 1.0 / 1e-5 = 99999.999... 이므로 반드시 반올림해서 단위를 확정한다.
+            _replayKeyUnitsPerSecond = Math.Round(1.0 / resolution);
+            _replayCoarseKeyUnits = Math.Max(1L,
+                (long)Math.Round(LegacyTimeResolutionSeconds * _replayKeyUnitsPerSecond));
+        }
 
         /// <summary>
         /// 사전에 정의가 필요한 그래프 차트별 아군, 적군 정보.
@@ -271,6 +319,8 @@ namespace OSTES.ViewModel.SIngleSim
             _chartViewType = default(ChartViewType);
             _seriesIndexByPlayerKey = null;
             _playbackFrameIndex = null;
+            _replayKeyUnitsPerSecond = LegacyKeyUnitsPerSecond;
+            _replayCoarseKeyUnits = 1;
 
             // UserAnalSetViewModel 내부 참조 초기화 후 해제.
             if (UserAnalSetViewModel != null)
@@ -290,10 +340,15 @@ namespace OSTES.ViewModel.SIngleSim
             ChartControl = null;
         }
 
-        public async Task InitializeSpatialDbSourceAsync(SpatialSimulationModel source, CScenarioInfoSingle scenarioInfoSingle, ChartComponentConfig chartConfig = null)
+        /// <param name="timeResolutionSeconds">
+        /// 시나리오 시간해상도(초). 송신부 SetTimeResolution과 동일한 값을 전달할 것.
+        /// 생략 시 레거시 10ms로 동작한다. _playbackFrameIndex 구축 후 변경 불가.
+        /// </param>
+        public async Task InitializeSpatialDbSourceAsync(SpatialSimulationModel source, CScenarioInfoSingle scenarioInfoSingle, ChartComponentConfig chartConfig = null, double timeResolutionSeconds = LegacyTimeResolutionSeconds)
         {
             _seriesIndexByPlayerKey = new Dictionary<string, int>();
-            _playbackFrameIndex = new Dictionary<double, List<AddSeriesPointDTO>>();
+            _playbackFrameIndex = new Dictionary<long, List<AddSeriesPointDTO>>();
+            ConfigureReplayTimeKeyUnits(timeResolutionSeconds);
             _spatialSimulationModel = source;
             _scenarioInfo = scenarioInfoSingle.CScenarioInfo;
             _scenarioInfoSingle = scenarioInfoSingle;
@@ -383,7 +438,8 @@ namespace OSTES.ViewModel.SIngleSim
                         frames[seriesIndex] = dto;
                     }
 
-                    _playbackFrameIndex[timeEntry.Key] = frames;
+                    // DB 원본 시간을 정수 키로 변환해 저장 (조회 측과 동일 변환 경로 보장).
+                    _playbackFrameIndex[ToReplayTimeKey(timeEntry.Key)] = frames;
                 }
             });
 
@@ -912,13 +968,21 @@ namespace OSTES.ViewModel.SIngleSim
                     renderTime = _latestReplayTime;
                 }
 
+                // 5-1. Background 대기 중 ClearChart로 인덱스가 해제될 수 있으므로 로컬 참조로 방어.
+                var frameIndex = _playbackFrameIndex;
+                if (frameIndex == null) { return; }
+
+                // 5-2. double 완전 일치 대신 해상도 그리드 정수 키로 조회.
+                //      송신부 양자화 값과 DB 원본 값의 ULP(마지막 비트) 차이를 반올림이 흡수한다.
+                long fineKey = ToReplayTimeKey(renderTime);
                 List<AddSeriesPointDTO> targetFrames = null;
-                if (!_playbackFrameIndex.TryGetValue(renderTime, out targetFrames))
+                if (!frameIndex.TryGetValue(fineKey, out targetFrames))
                 {
-                    // 해상도 확장 전 구간은 반올림 키로 재조회.
-                    renderTime = Math.Round(renderTime, 2);
-                    if (!_playbackFrameIndex.TryGetValue(renderTime, out targetFrames))
+                    // 해상도 확장 전(10ms 기록) 구간은 10ms 그리드 키로 재조회.
+                    long coarseKey = ToCoarseReplayTimeKey(fineKey);
+                    if (!frameIndex.TryGetValue(coarseKey, out targetFrames))
                     {
+                        // 해당 시간에 데이터 없음 → 렌더하지 않음 (마커 미갱신, 기존 의도 유지).
                         return;
                     }
                 }
