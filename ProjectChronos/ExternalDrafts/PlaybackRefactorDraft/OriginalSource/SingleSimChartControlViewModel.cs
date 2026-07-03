@@ -275,7 +275,22 @@ namespace OSTES.ViewModel.SIngleSim
             _charRangeData = null;
             _chartViewType = default(ChartViewType);
             _seriesIndexByPlayerKey = null;
-            _playbackFrameIndex = null;
+
+            // 재생 수신 상태 해제/초기화.
+            // - 인덱스는 참조만 끊지 않고 명시적으로 비운다: 대기 중인 렌더 콜백이
+            //   로컬 참조로 옛 인스턴스를 잡고 있어도 내부 프레임(대용량 포인트 리스트)은
+            //   즉시 GC 대상이 되고, 콜백이 조회해도 빈 인덱스라 렌더하지 않는다.
+            // - 최신 시간/강제 래치를 리셋해 다음 시나리오 로드 직후 옛 시각으로
+            //   렌더되는 것을 방지한다. (_isReplayRenderPending은 대기 중인 콜백이
+            //   스스로 해제하므로 여기서 건드리지 않는다.)
+            lock (_replayGate)
+            {
+                _playbackFrameIndex?.Clear();
+                _playbackFrameIndex = null;
+                _latestReplayTime = double.NaN;
+                _isForceRenderPending = false;
+                _lastPlaybackRenderAt = DateTime.MinValue;
+            }
 
             // UserAnalSetViewModel 내부 참조 초기화 후 해제.
             if (UserAnalSetViewModel != null)

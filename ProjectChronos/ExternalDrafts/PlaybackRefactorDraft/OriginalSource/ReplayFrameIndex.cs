@@ -57,6 +57,18 @@ namespace OSTES.Common
         }
 
         /// <summary>
+        /// 등록된 프레임 참조를 모두 해제하고 키 단위를 초기값으로 되돌린다.
+        /// 외부(대기 중인 렌더 콜백 등)가 이 인스턴스를 잠시 잡고 있어도
+        /// 내부 프레임 데이터는 즉시 GC 대상이 되도록 명시적으로 비운다.
+        /// </summary>
+        public void Clear()
+        {
+            _framesByKey.Clear();
+            _unitsPerSecond = 1.0 / LegacyResolutionSeconds;
+            _coarseUnits = 1;
+        }
+
+        /// <summary>
         /// 지정 시간의 프레임을 조회한다.
         /// 정밀 키 미스 시 10ms 그리드 키로 폴백하고, 그래도 없으면 false를 반환한다.
         /// </summary>
