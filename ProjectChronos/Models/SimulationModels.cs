@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using ProjectChronos.Core;
 
@@ -15,10 +16,37 @@ namespace ProjectChronos.Models
     }
 
     /// <summary>
+    /// 이벤트 마커에 전시할 라벨-값 한 쌍.
+    /// 라벨은 시나리오 매핑에서, 값은 DB에서 옴. 어떤 필드인지 특정하지 않는 익명 쌍.
+    /// </summary>
+    public class EventMarkerField
+    {
+        public string Label { get; set; }
+        public string Value { get; set; }
+
+        public EventMarkerField() { }
+
+        public EventMarkerField(string label, string value)
+        {
+            Label = label;
+            Value = value;
+        }
+    }
+
+    /// <summary>
     /// 시뮬레이션 타임라인에 표시될 이벤트 마커 데이터 모델
     /// </summary>
     public class SimulationEventMarker : ViewModelBase
     {
+        /// <summary>
+        /// 전시 필드(라벨-값) 목록. 시간필드는 Timestamp로 흡수되어 여기 포함되지 않음.
+        /// DB EventCollector에 필드가 추가돼도 이 목록으로 흘러들어와 코드 수정 없이 전시됨.
+        /// 마커의 유일한 전시 소스(구 고정필드 방식은 아래 주석으로 보존, 롤백용).
+        /// </summary>
+        public List<EventMarkerField> Fields { get; set; } = new List<EventMarkerField>();
+
+        public bool HasFields => Fields != null && Fields.Count > 0;
+
         /// <summary>
         /// 이벤트 발생 시점 (초 단위)
         /// </summary>
@@ -43,6 +71,9 @@ namespace ProjectChronos.Models
         /// </summary>
         public string Title { get; set; }
 
+        // ─── [ROLLBACK] 구 고정필드 방식 (Fields 전환으로 폐기) ─────────────
+        // 롤백 시: 아래 주석을 해제하고, 각 소비처/생성부의 [ROLLBACK] 블록도 함께 되살릴 것.
+        /*
         /// <summary>
         /// 이벤트 상세 설명 라벨.
         /// </summary>
@@ -84,6 +115,8 @@ namespace ProjectChronos.Models
         public bool HasSource =>
             !string.IsNullOrWhiteSpace(SourceLabel) &&
             !string.IsNullOrWhiteSpace(Source);
+        */
+        // ─── [ROLLBACK] 끝 ─────────────────────────────────────────────────
 
         /// <summary>
         /// 동일 시간에 여러 이벤트가 있을 때, 대표 마커(Tick)를 그릴지 여부
@@ -107,6 +140,8 @@ namespace ProjectChronos.Models
 
         public SimulationEventMarker() { }
 
+        // ─── [ROLLBACK] 구 고정필드 생성자 (DescriptionLabel/Description 세팅) ───
+        /*
         public SimulationEventMarker(double timestamp, EventPriority priority, string title, string subtitle, string description)
         {
             Timestamp = timestamp;
@@ -115,6 +150,8 @@ namespace ProjectChronos.Models
             DescriptionLabel = subtitle;
             Description = description;
         }
+        */
+        // ─── [ROLLBACK] 끝 ─────────────────────────────────────────────────
     }
 
     /// <summary>

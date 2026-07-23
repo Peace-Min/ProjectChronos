@@ -281,6 +281,8 @@ namespace ProjectChronos.Services
         {
             bool isLong = string.Equals(profile.Token, "longfields", StringComparison.OrdinalIgnoreCase);
 
+            // ─── [ROLLBACK] 구 고정필드 생성 (Fields 전환으로 폐기) ───
+            /*
             return new SimulationEventMarker
             {
                 Timestamp = timestamp,
@@ -293,6 +295,27 @@ namespace ProjectChronos.Services
                 SourceLabel = "소스 타깃",
                 Source = BuildSourceTarget(profile.Token, groupIndex, stackIndex, isLong)
             };
+            */
+            // ─── [ROLLBACK] 끝 ───
+            var fields = new List<EventMarkerField>();
+            AddField(fields, "탐지 결과", BuildDescription(profile.Token, groupIndex, stackIndex, isLong, uniqueGroupCount));
+            AddField(fields, "타깃간 거리", string.Format(CultureInfo.InvariantCulture, "{0:0.0} km", Math.Max(0.6, 180.0 - (groupIndex * 5.3) - (stackIndex * 1.2))));
+            AddField(fields, "소스 타깃", BuildSourceTarget(profile.Token, groupIndex, stackIndex, isLong));
+            return new SimulationEventMarker
+            {
+                Timestamp = timestamp,
+                Priority = ResolvePriority(groupIndex, stackIndex),
+                Title = BuildTitle(groupIndex, stackIndex, isLong),
+                Fields = fields
+            };
+        }
+
+        private static void AddField(List<EventMarkerField> fields, string label, string value)
+        {
+            if (!string.IsNullOrWhiteSpace(label) && !string.IsNullOrWhiteSpace(value))
+            {
+                fields.Add(new EventMarkerField(label, value));
+            }
         }
 
         private static SimulationEventMarker CreateRandomEvent(ProfileDefinition profile, int groupIndex, int stackIndex, double timestamp, Random random)
@@ -318,6 +341,8 @@ namespace ProjectChronos.Services
                 }
             }
 
+            // ─── [ROLLBACK] 구 고정필드 생성 (Fields 전환으로 폐기) ───
+            /*
             return new SimulationEventMarker
             {
                 Timestamp = timestamp,
@@ -329,6 +354,22 @@ namespace ProjectChronos.Services
                 RangeBTW = includeRange ? string.Format(CultureInfo.InvariantCulture, "{0:0.0} km", 0.5 + (random.NextDouble() * 180.0)) : null,
                 SourceLabel = includeSourceTarget ? "소스 타깃" : null,
                 Source = includeSourceTarget ? BuildRandomSourceTarget(profile.Token, groupIndex, stackIndex, forceLong, random) : null
+            };
+            */
+            // ─── [ROLLBACK] 끝 ───
+            // 난수 소비 순서를 구 코드와 동일하게 유지: Priority → Title → 필드(설명·레인지·소스)
+            EventPriority priority = ResolvePriority(groupIndex + random.Next(3), stackIndex + random.Next(3));
+            string title = BuildRandomTitle(groupIndex, stackIndex, forceLong, random);
+            var fields = new List<EventMarkerField>();
+            AddField(fields, includeDescription ? PickDescriptionLabel(random) : null, includeDescription ? BuildRandomDescription(profile.Token, groupIndex, stackIndex, forceLong, random) : null);
+            AddField(fields, includeRange ? "타깃간 거리" : null, includeRange ? string.Format(CultureInfo.InvariantCulture, "{0:0.0} km", 0.5 + (random.NextDouble() * 180.0)) : null);
+            AddField(fields, includeSourceTarget ? "소스 타깃" : null, includeSourceTarget ? BuildRandomSourceTarget(profile.Token, groupIndex, stackIndex, forceLong, random) : null);
+            return new SimulationEventMarker
+            {
+                Timestamp = timestamp,
+                Priority = priority,
+                Title = title,
+                Fields = fields
             };
         }
 

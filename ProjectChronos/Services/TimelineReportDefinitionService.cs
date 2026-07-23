@@ -252,6 +252,8 @@ namespace ProjectChronos.Services
             string sourceLabel,
             string source)
         {
+            // ─── [ROLLBACK] 구 고정필드 생성 (Fields 전환으로 폐기) ───
+            /*
             return new SimulationEventMarker
             {
                 Timestamp = timestamp,
@@ -264,6 +266,27 @@ namespace ProjectChronos.Services
                 SourceLabel = sourceLabel,
                 Source = source
             };
+            */
+            // ─── [ROLLBACK] 끝 ───
+            var fields = new List<EventMarkerField>();
+            AddField(fields, descriptionLabel, description);
+            AddField(fields, rangeLabel, rangeValue);
+            AddField(fields, sourceLabel, source);
+            return new SimulationEventMarker
+            {
+                Timestamp = timestamp,
+                Priority = priority,
+                Title = title,
+                Fields = fields
+            };
+        }
+
+        private static void AddField(List<EventMarkerField> fields, string label, string value)
+        {
+            if (!string.IsNullOrWhiteSpace(label) && !string.IsNullOrWhiteSpace(value))
+            {
+                fields.Add(new EventMarkerField(label, value));
+            }
         }
 
         private static SimulationEventMarker CreateScenarioEvent(
@@ -275,6 +298,8 @@ namespace ProjectChronos.Services
             string rangeBetween,
             string source)
         {
+            // ─── [ROLLBACK] 구 고정필드 생성 (Fields 전환으로 폐기) ───
+            /*
             return new SimulationEventMarker
             {
                 Timestamp = timestamp,
@@ -286,6 +311,19 @@ namespace ProjectChronos.Services
                 RangeBTW = rangeBetween,
                 SourceLabel = "소스 타겟",
                 Source = source
+            };
+            */
+            // ─── [ROLLBACK] 끝 ───
+            var fields = new List<EventMarkerField>();
+            AddField(fields, descriptionLabel, description);
+            AddField(fields, "타겟간 거리", rangeBetween);
+            AddField(fields, "소스 타겟", source);
+            return new SimulationEventMarker
+            {
+                Timestamp = timestamp,
+                Priority = priority,
+                Title = title,
+                Fields = fields
             };
         }
     }

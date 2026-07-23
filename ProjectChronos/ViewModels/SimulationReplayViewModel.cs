@@ -1155,12 +1155,17 @@ namespace ProjectChronos.ViewModels
                     Timestamp = item.Timestamp,
                     Priority = item.Priority,
                     Title = item.Title,
-                    DescriptionLabel = item.DescriptionLabel,
-                    Description = item.Description,
-                    RangeBTWLabel = item.RangeBTWLabel,
-                    RangeBTW = item.RangeBTW,
-                    SourceLabel = item.SourceLabel,
-                    Source = item.Source,
+                    Fields = (item.Fields == null)
+                        ? new List<EventMarkerField>()
+                        : item.Fields.Select(f => new EventMarkerField(f.Label, f.Value)).ToList(),
+                    // ─── [ROLLBACK] 구 고정필드 복사 (Fields 전환으로 폐기) ───
+                    //DescriptionLabel = item.DescriptionLabel,
+                    //Description = item.Description,
+                    //RangeBTWLabel = item.RangeBTWLabel,
+                    //RangeBTW = item.RangeBTW,
+                    //SourceLabel = item.SourceLabel,
+                    //Source = item.Source,
+                    // ─── [ROLLBACK] 끝 ───
                     IsPrimaryMarker = item.IsPrimaryMarker,
                     MarkerPriority = item.MarkerPriority
                 })

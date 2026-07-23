@@ -1120,9 +1120,18 @@ public class ReportTimelineExportViewModel : ViewModelBase
 	{
 		string title = (string.IsNullOrWhiteSpace(simulationEvent.Title) ? "Event" : simulationEvent.Title.Trim());
 		double requiredWidth = MeasureSingleLineText(title, UiBoldTypeface, titleFontSize).Width;
+		// ─── [ROLLBACK] 구 고정필드 측정 (Fields 전환으로 폐기) ───
+		/*
 		requiredWidth = Math.Max(requiredWidth, MeasureRequiredDetailFieldWidth(simulationEvent.DescriptionLabel, simulationEvent.Description, labelFontSize, valueFontSize));
 		requiredWidth = Math.Max(requiredWidth, MeasureRequiredDetailFieldWidth(simulationEvent.RangeBTWLabel, simulationEvent.RangeBTW, labelFontSize, valueFontSize));
 		return Math.Max(requiredWidth, MeasureRequiredDetailFieldWidth(simulationEvent.SourceLabel, simulationEvent.Source, labelFontSize, valueFontSize));
+		*/
+		// ─── [ROLLBACK] 끝 ───
+		foreach (EventMarkerField field in simulationEvent.Fields)
+		{
+			requiredWidth = Math.Max(requiredWidth, MeasureRequiredDetailFieldWidth(field.Label, field.Value, labelFontSize, valueFontSize));
+		}
+		return requiredWidth;
 	}
 
 	private double MeasureRequiredDetailFieldWidth(string label, string value, double labelFontSize, double valueFontSize)
@@ -1140,9 +1149,17 @@ public class ReportTimelineExportViewModel : ViewModelBase
 	{
 		ObservableCollection<ReportTimelineDetailFieldItem> fields = new ObservableCollection<ReportTimelineDetailFieldItem>();
 		totalHeight = 0.0;
+		// ─── [ROLLBACK] 구 고정필드 배치 (Fields 전환으로 폐기) ───
+		/*
 		AppendDetailField(fields, simulationEvent.DescriptionLabel, simulationEvent.Description, fieldWidth, labelFontSize, valueFontSize, ref totalHeight);
 		AppendDetailField(fields, simulationEvent.RangeBTWLabel, simulationEvent.RangeBTW, fieldWidth, labelFontSize, valueFontSize, ref totalHeight);
 		AppendDetailField(fields, simulationEvent.SourceLabel, simulationEvent.Source, fieldWidth, labelFontSize, valueFontSize, ref totalHeight);
+		*/
+		// ─── [ROLLBACK] 끝 ───
+		foreach (EventMarkerField field in simulationEvent.Fields)
+		{
+			AppendDetailField(fields, field.Label, field.Value, fieldWidth, labelFontSize, valueFontSize, ref totalHeight);
+		}
 		return fields;
 	}
 
