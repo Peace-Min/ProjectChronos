@@ -1127,7 +1127,7 @@ public class ReportTimelineExportViewModel : ViewModelBase
 		return Math.Max(requiredWidth, MeasureRequiredDetailFieldWidth(simulationEvent.SourceLabel, simulationEvent.Source, labelFontSize, valueFontSize));
 		*/
 		// ─── [ROLLBACK] 끝 ───
-		foreach (EventMarkerField field in simulationEvent.Fields)
+		foreach (EventMarkerField field in simulationEvent.Fields ?? Enumerable.Empty<EventMarkerField>())
 		{
 			requiredWidth = Math.Max(requiredWidth, MeasureRequiredDetailFieldWidth(field.Label, field.Value, labelFontSize, valueFontSize));
 		}
@@ -1156,7 +1156,7 @@ public class ReportTimelineExportViewModel : ViewModelBase
 		AppendDetailField(fields, simulationEvent.SourceLabel, simulationEvent.Source, fieldWidth, labelFontSize, valueFontSize, ref totalHeight);
 		*/
 		// ─── [ROLLBACK] 끝 ───
-		foreach (EventMarkerField field in simulationEvent.Fields)
+		foreach (EventMarkerField field in simulationEvent.Fields ?? Enumerable.Empty<EventMarkerField>())
 		{
 			AppendDetailField(fields, field.Label, field.Value, fieldWidth, labelFontSize, valueFontSize, ref totalHeight);
 		}
